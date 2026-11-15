@@ -29,7 +29,7 @@ const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DEFAULT_ADMIN_HASH = "301afa612ee582e4e918ec287098f3342fd2bb7cd59a934814fa7e403a67beb0";
 const SHARED = ["students", "payments", "messages", "quizResults"];
 
-if (!MONGODB_URI) { console.error("MONGODB_URI environment variable set kora nei."); process.exit(1); }
+let ready = false;   // MongoDB connect hole true hoy
 
 /* ---------- helpers ---------- */
 const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
@@ -104,7 +104,7 @@ async function newSession(role, studentId) {
   await flushSessions();            // notun login sathe sathe DB-te
   return token;
 }
-for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { await flushSessions(); process.exit(0); });
+for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { if (ready) await flushSessions(); process.exit(0); });
 function getSession(req) {
   const m = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || "");
   if (!m) return null;
@@ -435,7 +435,10 @@ async function route(req, res) {
 }
 
 const server = http.createServer(async (req, res) => {
-  try { await route(req, res); }
+  try {
+    if (!ready) return json(res, 503, { error: "starting" });
+    await route(req, res);
+  }
   catch (e) {
     const status = e.status || 500;
     if (status === 500) console.error(e);
@@ -447,8 +450,9 @@ server.requestTimeout = 0;       // boro video upload-er jonno
 server.headersTimeout = 60000;
 
 async function init() {
+  if (!MONGODB_URI) throw new Error("MONGODB_URI environment variable set kora nei (Render > Environment-e dite hobe)");
   mongoose.set("strictQuery", true);
-  await mongoose.connect(MONGODB_URI);
+  await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
   const db = mongoose.connection.db;
   col = db.collection("app");
   bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: "media" });
@@ -464,10 +468,22 @@ async function init() {
   }
   const sdoc = await col.findOne({ _id: "sessions" });
   try { sessions = sdoc ? JSON.parse(sdoc.json) : {}; } catch { sessions = {}; }
-
-  server.listen(PORT, HOST, () => {
-    console.log(`HSC PrepHub running: http://localhost:${PORT}`);
-    console.log("Database: MongoDB connected");
-  });
+  ready = true;
+  console.log("Database: MongoDB connected");
 }
-init().catch((e) => { console.error("Startup failed:", e); process.exit(1); });
+async function startWithRetry() {
+  for (;;) {
+    try { await init(); return; }
+    catch (e) {
+      console.error("MongoDB connect hoyni:", e.message, "- 10 second pore abar chesta korbo");
+      try { await mongoose.disconnect(); } catch {}
+      await new Promise((r) => setTimeout(r, 10000));
+    }
+  }
+}
+
+// Age port khulbe (Render port scan pass korbe), tarpor MongoDB connect hobe.
+server.listen(PORT, HOST, () => {
+  console.log(`HSC PrepHub running on port ${PORT}`);
+  startWithRetry();
+});
