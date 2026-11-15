@@ -1,27 +1,27 @@
 #!/usr/bin/env node
 "use strict";
 /**
- * HSC PrepHub – shared-database server (zero dependencies, Node 18+)
+ * HSC PrepHub – shared-database server (MongoDB Atlas version)
  *
- *  - Admin-er kora sob change (course, notice, quiz, payment approve ...) server-e save hoy,
- *    tai sob visitor-er jonno ekoi data dekhay.
- *  - Admin ar Student login token server-e save thake (sessions.json),
- *    tai page refresh ba server restart dileo logout hoy na.
+ *  - Sob data (course, notice, student, payment ...) MongoDB-te save hoy.
+ *  - Login session-o MongoDB-te thake, tai restart/redeploy-e logout hoy na.
+ *  - Video/PDF/image MongoDB GridFS-e save hoy (Render-er disk-er upor nirbhor kore na).
+ *
+ *  Render Environment Variable: MONGODB_URI = mongodb+srv://...
  */
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const { promisify } = require("util");
 const pbkdf2 = promisify(crypto.pbkdf2);
 
 const PORT = Number(process.env.PORT) || process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
-const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, "data"));
-const MEDIA_DIR = path.join(DATA_DIR, "media");
-const BACKUP_DIR = path.join(DATA_DIR, "backups");
+const MONGODB_URI = process.env.MONGODB_URI;
+const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, "data")); // shudhu purono db.json import-er jonno
 const DB_FILE = path.join(DATA_DIR, "db.json");
-const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
 const INDEX_FILE = path.join(__dirname, "public", "index.html");
 const MAX_BODY = (Number(process.env.MAX_BODY_MB) || 500) * 1024 * 1024;
 const SESSION_MS = 60 * 24 * 3600 * 1000; // 60 din
@@ -29,7 +29,7 @@ const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DEFAULT_ADMIN_HASH = "301afa612ee582e4e918ec287098f3342fd2bb7cd59a934814fa7e403a67beb0";
 const SHARED = ["students", "payments", "messages", "quizResults"];
 
-for (const d of [DATA_DIR, MEDIA_DIR, BACKUP_DIR]) fs.mkdirSync(d, { recursive: true });
+if (!MONGODB_URI) { console.error("MONGODB_URI environment variable set kora nei."); process.exit(1); }
 
 /* ---------- helpers ---------- */
 const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
@@ -42,12 +42,6 @@ function safeEq(a, b) {
   const x = Buffer.from(String(a)), y = Buffer.from(String(b));
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
-function writeJsonAtomic(file, obj) {
-  const tmp = file + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(obj));
-  fs.renameSync(tmp, file);
-}
-
 /* ---------- database ---------- */
 function defaults() {
   return {
@@ -80,47 +74,37 @@ function normalizeState(d) {
   SHARED.forEach((k) => d[k].forEach((x) => { if (!Number.isFinite(x._rev)) x._rev = 0; }));
   return d;
 }
-let state;
-if (fs.existsSync(DB_FILE)) {
-  // Corrupt file hole silently reset korbe na – server thambe jate data na hare.
-  state = normalizeState(JSON.parse(fs.readFileSync(DB_FILE, "utf8")));
-} else {
-  state = normalizeState(defaults());
-  writeJsonAtomic(DB_FILE, state);
+let state, sessions = {}, col, bucket;
+
+// Sob MongoDB write ek-ek kore line-e hoy, jate order na bhange.
+let chain = Promise.resolve();
+function enqueue(fn) {
+  chain = chain.then(fn).catch((e) => console.error("MongoDB write failed:", e.message));
+  return chain;
 }
-let lastBackup = 0;
 function saveState() {
-  const now = Date.now();
-  if (now - lastBackup > 30 * 60 * 1000 && fs.existsSync(DB_FILE)) {
-    lastBackup = now;
-    try {
-      fs.copyFileSync(DB_FILE, path.join(BACKUP_DIR, "db-" + new Date().toISOString().replace(/[:.]/g, "-") + ".json"));
-      const files = fs.readdirSync(BACKUP_DIR).filter((f) => f.startsWith("db-")).sort();
-      files.slice(0, Math.max(0, files.length - 48)).forEach((f) => fs.unlinkSync(path.join(BACKUP_DIR, f)));
-    } catch (e) { console.error("backup failed:", e.message); }
-  }
-  writeJsonAtomic(DB_FILE, state);
+  const json = JSON.stringify(state);
+  return enqueue(() => col.replaceOne({ _id: "db" }, { _id: "db", json, updated: new Date() }, { upsert: true }));
 }
 
 /* ---------- sessions (disk-e save, restart-e thake) ---------- */
-let sessions = {};
-try { sessions = JSON.parse(fs.readFileSync(SESSIONS_FILE, "utf8")); } catch { sessions = {}; }
 let sessTimer = null;
 function flushSessions() {
   if (sessTimer) { clearTimeout(sessTimer); sessTimer = null; }
-  try { writeJsonAtomic(SESSIONS_FILE, sessions); } catch (e) { console.error("session save failed:", e.message); }
+  const json = JSON.stringify(sessions);
+  return enqueue(() => col.replaceOne({ _id: "sessions" }, { _id: "sessions", json, updated: new Date() }, { upsert: true }));
 }
 function saveSessions() {           // chhoto change (expiry barano, revoke) – ektu pore likho
   if (sessTimer) return;
   sessTimer = setTimeout(flushSessions, 300);
 }
-function newSession(role, studentId) {
+async function newSession(role, studentId) {
   const token = crypto.randomBytes(32).toString("hex");
   sessions[sha256(token)] = { role, studentId: studentId || null, exp: Date.now() + SESSION_MS };
-  flushSessions();                  // notun login sathe sathe disk-e, jate restart-e logout na hoy
+  await flushSessions();            // notun login sathe sathe DB-te
   return token;
 }
-for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, () => { flushSessions(); process.exit(0); });
+for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { await flushSessions(); process.exit(0); });
 function getSession(req) {
   const m = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || "");
   if (!m) return null;
@@ -182,7 +166,7 @@ const EXT = { "video/mp4": "mp4", "video/webm": "webm", "video/ogg": "ogv", "vid
   "application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp" };
 const MIME = { mp4: "video/mp4", webm: "video/webm", ogv: "video/ogg", mov: "video/quicktime", mkv: "video/x-matroska",
   pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", gif: "image/gif", webp: "image/webp" };
-function externalize(v) {
+async function externalize(v) {
   if (typeof v !== "string" || !v.startsWith("data:")) return v;
   const m = /^data:([\w.+-]+\/[\w.+-]+)(?:;[^,]*)?;base64,/i.exec(v);
   if (!m) return v;
@@ -191,14 +175,19 @@ function externalize(v) {
   if (!ext) return v;
   const buf = Buffer.from(v.slice(m[0].length), "base64");
   const name = sha256(buf).slice(0, 32) + "." + ext;
-  const file = path.join(MEDIA_DIR, name);
-  if (!fs.existsSync(file)) { fs.writeFileSync(file + ".tmp", buf); fs.renameSync(file + ".tmp", file); }
+  const exists = await bucket.find({ filename: name }).limit(1).hasNext();
+  if (!exists) {
+    await new Promise((ok, fail) => {
+      const up = bucket.openUploadStream(name, { contentType: type });
+      up.on("error", fail); up.on("finish", ok); up.end(buf);
+    });
+  }
   return "/media/" + name;
 }
-function walkMedia(node) {
+async function walkMedia(node) {
   if (typeof node === "string") return externalize(node);
-  if (Array.isArray(node)) return node.map(walkMedia);
-  if (isObj(node)) { for (const k of Object.keys(node)) node[k] = walkMedia(node[k]); return node; }
+  if (Array.isArray(node)) { const out = []; for (const x of node) out.push(await walkMedia(x)); return out; }
+  if (isObj(node)) { for (const k of Object.keys(node)) node[k] = await walkMedia(node[k]); return node; }
   return node;
 }
 
@@ -235,9 +224,10 @@ function mergeShared(serverList, clientList, baseRev, newRev, replace) {
   if (!replace) for (const s of serverList) if (!seen.has(s.id) && s._rev > baseRev) out.push(s);
   return out;
 }
-function applyAdminState(inc, baseRev, replace, sess) {
+async function applyAdminState(inc, baseRev, replace, sess) {
+  const courses = await walkMedia(arr(inc.courses).filter(isObj)); // async kaj age, tarpor sob sync
   const newRev = state.rev + 1;
-  state.courses = walkMedia(arr(inc.courses).filter(isObj));
+  state.courses = courses;
   state.notices = arr(inc.notices).filter(isObj).map((n) => { if (!n.id) n.id = uid(); return n; });
   state.quizzes = arr(inc.quizzes).filter(isObj);
   if (isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
@@ -256,7 +246,7 @@ function applyAdminState(inc, baseRev, replace, sess) {
     revokeWhere((s, k) => s.role === "admin" && k !== sess.key); // password bodlale onno admin session bondho
   }
   state.rev = newRev;
-  saveState();
+  await saveState();
 }
 
 /* ---------- HTTP ---------- */
@@ -285,27 +275,29 @@ function serveIndex(req, res) {
     res.end(req.method === "HEAD" ? undefined : buf);
   });
 }
-function serveMedia(req, res, p) {
+async function serveMedia(req, res, p) {
   const name = p.slice(7);
   if (!/^[a-f0-9]{32}\.[a-z0-9]{2,5}$/.test(name)) return json(res, 404, { error: "not_found" });
-  const file = path.join(MEDIA_DIR, name);
-  fs.stat(file, (err, st) => {
-    if (err || !st.isFile()) return json(res, 404, { error: "not_found" });
-    const headers = { "Content-Type": MIME[name.split(".")[1]] || "application/octet-stream", "Accept-Ranges": "bytes",
-      "Cache-Control": "public, max-age=31536000, immutable", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox" };
-    const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
-    let start = 0, end = st.size - 1, status = 200;
-    if (m && (m[1] || m[2])) {
-      if (m[1]) { start = Number(m[1]); if (m[2]) end = Math.min(Number(m[2]), end); }
-      else { start = Math.max(0, st.size - Number(m[2])); }
-      if (start > end || start >= st.size) { res.writeHead(416, { "Content-Range": `bytes */${st.size}` }); return res.end(); }
-      status = 206; headers["Content-Range"] = `bytes ${start}-${end}/${st.size}`;
-    }
-    headers["Content-Length"] = end - start + 1;
-    res.writeHead(status, headers);
-    if (req.method === "HEAD") return res.end();
-    fs.createReadStream(file, { start, end }).pipe(res);
-  });
+  const f = await bucket.find({ filename: name }).limit(1).next();
+  if (!f) return json(res, 404, { error: "not_found" });
+  const size = f.length;
+  const headers = { "Content-Type": MIME[name.split(".")[1]] || "application/octet-stream", "Accept-Ranges": "bytes",
+    "Cache-Control": "public, max-age=31536000, immutable", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox" };
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  let start = 0, end = size - 1, status = 200;
+  if (m && (m[1] || m[2])) {
+    if (m[1]) { start = Number(m[1]); if (m[2]) end = Math.min(Number(m[2]), end); }
+    else { start = Math.max(0, size - Number(m[2])); }
+    if (start > end || start >= size) { res.writeHead(416, { "Content-Range": `bytes */${size}` }); return res.end(); }
+    status = 206; headers["Content-Range"] = `bytes ${start}-${end}/${size}`;
+  }
+  headers["Content-Length"] = size === 0 ? 0 : end - start + 1;
+  res.writeHead(status, headers);
+  if (req.method === "HEAD" || size === 0) return res.end();
+  const stream = bucket.openDownloadStream(f._id, { start, end: end + 1 }); // GridFS-e end exclusive
+  stream.on("error", () => res.destroy());
+  res.on("close", () => stream.destroy());
+  stream.pipe(res);
 }
 
 async function route(req, res) {
@@ -338,8 +330,8 @@ async function route(req, res) {
     const cand = verifyAdminPass(str(b.password, 300));
     if (!userOk || cand === null) { addFail(key); return json(res, 401, { error: "invalid" }); }
     fails.delete(key);
-    if (String(state.adminPassHash).startsWith("fb_")) { state.adminPassHash = sha256(cand); saveState(); }
-    return json(res, 200, { token: newSession("admin"), role: "admin", rev: state.rev, db: viewFor("admin") });
+    if (String(state.adminPassHash).startsWith("fb_")) { state.adminPassHash = sha256(cand); await saveState(); }
+    return json(res, 200, { token: await newSession("admin"), role: "admin", rev: state.rev, db: viewFor("admin") });
   }
 
   if (M === "PUT" && p === "/api/admin/state") {
@@ -348,7 +340,7 @@ async function route(req, res) {
     const b = await readJson(req);
     if (!isObj(b.db)) return json(res, 400, { error: "bad_request" });
     const baseRev = Number.isFinite(Number(b.baseRev)) ? Number(b.baseRev) : 0;
-    applyAdminState(b.db, baseRev, b.replace === true, sess);
+    await applyAdminState(b.db, baseRev, b.replace === true, sess);
     return json(res, 200, { role: "admin", rev: state.rev, db: viewFor("admin") });
   }
 
@@ -391,8 +383,8 @@ async function route(req, res) {
     if (!student) return json(res, 503, { error: "busy" });
     fails.delete(key);
     state.rev += 1;
-    saveState();
-    return json(res, 200, { token: newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
+    await saveState();
+    return json(res, 200, { token: await newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
   }
 
   if (M === "POST" && p === "/api/student/sync") {
@@ -435,7 +427,7 @@ async function route(req, res) {
       state.quizResults.push({ id: x.id, studentId: me.id, quizId: quiz.id, score, total, percent, passed: percent >= 60, date: new Date().toISOString(), _rev: newRev });
       accepted.push(x.id); changed = true;
     }
-    if (changed) { state.rev = newRev; saveState(); }
+    if (changed) { state.rev = newRev; await saveState(); }
     return json(res, 200, { accepted, rejected, rev: state.rev });
   }
 
@@ -453,7 +445,29 @@ const server = http.createServer(async (req, res) => {
 });
 server.requestTimeout = 0;       // boro video upload-er jonno
 server.headersTimeout = 60000;
-server.listen(PORT, HOST, () => {
-  console.log(`HSC PrepHub running: http://localhost:${PORT}`);
-  console.log(`Data folder: ${DATA_DIR}`);
-});
+
+async function init() {
+  mongoose.set("strictQuery", true);
+  await mongoose.connect(MONGODB_URI);
+  const db = mongoose.connection.db;
+  col = db.collection("app");
+  bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: "media" });
+
+  const doc = await col.findOne({ _id: "db" });
+  if (doc) {
+    state = normalizeState(JSON.parse(doc.json));
+  } else {
+    let seed = null;                       // prothom bar: purono db.json thakle seta import koro
+    if (fs.existsSync(DB_FILE)) { try { seed = JSON.parse(fs.readFileSync(DB_FILE, "utf8")); console.log("db.json MongoDB-te import hocche"); } catch {} }
+    state = normalizeState(seed || defaults());
+    await saveState();
+  }
+  const sdoc = await col.findOne({ _id: "sessions" });
+  try { sessions = sdoc ? JSON.parse(sdoc.json) : {}; } catch { sessions = {}; }
+
+  server.listen(PORT, HOST, () => {
+    console.log(`HSC PrepHub running: http://localhost:${PORT}`);
+    console.log("Database: MongoDB connected");
+  });
+}
+init().catch((e) => { console.error("Startup failed:", e); process.exit(1); });
