@@ -5,156 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101827">
 <title>HSC PrepHub Ultimate // Complete LMS</title>
-<!-- jsPDF for Certificate Generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
-  --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --muted: #64748b;
-  --primary: #2563eb; --primary-hover: #1d4ed8; --line: #e2e8f0;
-  --green: #16a34a; --green-bg: #dcfce7; --red: #dc2626; --red-bg: #fee2e2;
-  --amber: #d97706; --amber-bg: #fef3c7; --shadow: 0 10px 25px rgba(0,0,0,0.05);
+  --bg: #f4f2ff; --card: #ffffff; --ink: #1e1b3a; --muted: #6b7280;
+  --primary: #6366f1; --primary-hover: #4f46e5; --line: #e5e1f7;
+  --green: #059669; --green-bg: #d1fae5; --red: #e11d48; --red-bg: #ffe4e6;
+  --amber: #d97706; --amber-bg: #fef3c7; --shadow: 0 10px 28px rgba(99,102,241,.12);
+  --violet: #8b5cf6; --pink: #ec4899; --orange: #f97316; --teal: #14b8a6; --sky: #0ea5e9;
 }
 [data-theme="dark"] {
-  --bg: #0f172a; --card: #1e293b; --ink: #f8fafc; --muted: #94a3b8;
-  --primary: #3b82f6; --primary-hover: #60a5fa; --line: #334155;
-  --green: #22c55e; --green-bg: #052e16; --red: #ef4444; --red-bg: #450a0a;
-  --amber: #f59e0b; --amber-bg: #451a03; --shadow: 0 10px 25px rgba(0,0,0,0.2);
+  --bg: #0f0d23; --card: #1a1738; --ink: #f3f1ff; --muted: #a5a3c9;
+  --primary: #818cf8; --primary-hover: #a5b4fc; --line: #322e5c;
+  --green: #34d399; --green-bg: #053b2b; --red: #fb7185; --red-bg: #4c0519;
+  --amber: #fbbf24; --amber-bg: #451a03; --shadow: 0 10px 28px rgba(0,0,0,.35);
+  --violet: #a78bfa; --pink: #f472b6; --orange: #fb923c; --teal: #2dd4bf; --sky: #38bdf8;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;transition:background .3s,color .3s}
+body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:radial-gradient(1000px 500px at 0% -10%,rgba(236,72,153,.14),transparent 60%),radial-gradient(900px 500px at 100% 0%,rgba(14,165,233,.16),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);line-height:1.5;transition:background .3s,color .3s}
 button,input,textarea,select{font:inherit}
-button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:var(--primary);color:#fff;font-weight:650;transition:.15s ease}
-button:hover:not(:disabled){background:var(--primary-hover)}
-button.secondary{background:var(--line);color:var(--ink)}
-button.success{background:var(--green);color:#fff}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:650;transition:.15s ease}
+button:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3)}
+button.secondary{background:#ede9fe;color:#5b21b6}
+[data-theme="dark"] button.secondary{background:#2d2a5a;color:#c4b5fd}
+button.success{background:linear-gradient(135deg,#059669,#14b8a6)}
 button.danger{background:var(--red-bg);color:var(--red)}
 button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
 button.sm{padding:6px 12px;font-size:.84rem;border-radius:8px}
-button:disabled{opacity:.5;cursor:not-allowed}
-header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 5%;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+header{background:linear-gradient(100deg,#4338ca,#7c3aed 55%,#db2777);color:#fff;border-bottom:0;box-shadow:0 6px 20px rgba(79,70,229,.3);padding:14px 5%;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+header button.ghost{color:#fff;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.14)}
+header button.ghost:hover:not(:disabled){background:rgba(255,255,255,.28);transform:none;box-shadow:none}
+header button.ghost.active,header button.ghost.active:hover:not(:disabled){background:#fff;color:#4338ca;border-color:#fff}
 .wrap{max-width:1160px;margin:auto;padding:24px 16px 64px}
-.hero{background:linear-gradient(120deg,#172554,#2563eb);color:#fff;padding:32px;border-radius:20px;margin-bottom:24px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#4f46e5 0%,#7c3aed 45%,#db2777 100%);box-shadow:0 18px 40px rgba(124,58,237,.3);color:#fff;padding:32px;border-radius:20px;margin-bottom:24px}
+.hero.admin-hero{background:linear-gradient(120deg,#be123c,#ea580c 60%,#f59e0b);box-shadow:0 18px 40px rgba(225,29,72,.28)}
 .hero h1{margin:0 0 8px;font-size:clamp(1.6rem,3.8vw,2.5rem)}
-.hero p{margin:0;color:#dbeafe}
+.hero p{margin:0;color:#ede9fe}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
-.card h3{margin:0 0 8px}
-.muted{color:var(--muted)}
-.small{font-size:.88rem}
-.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.between{justify-content:space-between}
-.stack{display:grid;gap:12px}
-.field{display:grid;gap:6px}
-.field label{font-size:.88rem;font-weight:650}
-.field input,.field textarea,.field select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
-textarea{min-height:85px;resize:vertical}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);transition:transform .2s}
+.card:hover{transform:translateY(-2px)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
-.tabs button{background:var(--line);color:var(--ink)}
-.tabs button.active{background:var(--primary);color:#fff}
-.section{margin-top:22px}
-.section h2{font-size:1.3rem;margin:0 0 14px}
-.pill{display:inline-block;padding:4px 10px;border-radius:30px;background:var(--line);color:var(--ink);font-size:.76rem;font-weight:700}
+.tabs button{background:var(--card);color:var(--tc,var(--primary));border:1.5px solid var(--tc,var(--primary));padding:8px 14px}
+.tabs button.active{background:var(--tc,var(--primary));color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.18);transform:none}
+.tabs button:nth-child(7n+1){--tc:#6366f1}.tabs button:nth-child(7n+2){--tc:#ec4899}.tabs button:nth-child(7n+3){--tc:#f97316}
+.tabs button:nth-child(7n+4){--tc:#0ea5e9}.tabs button:nth-child(7n+5){--tc:#14b8a6}.tabs button:nth-child(7n+6){--tc:#8b5cf6}.tabs button:nth-child(7n+7){--tc:#e11d48}
+.pill{display:inline-block;padding:4px 10px;border-radius:30px;background:#ede9fe;color:#5b21b6;font-size:.76rem;font-weight:700}
+[data-theme="dark"] .pill{background:#2d2a5a;color:#c4b5fd}
 .pill.pending{background:var(--amber-bg);color:var(--amber)}
 .pill.approved,.pill.unlocked{background:var(--green-bg);color:var(--green)}
 .pill.rejected,.pill.locked{background:var(--red-bg);color:var(--red)}
 .hidden{display:none!important}
-.notice{border-left:4px solid var(--primary);padding:12px 14px;background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:10px;margin:9px 0}
+.field{display:grid;gap:6px;margin-bottom:12px}
+.field label{font-size:.88rem;font-weight:650}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+textarea{min-height:85px;resize:vertical}
 .item{padding:12px 0;border-bottom:1px solid var(--line)}
 .item:last-child{border:0}
-.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
-.footer{text-align:center;color:var(--muted);font-size:.84rem;margin-top:34px}
-.adminbar{background:var(--red-bg);color:var(--red);padding:10px 14px;border-radius:10px;font-weight:700;margin-bottom:14px;font-size:.88rem}
-.thumb{width:100%;height:150px;object-fit:cover;border-radius:12px;background:#cbd5e1;margin-bottom:12px}
-/* ===== Lesson video player (controls live INSIDE the player, so they work in fullscreen) ===== */
-.modal.modal-lg{width:min(1480px,calc(100vw - 16px));max-width:none;max-height:98dvh;padding:14px}
-#modalBox:has(#vp){width:min(1480px,calc(100vw - 16px));max-width:none}
-.vp{position:relative;width:100%;aspect-ratio:16/9;max-height:calc(100dvh - 200px);min-height:200px;background:#000;border-radius:12px;overflow:hidden;isolation:isolate;color:#fff;font-size:.9rem;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-.vp-stage{position:absolute;inset:0;z-index:1;background:#000}
-.vp-stage video,.vp-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
-.vp-stage video{object-fit:contain}
-.vp-stage .empty{position:absolute;inset:0;display:grid;place-items:center;border:0;color:#fff}
-.vp .watermark{z-index:3}
-.vp-click{position:absolute;inset:0;z-index:4;cursor:pointer}
-.vp.idle .vp-click{cursor:none}
-.vp-spin{position:absolute;z-index:5;top:50%;left:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:vpSpin .8s linear infinite;display:none;pointer-events:none}
-.vp.buffering .vp-spin{display:block}
-@keyframes vpSpin{to{transform:rotate(360deg)}}
-.vp-flash{position:absolute;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);padding:10px 20px;border-radius:999px;background:rgba(15,23,42,.8);font-weight:700;opacity:0;pointer-events:none;white-space:nowrap}
-.vp-flash.show{animation:vpFlash .8s ease}
-@keyframes vpFlash{0%{opacity:0}15%{opacity:1}70%{opacity:1}100%{opacity:0}}
-.vp-big{position:absolute;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:rgba(15,23,42,.72);display:none;align-items:center;justify-content:center;pointer-events:none}
-.vp-big svg{width:42px;height:42px}
-.vp.paused .vp-big{display:flex}
-.vp.buffering .vp-big{display:none}
-.vp-top{position:absolute;z-index:7;top:0;left:0;right:0;padding:14px 18px 30px;background:linear-gradient(rgba(0,0,0,.7),transparent);font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s}
-.vp.is-fs .vp-top{opacity:1}
-.vp.is-fs.idle .vp-top{opacity:0}
-.vp-controls{position:absolute;z-index:7;left:0;right:0;bottom:0;padding:36px 14px 10px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:grid;gap:2px;transition:opacity .25s}
-.vp-controls{pointer-events:none}
-.vp-seekrow,.vp-grp{pointer-events:auto}
-.vp.idle .vp-controls{opacity:0}
-.vp.idle .vp-controls .vp-seekrow,.vp.idle .vp-controls .vp-grp{pointer-events:none}
-.vp-seekrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
-.vp-time{font-variant-numeric:tabular-nums;font-size:.8rem;color:#e2e8f0;min-width:36px}
-.vp-row{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
-.vp-grp{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
-.vp .vp-btn{background:transparent;color:#fff;padding:0 8px;min-width:40px;height:40px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:.78rem;touch-action:manipulation}
-.vp .vp-btn:hover:not(:disabled){background:rgba(255,255,255,.18)}
-.vp .vp-btn:active{transform:scale(.93)}
-.vp .vp-btn.on{color:#60a5fa}
-.vp .vp-main{background:rgba(255,255,255,.16)}
-.vp .vp-txt{min-width:46px;font-size:.84rem}
-.vp svg{width:24px;height:24px;fill:currentColor;flex:0 0 auto}
-.vp-seek{-webkit-appearance:none;appearance:none;background:transparent;height:20px;margin:0;width:100%;cursor:pointer;touch-action:pan-y}
-.vp-seek::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:linear-gradient(to right,#3b82f6 var(--pct,0%),rgba(255,255,255,.3) var(--pct,0%))}
-.vp-seek::-moz-range-track{height:5px;border-radius:99px;background:linear-gradient(to right,#3b82f6 var(--pct,0%),rgba(255,255,255,.3) var(--pct,0%))}
-.vp-seek::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-4.5px;border-radius:50%;background:#fff;border:0}
-.vp-seek::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#fff}
-.vp-seek:focus{outline:none}
-.vp-vol{width:86px}
-.vp-menu{position:absolute;z-index:8;right:12px;bottom:96px;background:rgba(15,23,42,.96);border:1px solid #334155;border-radius:10px;padding:6px;display:grid;gap:2px;min-width:100px}
-.vp .vp-menu button{background:transparent;color:#fff;text-align:left;padding:7px 12px;border-radius:6px;font-weight:600;font-size:.86rem}
-.vp .vp-menu button:hover:not(:disabled){background:rgba(255,255,255,.14)}
-.vp .vp-menu button.on{color:#60a5fa}
-.vp.no-pip .vp-pip-btn{display:none}
-.vp.is-fs .vp-theater-btn{display:none}
-.vp:fullscreen{width:100%;height:100%;max-height:none;aspect-ratio:auto;border-radius:0}
-.vp:-webkit-full-screen{width:100%;height:100%;max-height:none;aspect-ratio:auto;border-radius:0}
-.vp.vp-pseudo{position:fixed;inset:0;width:100vw;height:100dvh;max-height:none;aspect-ratio:auto;border-radius:0;z-index:400}
-.vp-status{font-size:.78rem;color:var(--muted);line-height:1.4;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.player-theater-active{position:fixed!important;inset:8px!important;z-index:119!important;max-width:none!important;width:auto!important;max-height:none!important;overflow:auto!important;background:#0b1220!important;color:#fff!important}
-.player-theater-active .vp{max-height:calc(100dvh - 150px)}
-.player-theater-active .vp-status{color:#cbd5e1}
-@media(max-width:760px){
-  .modal.modal-lg,#modalBox:has(#vp){width:calc(100vw - 8px);max-height:98dvh;padding:8px;border-radius:10px}
-  .vp{border-radius:8px;max-height:calc(100dvh - 150px)}
-  .vp-vol{display:none}
-  .vp-controls{padding:28px 8px 6px}
-  .vp .vp-btn{min-width:36px;height:38px;padding:0 5px}
-  .vp svg{width:22px;height:22px}
-  .vp-time{font-size:.72rem}
-}
-@media(max-width:480px){
-  .vp .vp-pip-btn,.vp .vp-theater-btn{display:none}
-}
-.watermark{position:absolute;top:12%;left:8%;pointer-events:none;user-select:none;font-size:.82rem;font-weight:700;color:rgba(255,255,255,0.35);text-shadow:0 1px 3px rgba(0,0,0,.6);animation:wmFloat 18s infinite linear;z-index:5}
-@keyframes wmFloat{0%{top:10%;left:8%}25%{top:72%;left:52%}50%{top:38%;left:62%}75%{top:76%;left:15%}100%{top:10%;left:8%}}
+.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;background:var(--bg)}
+.notice{border-left:4px solid var(--pink);padding:12px 14px;background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:10px;margin:9px 0}
+.progress-container{background:var(--line);border-radius:99px;height:8px;margin:10px 0;overflow:hidden}
+.progress-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6);height:100%;border-radius:99px;transition:width .3s}
+.acc{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--cc,var(--primary));border-radius:16px;margin-bottom:12px;overflow:hidden}
+.acc-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:var(--card)}
+.acc-ico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--cc),#a855f7);display:grid;place-items:center;color:#fff;overflow:hidden}
+.acc-ico img{width:100%;height:100%;object-fit:cover}
+.acc-title{flex:1} .acc-title b{font-size:1.05rem}
+.acc-body{display:none;padding:4px 16px 16px;border-top:1px dashed var(--line);background:rgba(0,0,0,.01)}
+.acc.open>.acc-body{display:block}
+.acc.sub{border-radius:12px;margin:10px 0 0;border-left-width:4px;background:var(--bg)}
+.cls-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);padding:10px 14px;border-radius:10px;border:1px solid var(--line);margin-bottom:6px;cursor:pointer;transition:.2s}
+.cls-row:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(99,102,241,.1)}
+.cc0{--cc:#6366f1}.cc1{--cc:#ec4899}.cc2{--cc:#f97316}.cc3{--cc:#0ea5e9}.cc4{--cc:#14b8a6}.cc5{--cc:#8b5cf6}
 .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
-.modal{background:var(--card);color:var(--ink);border-radius:18px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,0.3)}
-.modal-lg{max-width:840px}
+.modal{background:var(--card);color:var(--ink);border-radius:18px;width:100%;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,0.3)}
+.modal.modal-lg{width:min(1480px,calc(100vw - 16px));max-width:none;max-height:98dvh;padding:14px}
 .toast-wrap{position:fixed;bottom:18px;right:18px;display:grid;gap:8px;z-index:150;max-width:340px}
-.toast{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:12px 16px;border-radius:12px;font-size:.88rem;box-shadow:0 10px 28px rgba(0,0,0,0.2);border-left:4px solid var(--primary)}
-.toast.ok{border-left-color:var(--green)}
-.toast.err{border-left-color:var(--red)}
-@media(max-width:580px){.hero{padding:22px}.wrap{padding:14px 12px 44px}header{padding:12px}}
+.toast{background:var(--card);border:1px solid var(--line);padding:12px 16px;border-radius:12px;border-left:4px solid var(--primary);animation:toastIn .3s ease}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.ok{border-left-color:var(--green)} .toast.err{border-left-color:var(--red)}
+.player-layout{display:flex;flex-direction:row;gap:16px;height:calc(100dvh - 100px);min-height:400px}
+.vp-container{flex:1;display:flex;flex-direction:column;min-width:0;background:#000;border-radius:12px;overflow:hidden;position:relative}
+.vp-stage{width:100%;height:100%;position:relative}
+.vp-stage video,.vp-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain;background:#000}
+.vp-pdfs{position:absolute;bottom:10px;left:10px;z-index:10;display:flex;gap:8px;flex-wrap:wrap}
+.vp-sidebar{width:340px;background:var(--card);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+.vp-sidebar-head{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700;display:flex;justify-content:space-between;align-items:center;background:var(--bg)}
+.vp-sidebar-list{flex:1;overflow-y:auto;padding:10px}
+.side-chap{font-size:.85rem;font-weight:700;color:var(--muted);margin:12px 0 6px 4px}
+.side-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:.2s;border:1px solid transparent}
+.side-item:hover{background:var(--bg);border-color:var(--line)}
+.side-item.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.side-item.active .muted{color:rgba(255,255,255,.7)}
+@media(max-width:900px){
+  .player-layout{flex-direction:column;height:auto;min-height:0}
+  .vp-container{aspect-ratio:16/9;flex:none}
+  .vp-sidebar{width:100%;max-height:300px}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="row">
-    <strong>🚀 HSC PrepHub Ultimate</strong>
-  </div>
+  <div class="row"><strong>🚀 HSC PrepHub Ultimate</strong></div>
   <div class="row">
     <button class="ghost sm" onclick="toggleTheme()" id="themeBtn">🌙 ডার্ক মোড</button>
     <button id="navStudentBtn" class="ghost sm active" onclick="showView('student')">Student Panel</button>
@@ -163,14 +115,13 @@ textarea{min-height:85px;resize:vertical}
 </header>
 
 <main class="wrap">
-  <!-- STUDENT VIEW -->
   <section id="studentView">
     <div class="hero">
       <h1>পড়াশোনা হোক আরও গোছানো</h1>
-      <p>কোর্স, ইউটিউব ও লোকাল ভিডিও ক্লাস, একাধিক PDF নোট, MCQ পরীক্ষা ও সার্টিফিকেট—সব এক জায়গায়।</p>
+      <p>কোর্স, ভিডিও ক্লাস, PDF নোট, MCQ পরীক্ষা ও সার্টিফিকেট—সব এক জায়গায়।</p>
     </div>
 
-    <div id="joinBox" class="card stack" style="max-width:480px;margin:auto">
+    <div id="joinBox" class="card stack" style="max-width:480px;margin:auto;border-top:5px solid var(--violet)">
       <h2>শিক্ষার্থী লগইন বা সাইনআপ</h2>
       <p class="muted small">ইমেইল ও একটি লোকাল পাসকোড দিয়ে নিরাপদে প্রবেশ করুন।</p>
       <div class="field"><label>আপনার নাম</label><input id="studentName" placeholder="পূর্ণ নাম"></div>
@@ -180,21 +131,19 @@ textarea{min-height:85px;resize:vertical}
     </div>
 
     <div id="studentArea" class="hidden">
-      <div class="row between">
-        <div>
-          <h2 id="welcome" style="margin:0 0 4px"></h2>
-          <p class="muted small" style="margin:0">শিক্ষার্থী ড্যাশবোর্ড</p>
-        </div>
+      <div class="row between" style="margin-bottom:12px">
+        <div><h2 id="welcome" style="margin:0"></h2><p class="muted small" style="margin:0">শিক্ষার্থী ড্যাশবোর্ড</p></div>
         <button class="ghost sm" onclick="logoutStudent()">লগ আউট</button>
       </div>
 
       <div class="tabs" id="studentTabs">
-        <button class="active" onclick="studentTab('courses', this)">সব কোর্স ও ভর্তি</button>
-        <button onclick="studentTab('myCourses', this)">আমার এনরোলড কোর্স</button>
-        <button onclick="studentTab('quizzes', this)">MCQ পরীক্ষা ও সার্টিফিকেট</button>
+        <button class="active" onclick="studentTab('courses', this)">সব কোর্স</button>
+        <button onclick="studentTab('myCourses', this)">আমার কোর্স</button>
+        <button onclick="studentTab('quizzes', this)">MCQ পরীক্ষা</button>
         <button onclick="studentTab('notices', this)">নোটিশ</button>
         <button onclick="studentTab('payments', this)">পেমেন্ট হিস্ট্রি</button>
         <button onclick="studentTab('contact', this)">Contact Author</button>
+        <button onclick="studentTab('settings', this)">সেটিংস</button>
       </div>
 
       <div id="tab-courses"></div>
@@ -203,61 +152,44 @@ textarea{min-height:85px;resize:vertical}
       <div id="tab-notices" class="hidden"></div>
       <div id="tab-payments" class="hidden"></div>
       <div id="tab-contact" class="hidden"></div>
+      <div id="tab-settings" class="hidden"></div>
     </div>
   </section>
 
-  <!-- ADMIN VIEW -->
   <section id="adminView" class="hidden">
-    <div class="hero" style="background:linear-gradient(120deg,#7f1d1d,#b91c1c)">
-      <h1>Admin Control Center</h1>
-      <p>কোর্স, অধ্যায়, ক্লাস, পেমেন্ট যাচাই ও ছাত্র ইনবক্স পরিচালনা করুন।</p>
-    </div>
-
-    <div id="adminLogin" class="card stack" style="max-width:480px;margin:auto">
+    <div class="hero admin-hero"><h1>Admin Control Center</h1><p>কোর্স, পেমেন্ট, স্টুডেন্ট ও কুপন পরিচালনা করুন।</p></div>
+    
+    <div id="adminLogin" class="card stack" style="max-width:480px;margin:auto;border-top:5px solid var(--red)">
       <h2>অ্যাডমিন লগইন</h2>
-      <div class="field"><label>Username</label><input id="adminUser" value="BILLU" autocapitalize="off" autocorrect="off" autocomplete="username" spellcheck="false"></div>
-      <div class="field"><label>Password</label><input id="adminPass" type="password" autocapitalize="off" autocorrect="off" autocomplete="current-password" spellcheck="false" placeholder="অ্যাডমিন পাসওয়ার্ড"></div>
+      <div class="field"><label>Username</label><input id="adminUser" value="BILLU"></div>
+      <div class="field"><label>Password</label><input id="adminPass" type="password"></div>
       <button onclick="adminLogin()">লগইন</button>
     </div>
 
     <div id="adminArea" class="hidden">
-      <div class="adminbar row between">
-        <span>⚠ লোকাল Admin Mode সক্রিয়</span>
-        <button class="ghost sm" onclick="adminLogout()" style="color:inherit;border-color:currentcolor">লগ আউট</button>
-      </div>
-
-      <div class="grid">
-        <div class="card"><div class="muted small">মোট কোর্স</div><div class="stat" id="statCourses" style="font-size:1.6rem;font-weight:800">0</div></div>
-        <div class="card"><div class="muted small">রেজিস্টার্ড স্টুডেন্ট</div><div class="stat" id="statStudents" style="font-size:1.6rem;font-weight:800">0</div></div>
-        <div class="card"><div class="muted small">পেন্ডিং পেমেন্ট</div><div class="stat" id="statPending" style="font-size:1.6rem;font-weight:800">0</div></div>
-        <div class="card"><div class="muted small">ইনবক্স মেসেজ</div><div class="stat" id="statMessages" style="font-size:1.6rem;font-weight:800">0</div></div>
-      </div>
-
       <div class="tabs" id="adminTabs">
-        <button class="active" onclick="adminTab('manage', this)">কোর্স ম্যানেজমেন্ট</button>
+        <button class="active" onclick="adminTab('manage', this)">কোর্স</button>
         <button onclick="adminTab('quizAdmin', this)">MCQ কুইজ</button>
-        <button onclick="adminTab('paymentAdmin', this)">পেমেন্ট যাচাই</button>
-        <button onclick="adminTab('studentList', this)">স্টুডেন্ট তালিকা</button>
-        <button onclick="adminTab('messagesAdmin', this)">ছাত্র মেসেজ (Inbox)</button>
+        <button onclick="adminTab('paymentAdmin', this)">পেমেন্ট</button>
+        <button onclick="adminTab('studentList', this)">স্টুডেন্ট</button>
+        <button onclick="adminTab('couponAdmin', this)">কুপন</button>
+        <button onclick="adminTab('messagesAdmin', this)">ইনবক্স</button>
         <button onclick="adminTab('noticeAdmin', this)">নোটিশ</button>
-        <button onclick="adminTab('settingsAdmin', this)">সেটিংস ও ব্যাকআপ</button>
+        <button onclick="adminTab('settingsAdmin', this)">সেটিংস</button>
       </div>
 
       <div id="admin-manage">
-        <div class="card stack">
+        <div class="card stack" style="border-left:5px solid var(--primary);margin-bottom:20px">
           <h3>নতুন কোর্স তৈরি করুন</h3>
           <div class="grid">
-            <div class="field"><label>কোর্সের নাম *</label><input id="newCourseTitle" placeholder="যেমন: HSC ICT Full Course"></div>
-            <div class="field"><label>ফি (টাকা)</label><input id="newCoursePrice" type="number" min="0" placeholder="1000"></div>
+            <div class="field"><label>কোর্সের নাম *</label><input id="newCourseTitle"></div>
+            <div class="field"><label>ফি (টাকা)</label><input id="newCoursePrice" type="number"></div>
           </div>
-          <div class="field"><label>থাম্বনেইল ইমেজ URL</label><input id="newCourseThumb" placeholder="https://image-url.com"></div>
-          <div class="field"><label>কোর্সের বিবরণ</label><textarea id="newCourseDesc" placeholder="কোর্স সম্পর্কে লিখুন..."></textarea></div>
+          <div class="field"><label>থাম্বনেইল URL</label><input id="newCourseThumb"></div>
+          <div class="field"><label>বিবরণ</label><textarea id="newCourseDesc"></textarea></div>
           <button onclick="addCourse()">কোর্স যোগ করুন</button>
         </div>
-        <div class="section">
-          <h2>কোর্স, চ্যাপ্টার ও ক্লাস তালিকা</h2>
-          <div id="adminCourseList"></div>
-        </div>
+        <div id="adminCourseList"></div>
       </div>
 
       <div id="admin-quizAdmin" class="hidden">
@@ -265,89 +197,65 @@ textarea{min-height:85px;resize:vertical}
           <h3>MCQ কুইজ তৈরি করুন</h3>
           <div class="grid">
             <div class="field"><label>কোর্স নির্বাচন</label><select id="quizCourseSelect"></select></div>
-            <div class="field"><label>কুইজের শিরোনাম</label><input id="quizTitle" placeholder="অধ্যায় ১ ফাইনাল টেস্ট"></div>
+            <div class="field"><label>কুইজের শিরোনাম</label><input id="quizTitle"></div>
           </div>
-          <div class="card" style="background:var(--bg)">
-            <h4>প্রশ্ন যোগ করুন</h4>
-            <div class="field"><label>প্রশ্ন</label><input id="qPrompt" placeholder="HTML এর পূর্ণরূপ কী?"></div>
-            <div class="grid">
-              <div class="field"><label>অপশন A</label><input id="qOpt0"></div>
-              <div class="field"><label>অপশন B</label><input id="qOpt1"></div>
-              <div class="field"><label>অপশন C</label><input id="qOpt2"></div>
-              <div class="field"><label>অপশন D</label><input id="qOpt3"></div>
-            </div>
-            <div class="field"><label>সঠিক উত্তর (ইনডেক্স ০ থেকে ৩)</label><input id="qCorrect" type="number" min="0" max="3" value="0"></div>
-            <button class="secondary sm" onclick="addQuizQuestionTemp()">+ প্রশ্ন তালিকায় যুক্ত করুন</button>
-            <div id="tempQPreview" class="small muted" style="margin-top:8px">০টি প্রশ্ন যোগ হয়েছে।</div>
-          </div>
+          <div class="field"><label>প্রশ্ন</label><input id="qPrompt"></div>
+          <div class="grid"><input id="qOpt0" placeholder="A"><input id="qOpt1" placeholder="B"><input id="qOpt2" placeholder="C"><input id="qOpt3" placeholder="D"></div>
+          <div class="field"><label>সঠিক উত্তর (০-৩)</label><input id="qCorrect" type="number" value="0"></div>
+          <button class="secondary sm" onclick="addQuizQuestionTemp()">+ প্রশ্ন যুক্ত করুন</button>
+          <div id="tempQPreview" class="muted small"></div>
           <button onclick="saveQuiz()">কুইজ প্রকাশ করুন</button>
         </div>
-        <div class="section" id="adminQuizList"></div>
+        <div id="adminQuizList"></div>
       </div>
 
       <div id="admin-paymentAdmin" class="hidden">
-        <div class="card stack">
-          <h3>পেমেন্ট নাম্বার সেট করুন</h3>
-          <div class="grid">
-            <div class="field"><label>bKash</label><input id="bkashNumber" placeholder="01XXXXXXXXX"></div>
-            <div class="field"><label>Nagad</label><input id="nagadNumber" placeholder="01XXXXXXXXX"></div>
-          </div>
-          <button onclick="savePaymentNumbers()">নাম্বার সেভ করুন</button>
+        <div class="card stack" style="margin-bottom:20px">
+          <h3>পেমেন্ট নাম্বার</h3>
+          <div class="grid"><div class="field"><label>bKash</label><input id="bkashNumber"></div><div class="field"><label>Nagad</label><input id="nagadNumber"></div></div>
+          <button onclick="savePaymentNumbers()">সেভ করুন</button>
         </div>
-        <div class="section">
-          <h2>পেমেন্ট রিকোয়েস্ট (১২ ঘণ্টা ভেরিফিকেশন সময়)</h2>
-          <div id="adminPaymentList"></div>
-        </div>
+        <div id="adminPaymentList"></div>
       </div>
 
-      <div id="admin-studentList" class="hidden">
-        <div class="section">
-          <h2>রেজিস্টার্ড শিক্ষার্থী তালিকা</h2>
-          <p class="muted small">Student পাসকোড দেখা যাবে না; Admin এখানে নতুন পাসকোড সেট বা User Remove করতে পারবেন।</p>
-          <div id="adminStudentList"></div>
+      <div id="admin-studentList" class="hidden"><div id="adminStudentList"></div></div>
+
+      <div id="admin-couponAdmin" class="hidden">
+        <div class="card stack" style="border-left:5px solid var(--pink);margin-bottom:20px">
+          <h3>নতুন কুপন কোড</h3>
+          <div class="grid">
+            <div class="field"><label>কুপন কোড (যেমন: HSC50)</label><input id="couponCode" style="text-transform:uppercase"></div>
+            <div class="field"><label>ডিসকাউন্ট (%)</label><input id="couponPercent" type="number" min="1" max="100"></div>
+          </div>
+          <button onclick="addCoupon()">কুপন তৈরি করুন</button>
         </div>
+        <div id="adminCouponList"></div>
       </div>
 
       <div id="admin-messagesAdmin" class="hidden">
-        <div class="section">
-          <h2>Contact Author - ছাত্র ইনবক্স</h2>
-          <div id="adminMessagesList"></div>
+        <div class="card stack" style="margin-bottom:20px">
+          <h3>ছাত্রদের বার্তা পাঠান</h3>
+          <div class="field"><label>কাকে পাঠাবেন</label><select id="adminMsgTo"></select></div>
+          <div class="field"><label>বার্তা</label><textarea id="adminMsgBody"></textarea></div>
+          <button onclick="adminSendMessage()">পাঠান</button>
         </div>
+        <div id="adminMessagesList"></div>
       </div>
 
       <div id="admin-noticeAdmin" class="hidden">
-        <div class="card stack">
-          <h3>নতুন নোটিশ</h3>
-          <div class="field"><label>শিরোনাম</label><input id="noticeTitle"></div>
-          <div class="field"><label>বিস্তারিত</label><textarea id="noticeBody"></textarea></div>
-          <button onclick="addNotice()">নোটিশ প্রকাশ</button>
-        </div>
-        <div class="section" id="adminNoticeList"></div>
+        <div class="card stack" style="margin-bottom:20px"><h3>নতুন নোটিশ</h3><input id="noticeTitle" placeholder="শিরোনাম"><textarea id="noticeBody" placeholder="বিস্তারিত"></textarea><button onclick="addNotice()">পাবলিশ</button></div>
+        <div id="adminNoticeList"></div>
       </div>
 
       <div id="admin-settingsAdmin" class="hidden">
-        <div class="grid">
-          <div class="card stack">
-            <h3>অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3>
-            <div class="field"><label>নতুন পাসওয়ার্ড</label><input id="newAdminPass" type="password"></div>
-            <button onclick="changeAdminPass()">পাসওয়ার্ড আপডেট</button>
-          </div>
-          <div class="card stack">
-            <h3>ডেটা ব্যাকআপ ও রিস্টোর</h3>
-            <div class="row">
-              <button class="secondary" onclick="exportDB()">JSON ব্যাকআপ ডাউনলোড</button>
-              <label class="ghost sm" style="padding:10px 14px;border:1px solid var(--line);border-radius:10px;cursor:pointer">
-                JSON ইমপোর্ট
-                <input id="importFileInput" type="file" accept=".json" onchange="importDB(event)" class="hidden">
-              </label>
-            </div>
-          </div>
+        <div class="card stack">
+          <h3>অ্যাডমিন পাসওয়ার্ড</h3>
+          <div class="field"><label>নতুন পাসওয়ার্ড</label><input id="newAdminPass" type="password"></div>
+          <button onclick="changeAdminPass()">আপডেট</button>
         </div>
       </div>
     </div>
   </section>
-
-  <p class="footer">© <span id="year"></span> HSC PrepHub Ultimate LMS · সুরক্ষিত ও একক ফাইল সংস্করণ।</p>
 </main>
 
 <div id="modalBackdrop" class="modal-backdrop hidden"><div id="modalBox" class="modal"></div></div>
@@ -356,1671 +264,401 @@ textarea{min-height:85px;resize:vertical}
 <script>
 (() => {
 "use strict";
-
-const KEY = "hsc_prephub_complete_db_v6";   // sudhu purono local data server-e tule ney-ar jonno
-const DEFAULT_ADMIN_HASH = "";               // admin password ekhon server-e thake
 const LS_ADMIN = "hsc_admin_token", LS_STUDENT = "hsc_student_token", LS_VIEW = "hsc_last_view";
-let db = normalizeDB({});
-let currentStudent = null;
-let adminOn = false;
+let db = normalizeDB({}), currentStudent = null, adminOn = false;
 let adminToken = lsGet(LS_ADMIN), studentToken = lsGet(LS_STUDENT);
-let serverRev = 0, loaded = false, dirty = false, pushing = false, pushTimer = null, forceReplace = false;
-let adminRendered = false, curAdminTab = "manage", curStudentTab = "courses";
+let serverRev = 0, loaded = false, dirty = false, pushing = false, pushTimer = null;
+let curAdminTab = "manage", curStudentTab = "courses", tempQuizQuestions = [];
 const syncedIds = new Set();
-let tempQuizQuestions = [];
 
 function makeDefaults() {
   return {
-    adminUser: "BILLU",
-    adminPassHash: DEFAULT_ADMIN_HASH,
-    students: [],
-    courses: [
-      {
-        id: "c1",
-        title: "HSC ICT পূর্ণাঙ্গ কোর্স",
-        desc: "বেসিক থেকে এডভান্সড কোডিং ও আইসিটি প্রস্তুতি",
-        price: 1200,
-        thumb: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
-        chapters: [
-          {
-            id: "ch1",
-            title: "অধ্যায় ১: তথ্য ও যোগাযোগ প্রযুক্তি",
-            classes: [
-              { id: "cl1", title: "লেকচার ১: বিশ্বগ্রাম ও ভার্চুয়াল রিয়েলিটি", videoType: "yt", videoSource: "https://www.youtube.com/watch?v=qz0aGYrrlhU", pdfs: ["https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"], isFree: true }
-            ]
-          }
-        ]
-      }
-    ],
-    notices: [{ id: "n1", title: "স্বাগতম", body: "HSC PrepHub এ আপনাকে স্বাগতম।", date: new Date().toISOString() }],
-    payments: [],
-    messages: [],
-    quizzes: [],
-    quizResults: [],
-    numbers: { bkash: "01700000000", nagad: "01800000000" }
+    adminUser: "BILLU", adminPassHash: "", students: [], courses: [], notices: [], payments: [], messages: [], quizzes: [], quizResults: [], coupons: [], numbers: { bkash: "", nagad: "" }
   };
 }
-
-function sha256Js(msg) {
-  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
-  const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  const bytes = Array.from(new TextEncoder().encode(msg));
-  const bitLen = bytes.length * 8;
-  bytes.push(0x80);
-  while (bytes.length % 64 !== 56) bytes.push(0);
-  const hi = Math.floor(bitLen / 0x100000000), lo = bitLen >>> 0;
-  for (let i = 3; i >= 0; i--) bytes.push((hi >>> (i * 8)) & 255);
-  for (let i = 3; i >= 0; i--) bytes.push((lo >>> (i * 8)) & 255);
-  const rotr = (x, n) => (x >>> n) | (x << (32 - n));
-  for (let off = 0; off < bytes.length; off += 64) {
-    const w = new Array(64);
-    for (let i = 0; i < 16; i++) w[i] = (bytes[off+i*4] << 24) | (bytes[off+i*4+1] << 16) | (bytes[off+i*4+2] << 8) | bytes[off+i*4+3];
-    for (let i = 16; i < 64; i++) {
-      const s0 = rotr(w[i-15],7) ^ rotr(w[i-15],18) ^ (w[i-15] >>> 3);
-      const s1 = rotr(w[i-2],17) ^ rotr(w[i-2],19) ^ (w[i-2] >>> 10);
-      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
-    }
-    let [a,b,c,d,e,f,g,h] = H;
-    for (let i = 0; i < 64; i++) {
-      const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25);
-      const ch = (e & f) ^ (~e & g);
-      const t1 = (h + S1 + ch + K[i] + w[i]) | 0;
-      const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22);
-      const maj = (a & b) ^ (a & c) ^ (b & c);
-      const t2 = (S0 + maj) | 0;
-      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
-    }
-    H[0]=(H[0]+a)|0; H[1]=(H[1]+b)|0; H[2]=(H[2]+c)|0; H[3]=(H[3]+d)|0; H[4]=(H[4]+e)|0; H[5]=(H[5]+f)|0; H[6]=(H[6]+g)|0; H[7]=(H[7]+h)|0;
-  }
-  return H.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
-}
-
-async function sha256Hex(text) {
-  try {
-    if (window.crypto && window.crypto.subtle) {
-      const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-  } catch {}
-  return sha256Js(text);   // same result everywhere (http, file://, old phones)
-}
-
-function bytesToHex(bytes) {
-  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
-}
-function hexToBytes(hex) {
-  const out = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return out;
-}
-async function makeStudentPinHash(email, pin) {
-  if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
-    throw new Error("Secure password hashing is unavailable. Open the site through HTTPS or a supported secure browser context.");
-  }
-  const salt = window.crypto.getRandomValues(new Uint8Array(16));
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({name:"PBKDF2", salt, iterations:600000, hash:"SHA-256"}, key, 256);
-  return `pbkdf2$600000$${bytesToHex(salt)}$${bytesToHex(new Uint8Array(bits))}`;
-}
-async function verifyStudentPin(email, storedHash, pin) {
-  if (typeof storedHash === "string" && storedHash.startsWith("pbkdf2$")) {
-    try {
-      const [, iter, saltHex, expected] = storedHash.split("$");
-      const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
-      const bits = await crypto.subtle.deriveBits({name:"PBKDF2", salt:hexToBytes(saltHex), iterations:Number(iter), hash:"SHA-256"}, key, 256);
-      return bytesToHex(new Uint8Array(bits)) === expected;
-    } catch { return false; }
-  }
-  const legacy = storedHash?.startsWith("legacy$") ? storedHash.slice(7) : storedHash;
-  return legacy === await sha256Hex(email + "::" + pin);
-}
-
 function normalizeDB(d) {
-  if (!d || typeof d !== "object" || Array.isArray(d)) return makeDefaults();
-  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults"].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; });
-  if (!d.numbers || typeof d.numbers !== "object") d.numbers = { bkash: "", nagad: "" };
-  if (!d.adminUser) d.adminUser = "BILLU";
-  if (!d.adminPassHash) d.adminPassHash = DEFAULT_ADMIN_HASH;
-  d.notices.forEach(n => { if (!n.id) n.id = uid(); });
+  if (!d || typeof d !== "object") d = makeDefaults();
+  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "coupons"].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; });
+  if (!d.numbers) d.numbers = { bkash: "", nagad: "" };
   return d;
 }
 
-/* ===== Shared database (server sync) ===== */
 function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } }
 function lsSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch {} }
-
 async function api(path, opt = {}) {
-  const headers = {};
-  if (opt.body !== undefined) headers["Content-Type"] = "application/json";
+  const headers = {}; if (opt.body) headers["Content-Type"] = "application/json";
   if (opt.token) headers["Authorization"] = "Bearer " + opt.token;
-  const res = await fetch(path, { method: opt.method || "GET", headers, cache: "no-store", body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined });
-  let data = null;
-  try { data = await res.json(); } catch {}
+  const res = await fetch(path, { method: opt.method || "GET", headers, cache: "no-store", body: opt.body ? JSON.stringify(opt.body) : undefined });
+  let data = null; try { data = await res.json(); } catch {}
   return { ok: res.ok, status: res.status, data };
 }
 
-function modalOpen() { return !document.getElementById("modalBackdrop").classList.contains("hidden"); }
-
-function adoptState(data) {
-  db = normalizeDB(data.db);
-  serverRev = Number(data.rev) || 0;
-  ["payments", "messages", "quizResults"].forEach(k => db[k].forEach(x => syncedIds.add(x.id)));
-  loaded = true;
-}
-
-// server boro video file-ke /media/... link-e boshiye dey; local data-url-ke oi link diye bodle felo
-function patchMedia(serverCourses) {
-  try {
-    const map = new Map();
-    (serverCourses || []).forEach(c => (c.chapters || []).forEach(ch => (ch.classes || []).forEach(cl => {
-      if (typeof cl.videoSource === "string" && cl.videoSource.startsWith("/media/")) map.set(cl.id, cl.videoSource);
-    })));
-    db.courses.forEach(c => (c.chapters || []).forEach(ch => (ch.classes || []).forEach(cl => {
-      const u = map.get(cl.id);
-      if (u && typeof cl.videoSource === "string" && cl.videoSource.startsWith("data:")) cl.videoSource = u;
-    })));
-  } catch {}
-}
-
-function sessionExpired(role) {
-  if (role === "admin") {
-    adminOn = false; adminRendered = false; adminToken = ""; lsSet(LS_ADMIN, "");
-    toast("অ্যাডমিন সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
-    if (!document.getElementById("adminView").classList.contains("hidden")) showAdminCheck();
-  } else {
-    studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null;
-    toast("সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
-    renderStudent();
-  }
-}
-
-async function pushStudentItems() {
-  if (!currentStudent || !studentToken) return;
-  const mine = k => db[k].filter(x => x.studentId === currentStudent.id && !syncedIds.has(x.id));
-  const body = { payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults") };
-  if (!body.payments.length && !body.messages.length && !body.quizResults.length) return;
-  const r = await api("/api/student/sync", { method: "POST", token: studentToken, body });
-  if (r.status === 401) { sessionExpired("student"); return; }
-  if (!r.ok) { const e = new Error("sync"); e.code = r.status; throw e; }
-  (r.data.accepted || []).concat(r.data.rejected || []).forEach(id => syncedIds.add(id));
-  if ((r.data.rejected || []).length) toast("কিছু তথ্য সংরক্ষণ করা যায়নি।", "err");
-}
-
-async function pushAdminState() {
-  const replace = forceReplace;
-  const r = await api("/api/admin/state", { method: "PUT", token: adminToken, body: { baseRev: serverRev, replace, db } });
-  if (r.status === 401) { sessionExpired("admin"); return; }
-  if (!r.ok) { const e = new Error("sync"); e.code = r.status; throw e; }
-  if (replace) forceReplace = false;
-  patchMedia(r.data.db.courses);
-  // local-e notun change na thakle, server-er shobcheye notun data nao (jemon student-er notun payment)
-  if (!dirty && !modalOpen()) { adoptState(r.data); refreshViews(); }
-}
-
+function adoptState(data) { db = normalizeDB(data.db); serverRev = Number(data.rev) || 0; ["payments", "messages", "quizResults"].forEach(k => db[k].forEach(x => syncedIds.add(x.id))); loaded = true; }
+function saveDB() { dirty = true; schedulePush(); }
 function schedulePush() { if (!pushTimer) pushTimer = setTimeout(runPush, 50); }
-
 async function runPush() {
-  pushTimer = null;
-  if (pushing) return;
-  pushing = true;
+  pushTimer = null; if (pushing) return; pushing = true;
   try {
     while (dirty) {
       dirty = false;
-      await pushStudentItems();
-      if (adminOn && adminToken) await pushAdminState();
+      if (adminOn && adminToken) {
+        const r = await api("/api/admin/state", { method: "PUT", token: adminToken, body: { baseRev: serverRev, replace: false, db } });
+        if (r.ok && !dirty) { adoptState(r.data); refreshViews(); }
+      }
     }
-  } catch (err) {
-    if (err && err.code === 413) { toast("ফাইলটি সার্ভারের সীমার চেয়ে বড়। YouTube লিংক ব্যবহার করুন।", "err"); }
-    else { dirty = true; toast("সার্ভারে সংরক্ষণ করা যায়নি, আবার চেষ্টা হচ্ছে…", "err"); setTimeout(schedulePush, 6000); }
-  } finally { pushing = false; }
+  } catch {} finally { pushing = false; }
 }
-
-// Aager shob code-e saveDB() er por kichu change nei – ekhon eta server-e save kore.
-function saveDB() { dirty = true; schedulePush(); return true; }
-
 function refreshViews() {
-  if (modalOpen()) return;
-  const ae = document.activeElement;
-  if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
-  try {
-    if (!document.getElementById("adminView").classList.contains("hidden")) {
-      if (!adminOn || !adminRendered) return;
-      document.getElementById("statCourses").textContent = db.courses.length;
-      document.getElementById("statStudents").textContent = db.students.length;
-      document.getElementById("statPending").textContent = db.payments.filter(p => p.status === "Pending").length;
-      document.getElementById("statMessages").textContent = db.messages.length;
-      if (curAdminTab !== "settingsAdmin") window.adminTab(curAdminTab, document.querySelector("#adminTabs button.active"));
-    } else if (!document.getElementById("studentView").classList.contains("hidden") && currentStudent) {
-      const ta = document.querySelector("#tab-contact textarea");
-      if (curStudentTab === "contact" && ta && ta.value.trim()) return;
-      window.studentTab(curStudentTab, document.querySelector("#studentTabs button.active"));
-    }
-  } catch {}
+  if (!document.getElementById("adminView").classList.contains("hidden") && adminOn) window.adminTab(curAdminTab, document.querySelector("#adminTabs button.active"));
+  else if (!document.getElementById("studentView").classList.contains("hidden") && currentStudent) window.studentTab(curStudentTab, document.querySelector("#studentTabs button.active"));
 }
 
 async function bootstrap() {
   let got = false;
-  if (studentToken) {
-    const r = await api("/api/state", { token: studentToken });
-    if (r.ok && r.data.role === "student" && r.data.me) { currentStudent = r.data.me; adoptState(r.data); got = true; }
-    else if (r.status === 401) { studentToken = ""; lsSet(LS_STUDENT, ""); }
-    else if (!r.ok) throw new Error("state");
-  }
-  if (adminToken) {
-    const r = await api("/api/state", { token: adminToken });
-    if (r.ok && r.data.role === "admin") { adminOn = true; adoptState(r.data); got = true; }
-    else if (r.status === 401) { adminToken = ""; lsSet(LS_ADMIN, ""); }
-    else if (!r.ok) throw new Error("state");
-  }
-  if (!got) {
-    const r = await api("/api/state");
-    if (!r.ok) throw new Error("state");
-    adoptState(r.data);
-  }
-}
-
-async function pollState(force) {
-  if (document.hidden && !force) return;
-  try {
-    if (!loaded) { await bootstrap(); refreshViews(); return; }
-    if (pushing || dirty || pushTimer || modalOpen()) return;
-    const token = adminOn ? adminToken : studentToken;
-    const r = await api("/api/state?since=" + (force === true ? -1 : serverRev), { token });
-    if (r.status === 401) { sessionExpired(adminOn ? "admin" : "student"); return; }
-    if (!r.ok || r.data.unchanged) return;
-    if (pushing || dirty || pushTimer || modalOpen()) return;
-    adoptState(r.data);
-    refreshViews();
-  } catch {}
+  if (studentToken) { const r = await api("/api/state", { token: studentToken }); if (r.ok && r.data.role === "student") { currentStudent = r.data.me; adoptState(r.data); got = true; } else if (r.status === 401) { studentToken = ""; lsSet(LS_STUDENT, ""); } }
+  if (adminToken) { const r = await api("/api/state", { token: adminToken }); if (r.ok && r.data.role === "admin") { adminOn = true; adoptState(r.data); got = true; } else if (r.status === 401) { adminToken = ""; lsSet(LS_ADMIN, ""); } }
+  if (!got) { const r = await api("/api/state"); if (r.ok) adoptState(r.data); }
 }
 
 function uid() { return "x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function esc(s) { return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-function money(n) { return "৳" + Number(n || 0).toLocaleString("en-BD"); }
+function esc(s) { return String(s||"").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function money(n) { return "৳" + Number(n||0).toLocaleString("en-BD"); }
+function toast(msg, type = "info") { const el = document.createElement("div"); el.className = `toast ${type}`; el.textContent = msg; document.getElementById("toastWrap").appendChild(el); setTimeout(() => el.remove(), 3000); }
 
-function toast(msg, type = "info") {
-  const wrap = document.getElementById("toastWrap");
-  const el = document.createElement("div");
-  el.className = `toast ${type === "ok" ? "ok" : type === "err" ? "err" : ""}`;
-  el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3200);
-}
-
-window.openModal = function(html, large = false) {
-  const bd = document.getElementById("modalBackdrop");
-  const box = document.getElementById("modalBox");
-  box.className = large ? "modal modal-lg" : "modal";
-  box.innerHTML = html;
-  bd.classList.remove("hidden");
-};
-
-window.closeModal = function() {
-  saveVideoPosition();
-  clearTimeout(vpIdleTimer); clearTimeout(vpClickTimer);
-  stopPlayback();
-  activeVideoContext = null; vpDragging = false;
-  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
-  try { screen.orientation?.unlock?.(); } catch {}
-  document.getElementById("modalBox").classList.remove("player-theater-active");
-  document.getElementById("modalBackdrop").classList.add("hidden");
-  document.getElementById("modalBox").innerHTML = "";
-};
-
-window.toggleTheme = function() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute("data-theme") === "dark";
-  html.setAttribute("data-theme", isDark ? "light" : "dark");
-  document.getElementById("themeBtn").textContent = isDark ? "🌙 ডার্ক মোড" : "☀️ লাইট মোড";
-};
-
-window.showView = function(v) {
-  lsSet(LS_VIEW, v);
-  document.getElementById("studentView").classList.toggle("hidden", v !== "student");
-  document.getElementById("adminView").classList.toggle("hidden", v !== "admin");
-  document.getElementById("navStudentBtn").classList.toggle("active", v === "student");
-  document.getElementById("navAdminBtn").classList.toggle("active", v === "admin");
-  if (v === "student") renderStudent();
-};
-
-window.showAdminCheck = function() {
-  showView("admin");
-  if (adminOn) {
-    if (!adminRendered) renderAdmin();
-    document.getElementById("adminLogin").classList.add("hidden");
-    document.getElementById("adminArea").classList.remove("hidden");
-  } else {
-    document.getElementById("adminLogin").classList.remove("hidden");
-    document.getElementById("adminArea").classList.add("hidden");
-  }
-};
-
+window.openModal = function(html, large = false) { const bd = document.getElementById("modalBackdrop"); const box = document.getElementById("modalBox"); box.className = large ? "modal modal-lg" : "modal"; box.innerHTML = html; bd.classList.remove("hidden"); };
+window.closeModal = function() { document.getElementById("modalBackdrop").classList.add("hidden"); document.getElementById("modalBox").innerHTML = ""; };
+window.toggleTheme = function() { const h = document.documentElement; const isDark = h.getAttribute("data-theme") === "dark"; h.setAttribute("data-theme", isDark ? "light" : "dark"); document.getElementById("themeBtn").textContent = isDark ? "🌙 ডার্ক মোড" : "☀️ লাইট মোড"; };
+window.showView = function(v) { lsSet(LS_VIEW, v); document.getElementById("studentView").classList.toggle("hidden", v !== "student"); document.getElementById("adminView").classList.toggle("hidden", v !== "admin"); document.getElementById("navStudentBtn").classList.toggle("active", v === "student"); document.getElementById("navAdminBtn").classList.toggle("active", v === "admin"); if (v === "student") renderStudent(); };
+window.showAdminCheck = function() { showView("admin"); if (adminOn) { renderAdmin(); document.getElementById("adminLogin").classList.add("hidden"); document.getElementById("adminArea").classList.remove("hidden"); } else { document.getElementById("adminLogin").classList.remove("hidden"); document.getElementById("adminArea").classList.add("hidden"); } };
 window.joinStudent = async function() {
-  const name = document.getElementById("studentName").value.trim();
-  const email = document.getElementById("studentEmail").value.trim().toLowerCase();
-  const pin = document.getElementById("studentPin").value;
-
-  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !pin || pin.length < 4) {
-    toast("সঠিক নাম, ইমেইল এবং অন্তত ৪ অক্ষরের পাসকোড দিন।", "err");
-    return;
-  }
-  let r;
-  try { r = await api("/api/student/join", { method: "POST", body: { name, email, pin } }); }
-  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
-  if (r.status === 401) { toast("পাসকোড ভুল হয়েছে!", "err"); return; }
-  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
-  if (!r.ok) { toast("লগইন করা যায়নি। আবার চেষ্টা করুন।", "err"); return; }
-
-  studentToken = r.data.token; lsSet(LS_STUDENT, studentToken);
-  currentStudent = r.data.me;
-  if (!adminOn) adoptState(r.data);
-  document.getElementById("studentPin").value = "";
-  toast("স্বাগতম, " + currentStudent.name, "ok");
-  renderStudent();
+  const name = document.getElementById("studentName").value.trim(), email = document.getElementById("studentEmail").value.trim().toLowerCase(), pin = document.getElementById("studentPin").value;
+  if (!name || !email || pin.length < 4) { toast("সব ঘর পূরণ করুন (পিন ৪+ অক্ষর)", "err"); return; }
+  const r = await api("/api/student/join", { method: "POST", body: { name, email, pin } });
+  if (!r.ok) { toast("লগইন ব্যর্থ! পিন চেক করুন।", "err"); return; }
+  studentToken = r.data.token; lsSet(LS_STUDENT, studentToken); currentStudent = r.data.me; adoptState(r.data); renderStudent(); toast("স্বাগতম!", "ok");
 };
-
-window.logoutStudent = function() {
-  const t = studentToken;
-  studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null;
-  if (t) api("/api/student/logout", { method: "POST", token: t }).catch(() => {});
-  renderStudent();
-  toast("লগআউট হয়েছে।");
-  pollState(true);
-};
-
-function renderStudent() {
-  const join = document.getElementById("joinBox");
-  const area = document.getElementById("studentArea");
-  join.classList.toggle("hidden", !!currentStudent);
-  area.classList.toggle("hidden", !currentStudent);
-  if (!currentStudent) return;
-  document.getElementById("welcome").textContent = "স্বাগতম, " + currentStudent.name;
-  window.studentTab('courses', document.querySelector("#studentTabs button"));
-}
-
+window.logoutStudent = function() { studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null; renderStudent(); };
+function renderStudent() { document.getElementById("joinBox").classList.toggle("hidden", !!currentStudent); document.getElementById("studentArea").classList.toggle("hidden", !currentStudent); if (currentStudent) { document.getElementById("welcome").textContent = "স্বাগতম, " + currentStudent.name; window.studentTab('courses', document.querySelector("#studentTabs button")); } }
 window.studentTab = function(tab, btn) {
-  curStudentTab = tab;
-  ["courses", "myCourses", "quizzes", "notices", "payments", "contact"].forEach(t => {
-    document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
-  });
-  if (btn) {
-    document.querySelectorAll("#studentTabs button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-  }
-  if (tab === "courses") renderAllCourses();
-  if (tab === "myCourses") renderMyEnrolledCourses();
-  if (tab === "quizzes") renderStudentQuizzes();
-  if (tab === "notices") renderStudentNotices();
-  if (tab === "payments") renderStudentPayments();
-  if (tab === "contact") renderStudentContact();
+  curStudentTab = tab; ["courses", "myCourses", "quizzes", "notices", "payments", "contact", "settings"].forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab));
+  if (btn) { document.querySelectorAll("#studentTabs button").forEach(b => b.classList.remove("active")); btn.classList.add("active"); }
+  if (tab === "courses") renderAllCourses(); if (tab === "myCourses") renderMyEnrolledCourses(); if (tab === "quizzes") renderStudentQuizzes(); if (tab === "payments") renderStudentPayments(); if (tab === "notices") renderStudentNotices(); if (tab === "contact") renderStudentContact(); if (tab === "settings") renderStudentSettings();
 };
 
-function isCourseUnlocked(student, course) {
-  if (!course || Number(course.price) <= 0) return true;
-  if (!student) return false;
-  return db.payments.some(p => p.studentId === student.id && p.courseId === course.id && p.status === "Approved");
+function getProgress(courseId) { try { return JSON.parse(localStorage.getItem(`hsc_prog_${currentStudent.id}_${courseId}`) || "[]"); } catch { return []; } }
+function toggleProgress(courseId, classId) {
+  let prog = getProgress(courseId);
+  if (prog.includes(classId)) prog = prog.filter(id => id !== classId);
+  else prog.push(classId);
+  localStorage.setItem(`hsc_prog_${currentStudent.id}_${courseId}`, JSON.stringify(prog));
+  renderMyEnrolledCourses();
 }
 
+function isCourseUnlocked(student, course) { if (!course || Number(course.price) <= 0) return true; if (!student) return false; return db.payments.some(p => p.studentId === student.id && p.courseId === course.id && p.status === "Approved"); }
 function renderAllCourses() {
   const el = document.getElementById("tab-courses");
-  if (!db.courses.length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
-  el.innerHTML = `<div class="grid">` + db.courses.map(c => {
+  el.innerHTML = `<div class="grid">` + db.courses.map((c, i) => {
     const unlocked = isCourseUnlocked(currentStudent, c);
-    const pay = db.payments.slice().reverse().find(p => p.studentId === currentStudent?.id && p.courseId === c.id);
-    let badge = unlocked ? `<span class="pill unlocked">আনলকড</span>` : pay?.status === "Pending" ? `<span class="pill pending">পেন্ডিং (১২ ঘণ্টা অপেক্ষা)</span>` : `<span class="pill locked">লকড</span>`;
-    let btn = !unlocked && pay?.status !== "Pending" ? `<button onclick="openPayModal('${c.id}')">কোর্স কিনুন (${money(c.price)})</button>` : unlocked ? `<button class="secondary" onclick="window.studentTab('myCourses', document.querySelectorAll('#studentTabs button')[1])">কোর্সটি দেখুন</button>` : `<button class="secondary" disabled>ভেরিফিকেশন চলছে</button>`;
-
-    return `
-      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
-        <div>
-          ${c.thumb ? `<img src="${esc(c.thumb)}" class="thumb">` : ""}
-          <div class="row between"><h3>${esc(c.title)}</h3>${badge}</div>
-          <p class="muted small">${esc(c.desc)}</p>
-          <div style="font-weight:700;color:var(--primary);margin:6px 0">${money(c.price)}</div>
-        </div>
-        <div style="margin-top:12px">${btn}</div>
-      </div>
-    `;
+    return `<div class="card cc${i%6}" style="border-top:5px solid var(--cc)"><img src="${esc(c.thumb)}" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:10px"><h3 style="margin:0">${esc(c.title)}</h3><p class="muted small">${esc(c.desc)}</p><div style="font-weight:bold;margin:10px 0;color:var(--cc)">${money(c.price)}</div>${unlocked ? `<button class="secondary" onclick="window.studentTab('myCourses', document.querySelectorAll('#studentTabs button')[1])">কোর্স দেখুন</button>` : `<button onclick="openPayModal('${c.id}')">কিনুন</button>`}</div>`;
   }).join("") + `</div>`;
 }
 
-function renderMyEnrolledCourses() {
-  const el = document.getElementById("tab-myCourses");
-  const myCourses = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
-  if (!myCourses.length) {
-    el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted)">আপনার কোনো এনরোলড কোর্স নেই। "সব কোর্স ও ভর্তি" থেকে কোর্স কিনুন।</div>';
-    return;
-  }
-  el.innerHTML = myCourses.map(c => `
-    <div class="card section">
-      <h3>📘 ${esc(c.title)}</h3>
-      <p class="muted small">${esc(c.desc)}</p>
-      <div class="section">
-        <h4 style="margin:0 0 10px">চ্যাপ্টার ও ক্লাসসমূহ:</h4>
-        ${(c.chapters || []).map(ch => `
-          <div style="margin-bottom:12px;background:var(--bg);padding:12px;border-radius:10px;border:1px solid var(--line)">
-            <b>📁 ${esc(ch.title)}</b>
-            <div style="margin-top:8px;display:grid;gap:6px">
-              ${(ch.classes || []).map(cl => `
-                <div class="card row between" style="padding:10px 14px">
-                  <span>▶ ${esc(cl.title)}</span>
-                  <button class="secondary sm" onclick="openClassPlayer('${c.id}', '${ch.id}', '${cl.id}')">ক্লাস দেখুন</button>
-                </div>
-              `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
-            </div>
-          </div>
-        `).join("") || '<div class="muted small">কোনো চ্যাপ্টার নেই।</div>'}
-      </div>
-    </div>
-  `).join("");
-}
-
-function parseYouTubeEmbed(raw) {
-  if (!raw) return "";
-  try {
-    const u = new URL(raw.trim());
-    let host = u.hostname.toLowerCase().replace(/^(www\.|m\.)/, "");
-    let vid = "";
-    if (host === "youtu.be") vid = u.pathname.split("/").filter(Boolean)[0] || "";
-    else if (host.includes("youtube.com")) {
-      if (u.pathname === "/watch") vid = u.searchParams.get("v") || "";
-      else if (/^\/(embed|shorts|live)\//.test(u.pathname)) vid = u.pathname.split("/").filter(Boolean)[1] || "";
-    }
-    return /^[A-Za-z0-9_-]{11}$/.test(vid) ? `https://www.youtube-nocookie.com/embed/${vid}?rel=0` : "";
-  } catch { return ""; }
-}
-
-// ================= Lesson video player (v7) =================
-// All controls are rendered INSIDE #vp, so pause/play/seek/speed etc. keep working in fullscreen.
-let activeVideoContext = null;
-let activeVideoElement = null;
-let ytProgressTimer = null;
-let ytPlayerApiReady = false;
-let ytApiLoading = false;
-let ytPlayerInstance = null;
-let ytReady = false;
-let ytCurrentTime = 0;
-let ytDuration = 0;
-let vpIdleTimer = null;
-let vpClickTimer = null;
-let vpLastClick = 0;
-let vpDragging = false;
-let vpPointerType = "mouse";
-let vpLastSave = 0;
-const vpPrefs = { volume: 1, muted: false, rate: 1 };
-const VP_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
-const $ = id => document.getElementById(id);
-
-const ICON = {
-  play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
-  pause: '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
-  prev: '<svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>',
-  next: '<svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>',
-  back: '<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>',
-  fwd: '<svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>',
-  vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',
-  mute: '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>',
-  fs: '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>',
-  fsExit: '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>',
-  pip: '<svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>',
-  theater: '<svg viewBox="0 0 24 24"><path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/></svg>'
-};
-
-function allCourseClasses(course) {
-  return (course?.chapters || []).flatMap(ch => (ch.classes || []).map(cl => ({ chapter: ch, cls: cl })));
-}
-function playerProgressKey(cl) {
-  return `hsc_player_progress_${currentStudent?.id || 'guest'}_${cl.id}`;
-}
-function formatPlayerTime(seconds) {
-  if (!Number.isFinite(seconds) || seconds < 0) seconds = 0;
-  const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), sec = Math.floor(seconds % 60);
-  return h ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${m}:${String(sec).padStart(2, '0')}`;
-}
-function setPlayerStatus(text) { const el = $('playerStatus'); if (el) el.textContent = text; }
-function setPct(el) {
-  const max = Number(el.max) || 100;
-  el.style.setProperty('--pct', (Number(el.value) / max * 100) + '%');
-}
-function flash(text) {
-  const f = $('vpFlash'); if (!f) return;
-  f.textContent = text; f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
-}
-
-function loadYouTubeApi() {
-  if (window.YT?.Player) { ytPlayerApiReady = true; return; }
-  if (ytApiLoading) return;
-  ytApiLoading = true;
-  const previous = window.onYouTubeIframeAPIReady;
-  window.onYouTubeIframeAPIReady = function() {
-    ytPlayerApiReady = true; ytApiLoading = false;
-    if (typeof previous === 'function') previous();
-    if (activeVideoContext?.type === 'yt') initYouTubePlayer();
-  };
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  tag.onerror = () => { ytApiLoading = false; setPlayerStatus('YouTube Player লোড হয়নি — ইন্টারনেট চেক করুন'); };
-  document.head.appendChild(tag);
-}
-
-function saveVideoPosition() {
-  if (!activeVideoContext) return;
-  let time = 0;
-  if (!activeVideoContext.finished) {
-    time = activeVideoContext.type === 'local' ? (activeVideoElement?.currentTime || 0) : (ytCurrentTime || 0);
-  }
-  try { localStorage.setItem(playerProgressKey(activeVideoContext.cl), String(time)); } catch {}
-}
-
-function stopPlayback() {
-  if (ytProgressTimer) { clearInterval(ytProgressTimer); ytProgressTimer = null; }
-  try { ytPlayerInstance?.destroy(); } catch {}
-  ytPlayerInstance = null; ytReady = false; ytCurrentTime = 0; ytDuration = 0;
-  const v = activeVideoElement;
-  activeVideoElement = null;
-  if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch {} }
-}
-
-// ---------- unified player helpers (YouTube + local) ----------
-function isLocalActive() { return activeVideoContext?.type === 'local' && !!activeVideoElement; }
-function isYtActive() { return activeVideoContext?.type === 'yt' && !!ytPlayerInstance && ytReady; }
-function pTime() {
-  if (isLocalActive()) return activeVideoElement.currentTime || 0;
-  if (isYtActive()) { try { return ytPlayerInstance.getCurrentTime() || 0; } catch {} }
-  return ytCurrentTime || 0;
-}
-function pDuration() {
-  if (isLocalActive()) { const d = activeVideoElement.duration; return Number.isFinite(d) ? d : 0; }
-  return ytDuration || 0;
-}
-function pPlaying() {
-  if (isLocalActive()) return !activeVideoElement.paused && !activeVideoElement.ended;
-  if (isYtActive()) { try { return ytPlayerInstance.getPlayerState() === 1; } catch {} }
-  return false;
-}
-function pPlay() {
-  if (isLocalActive()) activeVideoElement.play().catch(() => toast('ভিডিও চালু করা যায়নি', 'err'));
-  else if (isYtActive()) ytPlayerInstance.playVideo();
-}
-function pPause() {
-  if (isLocalActive()) activeVideoElement.pause();
-  else if (isYtActive()) ytPlayerInstance.pauseVideo();
-}
-function pToggle() {
-  if (pPlaying()) pPause(); else pPlay();
-  showVpControls();
-}
-function pSeekTo(t) {
-  const d = pDuration();
-  t = Math.max(0, d ? Math.min(d, t) : t);
-  if (isLocalActive()) activeVideoElement.currentTime = t;
-  else if (isYtActive()) { try { ytPlayerInstance.seekTo(t, true); } catch {} }
-  ytCurrentTime = t;
-  updateUI();
-}
-function pSkip(delta) {
-  pSeekTo(pTime() + delta);
-  flash(delta > 0 ? `+${delta}s ▶▶` : `◀◀ ${Math.abs(delta)}s`);
-}
-function pApplyPrefs() {
-  if (isLocalActive()) {
-    const v = activeVideoElement;
-    v.volume = vpPrefs.volume; v.muted = vpPrefs.muted; v.playbackRate = vpPrefs.rate;
-  } else if (isYtActive()) {
-    try {
-      ytPlayerInstance.setVolume(Math.round(vpPrefs.volume * 100));
-      if (vpPrefs.muted) ytPlayerInstance.mute(); else ytPlayerInstance.unMute();
-      ytPlayerInstance.setPlaybackRate(vpPrefs.rate);
-    } catch {}
-  }
-  updateUI();
-}
-function pSetVolume(v) {
-  v = Math.max(0, Math.min(1, v));
-  vpPrefs.volume = v; vpPrefs.muted = (v === 0);
-  pApplyPrefs();
-}
-function pToggleMute() {
-  const nowMuted = !(vpPrefs.muted || vpPrefs.volume === 0);
-  vpPrefs.muted = nowMuted;
-  if (!nowMuted && vpPrefs.volume === 0) vpPrefs.volume = 0.5;
-  pApplyPrefs();
-  flash(nowMuted ? '🔇 Muted' : '🔊 ' + Math.round(vpPrefs.volume * 100) + '%');
-}
-function pSetRate(r) {
-  vpPrefs.rate = r;
-  pApplyPrefs();
-  flash(r + 'x');
-}
-
-// ---------- UI sync ----------
-function updateUI() {
-  const vp = $('vp'); if (!vp) return;
-  const playing = pPlaying();
-  vp.classList.toggle('paused', !playing);
-  const d = pDuration(), t = pTime();
-  const seek = $('playerSeek'), cur = $('playerCurrentTime'), dur = $('playerDuration');
-  if (dur) dur.textContent = formatPlayerTime(d);
-  if (seek && !vpDragging) {
-    seek.max = d || 100; seek.value = Math.min(t, d || 100); setPct(seek);
-    if (cur) cur.textContent = formatPlayerTime(t);
-  }
-  const pb = $('playerPlayButton'), want = playing ? 'pause' : 'play';
-  if (pb && pb.dataset.icon !== want) { pb.innerHTML = ICON[want]; pb.dataset.icon = want; }
-  const mb = $('playerMuteButton'), wantM = (vpPrefs.muted || vpPrefs.volume === 0) ? 'mute' : 'vol';
-  if (mb && mb.dataset.icon !== wantM) { mb.innerHTML = ICON[wantM]; mb.dataset.icon = wantM; }
-  const vol = $('playerVolume');
-  if (vol) { vol.value = vpPrefs.muted ? 0 : vpPrefs.volume; setPct(vol); }
-  const sb = $('vpSpeedBtn'); if (sb) sb.textContent = vpPrefs.rate + 'x';
-  document.querySelectorAll('#vpMenu [data-rate]').forEach(b => b.classList.toggle('on', Number(b.dataset.rate) === vpPrefs.rate));
-}
-
-function showVpControls() {
-  const vp = $('vp'); if (!vp) return;
-  vp.classList.remove('idle');
-  clearTimeout(vpIdleTimer);
-  vpIdleTimer = setTimeout(() => {
-    if (!$('vp') || !pPlaying()) return;
-    const menu = $('vpMenu');
-    if (menu && !menu.classList.contains('hidden')) return;
-    if (vpPointerType === 'mouse' && $('vpControls')?.matches(':hover')) { showVpControls(); return; }
-    $('vp').classList.add('idle');
-  }, 3000);
-}
-
-// ---------- fullscreen / PiP / theater ----------
-function vpIsFs() {
-  return !!(document.fullscreenElement || document.webkitFullscreenElement) || !!$('vp')?.classList.contains('vp-pseudo');
-}
-function syncFs() {
-  const vp = $('vp'); if (!vp) return;
-  const fs = vpIsFs();
-  vp.classList.toggle('is-fs', fs);
-  const b = $('vpFsBtn');
-  if (b) { b.innerHTML = fs ? ICON.fsExit : ICON.fs; b.title = fs ? 'ফুলস্ক্রিন বন্ধ (F)' : 'ফুলস্ক্রিন (F)'; }
-  if (!fs) { try { screen.orientation?.unlock?.(); } catch {} }
-  showVpControls();
-}
-async function pToggleFullscreen() {
-  const vp = $('vp'); if (!vp) return;
-  if (vp.classList.contains('vp-pseudo')) { vp.classList.remove('vp-pseudo'); syncFs(); return; }
-  if (document.fullscreenElement || document.webkitFullscreenElement) {
-    try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch {}
-    return;
-  }
-  const req = vp.requestFullscreen || vp.webkitRequestFullscreen;
-  if (req) {
-    try {
-      await req.call(vp);
-      if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
-        try { await screen.orientation?.lock?.('landscape'); } catch {}
-      }
-    } catch { vp.classList.add('vp-pseudo'); syncFs(); }
-  } else {
-    // e.g. iPhone Safari: fall back to a full-viewport layout so our controls stay visible
-    vp.classList.add('vp-pseudo'); syncFs();
-  }
-}
-async function pPip() {
-  if (!isLocalActive() || !document.pictureInPictureEnabled) { toast('Picture-in-Picture এই ভিডিও/ব্রাউজারে সমর্থিত নয়', 'err'); return; }
-  try {
-    if (document.pictureInPictureElement) await document.exitPictureInPicture();
-    else await activeVideoElement.requestPictureInPicture();
-  } catch { toast('Picture-in-Picture চালু করা যায়নি', 'err'); }
-}
-function pTheater() {
-  const box = $('modalBox'); if (!box) return;
-  const on = box.classList.toggle('player-theater-active');
-  $('vpTheaterBtn')?.classList.toggle('on', on);
-}
-document.addEventListener('fullscreenchange', syncFs);
-document.addEventListener('webkitfullscreenchange', syncFs);
-
-// ---------- YouTube ----------
-function initYouTubePlayer() {
-  if (!window.YT?.Player || !$('ytMount') || ytPlayerInstance || activeVideoContext?.type !== 'yt') return;
-  const ctx = activeVideoContext;
-  const vars = { controls: 0, rel: 0, playsinline: 1, modestbranding: 1, disablekb: 1, fs: 0, iv_load_policy: 3, autoplay: 1, enablejsapi: 1 };
-  if (/^https?:$/.test(location.protocol)) vars.origin = location.origin;
-  ytPlayerInstance = new YT.Player('ytMount', {
-    host: 'https://www.youtube-nocookie.com',
-    videoId: ctx.videoId,
-    playerVars: vars,
-    events: {
-      onReady: (e) => {
-        if (e.target !== ytPlayerInstance) return;
-        ytReady = true;
-        const saved = Number(localStorage.getItem(playerProgressKey(ctx.cl)) || 0);
-        if (saved > 5) { try { ytPlayerInstance.seekTo(saved, true); } catch {} }
-        try { ytDuration = ytPlayerInstance.getDuration() || 0; } catch {}
-        pApplyPrefs();
-        setPlayerStatus('YouTube Player প্রস্তুত');
-      },
-      onStateChange: (e) => {
-        if (e.target !== ytPlayerInstance) return;
-        const s = e.data;
-        $('vp')?.classList.toggle('buffering', s === 3);
-        if (s === 1) { ctx.finished = false; setPlayerStatus('চলছে'); try { ytDuration = ytPlayerInstance.getDuration() || ytDuration; } catch {} }
-        if (s === 2) { setPlayerStatus('পজ'); saveVideoPosition(); }
-        if (s === 0) { ctx.finished = true; saveVideoPosition(); goToAdjacentClass(1, true); return; }
-        updateUI(); showVpControls();
-      },
-      onError: (e) => { if (e.target === ytPlayerInstance) setPlayerStatus('ভিডিও লোড করা যায়নি (YouTube error ' + e.data + ')'); }
-    }
-  });
-  ytProgressTimer = setInterval(() => {
-    if (!ytPlayerInstance || !ytReady || !activeVideoContext) return;
-    try { ytCurrentTime = ytPlayerInstance.getCurrentTime() || 0; ytDuration = ytPlayerInstance.getDuration() || 0; } catch {}
-    updateUI();
-    const now = Date.now();
-    if (now - vpLastSave > 5000 && pPlaying()) { vpLastSave = now; saveVideoPosition(); }
-  }, 400);
-}
-
-// ---------- local video ----------
-function bindLocalVideo(video) {
-  activeVideoElement = video;
-  const ctx = activeVideoContext;
-  const saved = Number(localStorage.getItem(playerProgressKey(ctx.cl)) || 0);
-  const on = (name, fn) => video.addEventListener(name, (e) => { if (activeVideoElement === video) fn(e); });
-  on('loadedmetadata', () => { if (saved > 5 && saved < video.duration - 5) video.currentTime = saved; pApplyPrefs(); });
-  on('timeupdate', () => {
-    updateUI();
-    const now = Date.now();
-    if (now - vpLastSave > 5000) { vpLastSave = now; saveVideoPosition(); }
-  });
-  on('play', () => { ctx.finished = false; setPlayerStatus('চলছে'); updateUI(); showVpControls(); });
-  on('playing', () => { $('vp')?.classList.remove('buffering'); updateUI(); });
-  on('pause', () => { if (video.ended) return; setPlayerStatus('পজ'); saveVideoPosition(); updateUI(); showVpControls(); });
-  on('waiting', () => $('vp')?.classList.add('buffering'));
-  on('canplay', () => $('vp')?.classList.remove('buffering'));
-  on('volumechange', updateUI);
-  on('ended', () => { ctx.finished = true; saveVideoPosition(); updateUI(); showVpControls(); goToAdjacentClass(1, true); });
-  on('error', () => { $('vp')?.classList.remove('buffering'); setPlayerStatus('ভিডিও লোড করা যায়নি'); });
-  video.volume = vpPrefs.volume; video.muted = vpPrefs.muted; video.playbackRate = vpPrefs.rate;
-  video.play().catch(() => {});
-}
-
-// ---------- class navigation ----------
-function goToAdjacentClass(direction, auto = false) {
-  if (!activeVideoContext) return;
-  const { course, cl } = activeVideoContext;
-  const list = allCourseClasses(course);
-  const index = list.findIndex(item => item.cls.id === cl.id);
-  const next = list[index + direction];
-  if (!next) { if (auto) setPlayerStatus('কোর্সের শেষ ক্লাস'); else toast('আর কোনো ক্লাস নেই', 'info'); return; }
-  window.openClassPlayer(course.id, next.chapter.id, next.cls.id);
-}
-
-// ---------- shell markup + events ----------
-function vpShellMarkup(wm) {
-  return `
-  <div class="stack">
-    <div class="row between"><div><h3 id="vpTitle" style="margin:0"></h3><div class="muted small" id="vpSub"></div></div><button class="ghost sm" onclick="closeModal()">✕</button></div>
-    <div class="vp paused" id="vp">
-      <div class="vp-stage" id="studentPlayerShell"></div>
-      <div class="watermark">${esc(wm)}</div>
-      <div class="vp-click" id="vpClick"></div>
-      <div class="vp-spin"></div>
-      <div class="vp-flash" id="vpFlash"></div>
-      <div class="vp-big">${ICON.play}</div>
-      <div class="vp-top"><span id="vpTopTitle"></span></div>
-      <div class="vp-menu hidden" id="vpMenu">${VP_SPEEDS.map(r => `<button data-rate="${r}">${r === 1 ? 'Normal (1x)' : r + 'x'}</button>`).join('')}</div>
-      <div class="vp-controls" id="vpControls">
-        <div class="vp-seekrow">
-          <span class="vp-time" id="playerCurrentTime">0:00</span>
-          <input id="playerSeek" class="vp-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="ভিডিও প্রগ্রেস">
-          <span class="vp-time" id="playerDuration">0:00</span>
-        </div>
-        <div class="vp-row">
-          <div class="vp-grp">
-            <button class="vp-btn" data-act="prev" title="আগের ক্লাস (Shift+P)" aria-label="আগের ক্লাস">${ICON.prev}</button>
-            <button class="vp-btn" data-act="back" title="১০ সেকেন্ড পিছনে (J)" aria-label="১০ সেকেন্ড পিছনে">${ICON.back}<span>10</span></button>
-            <button class="vp-btn vp-main" data-act="play" id="playerPlayButton" title="Play / Pause (Space)" aria-label="Play / Pause">${ICON.play}</button>
-            <button class="vp-btn" data-act="fwd" title="১০ সেকেন্ড সামনে (L)" aria-label="১০ সেকেন্ড সামনে"><span>10</span>${ICON.fwd}</button>
-            <button class="vp-btn" data-act="next" title="পরের ক্লাস (Shift+N)" aria-label="পরের ক্লাস">${ICON.next}</button>
-            <button class="vp-btn" data-act="mute" id="playerMuteButton" title="Mute / Unmute (M)" aria-label="Mute / Unmute">${ICON.vol}</button>
-            <input id="playerVolume" class="vp-seek vp-vol" type="range" min="0" max="1" step="0.05" value="1" aria-label="ভলিউম">
-          </div>
-          <div class="vp-grp">
-            <button class="vp-btn vp-txt" data-act="speed" id="vpSpeedBtn" title="Playback speed" aria-label="Playback speed">1x</button>
-            <button class="vp-btn vp-pip-btn" data-act="pip" title="Picture in Picture" aria-label="Picture in Picture">${ICON.pip}</button>
-            <button class="vp-btn vp-theater-btn" data-act="theater" id="vpTheaterBtn" title="Theater mode (T)" aria-label="Theater mode">${ICON.theater}</button>
-            <button class="vp-btn" data-act="fs" id="vpFsBtn" title="ফুলস্ক্রিন (F)" aria-label="Fullscreen">${ICON.fs}</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="vpPdfs"></div>
-    <div class="vp-status"><span id="playerStatus">ভিডিও প্রস্তুত</span><span>Space/K = Play·Pause · F = Fullscreen · ←/→ = ৫s · J/L = ১০s · M = Mute</span></div>
-  </div>`;
-}
-
-function bindShell() {
-  const vp = $('vp'), click = $('vpClick'), controls = $('vpControls'), menu = $('vpMenu');
-  vp.addEventListener('contextmenu', e => e.preventDefault());
-  vp.addEventListener('pointerdown', e => { vpPointerType = e.pointerType || 'mouse'; vp.dataset.wasIdle = vp.classList.contains('idle') ? '1' : '0'; });
-  vp.addEventListener('pointermove', e => { vpPointerType = e.pointerType || 'mouse'; showVpControls(); });
-
-  click.addEventListener('click', e => {
-    if (!menu.classList.contains('hidden')) { menu.classList.add('hidden'); return; }
-    const wasIdle = vp.dataset.wasIdle === '1';
-    vp.dataset.wasIdle = '0';
-    if (vpPointerType !== 'mouse' && wasIdle) { showVpControls(); return; }
-    const now = Date.now();
-    const rect = click.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / (rect.width || 1);
-    clearTimeout(vpClickTimer);
-    if (now - vpLastClick < 300) {
-      vpLastClick = 0;
-      if (x < 0.33) pSkip(-10); else if (x > 0.67) pSkip(10); else pToggleFullscreen();
-    } else {
-      vpLastClick = now;
-      vpClickTimer = setTimeout(pToggle, 250);
-    }
-  });
-
-  const actions = {
-    prev: () => goToAdjacentClass(-1), next: () => goToAdjacentClass(1),
-    back: () => pSkip(-10), fwd: () => pSkip(10),
-    play: pToggle, mute: pToggleMute,
-    speed: () => menu.classList.toggle('hidden'),
-    pip: pPip, theater: pTheater, fs: pToggleFullscreen
-  };
-  controls.addEventListener('click', e => {
-    const b = e.target.closest('[data-act]'); if (!b) return;
-    actions[b.dataset.act]?.();
-    b.blur(); showVpControls();
-  });
-  menu.addEventListener('click', e => {
-    const b = e.target.closest('[data-rate]'); if (!b) return;
-    pSetRate(Number(b.dataset.rate));
-    menu.classList.add('hidden'); b.blur(); showVpControls();
-  });
-
-  const seek = $('playerSeek');
-  seek.addEventListener('pointerdown', () => { vpDragging = true; });
-  seek.addEventListener('input', () => {
-    vpDragging = true; setPct(seek);
-    const cur = $('playerCurrentTime'); if (cur) cur.textContent = formatPlayerTime(Number(seek.value));
-  });
-  seek.addEventListener('change', () => { pSeekTo(Number(seek.value)); vpDragging = false; seek.blur(); showVpControls(); });
-  seek.addEventListener('pointercancel', () => { vpDragging = false; });
-  seek.addEventListener('pointerup', () => setTimeout(() => { vpDragging = false; }, 60));
-
-  const vol = $('playerVolume');
-  vol.addEventListener('input', () => pSetVolume(Number(vol.value)));
-  vol.addEventListener('change', () => { vol.blur(); showVpControls(); });
-}
-
-window.openClassPlayer = function(cid, chid, clid) {
-  const c = db.courses.find(x => x.id === cid);
-  const ch = c?.chapters.find(x => x.id === chid);
-  const cl = ch?.classes.find(x => x.id === clid);
-  if (!cl) return;
-  saveVideoPosition();
-  stopPlayback();
-  clearTimeout(vpClickTimer);
-  const type = cl.videoType === 'local' ? 'local' : 'yt';
-  activeVideoContext = { course: c, chapter: ch, cl, type, finished: false };
-
-  // The shell is created once and reused when switching classes, so fullscreen is not lost.
-  if (!$('vp')) { openModal(vpShellMarkup(currentStudent?.email || ''), true); bindShell(); }
-  const vp = $('vp'), stage = $('studentPlayerShell');
-  vp.classList.toggle('no-pip', type !== 'local');
-  vp.classList.remove('buffering');
-  $('vpTitle').textContent = cl.title;
-  $('vpSub').textContent = `${c.title} · ${ch.title}`;
-  $('vpTopTitle').textContent = cl.title;
-  $('vpPdfs').innerHTML = cl.pdfs?.length
-    ? `<div class="row" style="gap:8px">${cl.pdfs.map((p, idx) => `<a href="${esc(p)}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;background:var(--primary);color:#fff">📄 PDF নোট ${idx + 1}</a>`).join('')}</div>`
-    : '';
-  setPlayerStatus('ভিডিও লোড হচ্ছে…');
-
-  if (type === 'local' && cl.videoSource) {
-    stage.innerHTML = '<video id="studentLocalVideo" playsinline preload="metadata" controlslist="nodownload"></video>';
-    const video = stage.firstChild;
-    video.src = cl.videoSource;
-    bindLocalVideo(video);
-  } else {
-    const embed = type === 'yt' ? parseYouTubeEmbed(cl.videoSource) : '';
-    if (embed) {
-      activeVideoContext.videoId = embed.split('/embed/')[1].split('?')[0];
-      stage.innerHTML = '<div id="ytMount"></div>';
-      loadYouTubeApi();
-      if (ytPlayerApiReady) initYouTubePlayer();
-    } else {
-      stage.innerHTML = '<div class="empty">ভিডিও সোর্স উপলব্ধ নেই।</div>';
-      setPlayerStatus('ভিডিও সোর্স উপলব্ধ নেই');
-    }
-  }
-  updateUI(); syncFs(); showVpControls();
-};
-
-// Keyboard shortcuts: active only while the lesson player is open (also work in fullscreen).
-document.addEventListener('keydown', function(e) {
-  const vp = $('vp');
-  if (!vp || !activeVideoContext) return;
-  const t = e.target;
-  if (/INPUT|TEXTAREA|SELECT/.test(t.tagName) && t.type !== 'range') return;
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
-  const k = e.key;
-  const handled = () => { e.preventDefault(); showVpControls(); };
-  if (k === ' ' || k === 'k' || k === 'K') { handled(); pToggle(); }
-  else if (k === 'ArrowLeft') { handled(); pSkip(-5); }
-  else if (k === 'ArrowRight') { handled(); pSkip(5); }
-  else if (k === 'j' || k === 'J') { handled(); pSkip(-10); }
-  else if (k === 'l' || k === 'L') { handled(); pSkip(10); }
-  else if (k === 'ArrowUp') { handled(); pSetVolume(vpPrefs.volume + 0.05); flash('🔊 ' + Math.round(vpPrefs.volume * 100) + '%'); }
-  else if (k === 'ArrowDown') { handled(); pSetVolume(vpPrefs.volume - 0.05); flash('🔊 ' + Math.round(vpPrefs.volume * 100) + '%'); }
-  else if (k === 'f' || k === 'F') { handled(); pToggleFullscreen(); }
-  else if (k === 'm' || k === 'M') { handled(); pToggleMute(); }
-  else if (k === 't' || k === 'T') { handled(); pTheater(); }
-  else if (k === 'N') { handled(); goToAdjacentClass(1); }
-  else if (k === 'P') { handled(); goToAdjacentClass(-1); }
-  else if (/^[0-9]$/.test(k)) { handled(); pSeekTo(pDuration() * Number(k) / 10); }
-  else if (k === 'Escape') {
-    if (vp.classList.contains('vp-pseudo')) { handled(); vp.classList.remove('vp-pseudo'); syncFs(); }
-    else if (!$('vpMenu').classList.contains('hidden')) { handled(); $('vpMenu').classList.add('hidden'); }
-  }
-});
-
 window.openPayModal = function(cid) {
   const c = db.courses.find(x => x.id === cid);
-  if (!c) return;
-  openModal(`
+  window.openModal(`
     <div class="stack">
-      <h3 style="margin:0">কোর্স পেমেন্ট & ভর্তি</h3>
-      <p class="small muted">bKash: ${db.numbers.bkash} | Nagad: ${db.numbers.nagad}</p>
-      <div class="field"><label>পেমেন্ট মাধ্যম</label><select id="payM"><option value="bKash">bKash</option><option value="Nagad">Nagad</option></select></div>
-      <div class="field"><label>Transaction ID (TrxID)</label><input id="payTx" placeholder="যেমন: 9N87AH65K" style="text-transform:uppercase"></div>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="submitPayment('${c.id}')">পেমেন্ট সাবমিট করুন</button>
-      </div>
+      <h3>কোর্স পেমেন্ট</h3>
+      <p class="muted">মূল্য: <b id="payPrice">${c.price}</b> ৳</p>
+      <div class="field"><label>কুপন কোড (যদি থাকে)</label><div class="row"><input id="couponInput" style="flex:1"><button class="secondary sm" onclick="applyCoupon('${c.id}')">অ্যাপ্লাই</button></div></div>
+      <div class="field"><label>TrxID</label><input id="payTx"></div>
+      <button onclick="submitPayment('${c.id}')">পেমেন্ট সাবমিট করুন</button>
     </div>
   `);
 };
-
+window.applyCoupon = function(cid) {
+  const code = document.getElementById("couponInput").value.trim().toUpperCase();
+  const c = db.courses.find(x => x.id === cid); const coup = db.coupons.find(cp => cp.code === code);
+  if (coup) { const newPrice = Math.round(c.price - (c.price * coup.percent / 100)); document.getElementById("payPrice").textContent = newPrice; toast(`কুপন অ্যাপ্লাইড! ${coup.percent}% ছাড়`, "ok"); }
+  else { toast("ভুল কুপন কোড", "err"); }
+};
 window.submitPayment = function(cid) {
-  const c = db.courses.find(x => x.id === cid);
-  const tx = document.getElementById("payTx").value.trim().toUpperCase();
-  if (!tx) { toast("TrxID দিন", "err"); return; }
-  db.payments.push({
-    id: uid(), studentId: currentStudent.id, studentName: currentStudent.name, email: currentStudent.email,
-    courseId: c.id, courseTitle: c.title, method: document.getElementById("payM").value, transaction: tx,
-    amount: c.price, status: "Pending", date: new Date().toISOString()
-  });
-  saveDB(); closeModal();
-  toast("পেমেন্ট সাবমিট হয়েছে। অ্যাডমিন যাচাই করে ১২ ঘণ্টার মধ্যে অনুমোদন করবেন।", "ok");
-  window.studentTab('courses');
+  const tx = document.getElementById("payTx").value.trim().toUpperCase(); if (!tx) { toast("TrxID দিন", "err"); return; }
+  const c = db.courses.find(x => x.id === cid); const finalPrice = Number(document.getElementById("payPrice").textContent);
+  db.payments.push({ id: uid(), studentId: currentStudent.id, studentName: currentStudent.name, email: currentStudent.email, courseId: c.id, courseTitle: c.title, transaction: tx, amount: finalPrice, status: "Pending", date: new Date().toISOString() });
+  saveDB(); closeModal(); toast("পেমেন্ট সাবমিট হয়েছে", "ok"); renderAllCourses();
 };
 
-function renderStudentPayments() {
-  const rows = db.payments.filter(p => p.studentId === currentStudent.id);
-  document.getElementById("tab-payments").innerHTML = `<div class="card"><h3>পেমেন্ট ইতিহাস</h3>${rows.length ? rows.map(p => `<div class="item"><b>${esc(p.courseTitle)}</b> · ${money(p.amount)}<br><small>TrxID: ${esc(p.transaction)} · স্ট্যাটাস: <span class="pill ${p.status.toLowerCase()}">${p.status}</span></small></div>`).join("") : '<div class="empty">কোনো পেমেন্ট নেই।</div>'}</div>`;
-}
-
-function renderStudentContact() {
-  const myMsgs = db.messages.filter(m => m.studentId === currentStudent.id);
-  document.getElementById("tab-contact").innerHTML = `
-    <div class="card stack" style="max-width:650px;margin:auto">
-      <h3 style="margin:0">✍️ Contact with Author</h3>
-      <p class="muted small">আপনার কোনো সমস্যা বা প্রশ্ন থাকলে এখানে লিখুন।</p>
-      <div class="field"><textarea id="msgBody" placeholder="আপনার বার্তা লিখুন..."></textarea></div>
-      <button onclick="sendAuthorMessage()">বার্তা পাঠান</button>
-      <h4 style="margin-top:20px">আপনার বার্তা ও উত্তর:</h4>
-      ${myMsgs.length ? myMsgs.map(m => `<div class="item"><b>বার্তা:</b> ${esc(m.message)}<br>${m.reply ? `<b style="color:var(--green)">উত্তর:</b> ${esc(m.reply)}` : '<span class="muted small">উত্তরের অপেক্ষায়...</span>'}</div>`).join("") : '<div class="empty">কোনো বার্তা নেই।</div>'}
-    </div>
-  `;
-}
-
-window.sendAuthorMessage = function() {
-  const text = document.getElementById("msgBody").value.trim();
-  if (!text) { toast("বার্তা খালি রাখা যাবে না।", "err"); return; }
-  db.messages.push({ id: uid(), studentId: currentStudent.id, studentName: currentStudent.name, email: currentStudent.email, message: text, date: new Date().toISOString(), reply: "" });
-  saveDB(); toast("বার্তা পাঠানো হয়েছে!", "ok"); renderStudentContact();
-};
-
-function fmtDate(iso) {
-  try { return new Date(iso).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" }); } catch { return ""; }
-}
-
-function renderStudentNotices() {
-  const list = db.notices.slice().reverse();
-  document.getElementById("tab-notices").innerHTML = list.length ? list.map(n => `<div class="notice"><b>${esc(n.title)}</b><div style="white-space:pre-wrap">${esc(n.body)}</div><div class="muted small" style="margin-top:4px">${fmtDate(n.edited || n.date)}${n.edited ? " (সম্পাদিত)" : ""}</div></div>`).join("") : '<div class="empty">কোনো নোটিশ নেই।</div>';
-}
-
-function renderStudentQuizzes() {
-  const el = document.getElementById("tab-quizzes");
-  if (!db.quizzes.length) { el.innerHTML = '<div class="empty">কোনো কুইজ নেই।</div>'; return; }
-  el.innerHTML = db.quizzes.map(q => {
-    const course = db.courses.find(c => c.id === q.courseId);
-    const unlocked = !course || isCourseUnlocked(currentStudent, course);
-    const prev = db.quizResults.filter(r => r.studentId === currentStudent.id && r.quizId === q.id).slice(-1)[0];
+let stuOpenCourse = null;
+window.toggleStuCourse = function(cid) { stuOpenCourse = stuOpenCourse === cid ? null : cid; renderMyEnrolledCourses(); };
+function renderMyEnrolledCourses() {
+  const el = document.getElementById("tab-myCourses"); const myCourses = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
+  if (!myCourses.length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
+  el.innerHTML = myCourses.map((c, i) => {
+    const chs = c.chapters || []; const totalCls = chs.reduce((n, ch) => n + (ch.classes || []).length, 0);
+    const prog = getProgress(c.id); const percent = totalCls ? Math.round((prog.length / totalCls) * 100) : 0; const open = stuOpenCourse === c.id;
     return `
-      <div class="card section row between">
-        <div>
-          <h3 style="margin:0 0 4px">${esc(q.title)}</h3>
-          <div class="muted small">কোর্স: ${esc(course ? course.title : "সাধারণ")} · প্রশ্ন: ${q.questions.length}টি</div>
-          ${prev ? `<div class="small" style="margin-top:4px">স্কোর: <b>${prev.score}/${prev.total} (${prev.percent}%)</b> — <span class="pill ${prev.passed ? "approved" : "rejected"}">${prev.passed ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}</span></div>` : ""}
-        </div>
-        <div class="row">
-          ${unlocked ? `<button class="secondary sm" onclick="startQuiz('${q.id}')">${prev ? "আবার পরীক্ষা দিন" : "পরীক্ষা শুরু করুন"}</button>` : `<span class="pill locked">কোর্স লকড</span>`}
-          ${prev && prev.passed ? `<button class="success sm" onclick="generateCertificate('${q.id}')">🎓 সার্টিফিকেট</button>` : ""}
+    <div class="acc cc${i % 6}${open ? " open" : ""}" style="margin-bottom:16px">
+      <div class="acc-head" onclick="toggleStuCourse('${c.id}')">
+        <div class="acc-ico">${c.thumb?`<img src="${esc(c.thumb)}">`:"📘"}</div>
+        <div class="acc-title"><b>${esc(c.title)}</b>
+          <div class="acc-meta"><span class="pill">${prog.length}/${totalCls} ক্লাস</span></div>
+          <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div>
         </div>
       </div>
-    `;
-  }).join("");
-}
-
-window.startQuiz = function(qid) {
-  const qz = db.quizzes.find(q => q.id === qid);
-  if (!qz) return;
-  openModal(`
-    <div class="stack">
-      <h3 style="margin:0">${esc(qz.title)}</h3>
-      <div class="stack">
-        ${qz.questions.map((qu, qi) => `
-          <div class="card" style="padding:12px">
-            <div style="font-weight:650;margin-bottom:6px">প্রশ্ন ${qi + 1}: ${esc(qu.q)}</div>
-            <div class="stack" style="gap:4px">
-              ${qu.options.map((opt, oi) => `
-                <label style="display:flex;align-items:center;gap:8px;padding:6px;cursor:pointer;background:var(--bg);border-radius:6px">
-                  <input type="radio" name="qz_${qi}" value="${oi}"> <span>${esc(opt)}</span>
-                </label>
-              `).join("")}
+      <div class="acc-body">
+        ${chs.map(ch => `
+          <div class="acc sub open" style="margin-bottom:10px">
+            <div class="acc-head" style="padding:8px"><b>${esc(ch.title)}</b></div>
+            <div class="acc-body" style="padding:0 10px 10px">
+              ${(ch.classes || []).map(cl => {
+                const done = prog.includes(cl.id);
+                return `<div class="cls-row" onclick="openClassPlayer('${c.id}', '${cl.id}')">
+                  <span>${done ? '✅' : '▶'} ${esc(cl.title)}</span>
+                  <button class="sm ${done?'secondary':''}" onclick="event.stopPropagation(); toggleProgress('${c.id}', '${cl.id}')">${done ? 'আনডান' : 'কমপ্লিট'}</button>
+                </div>`;
+              }).join("")}
             </div>
           </div>
         `).join("")}
       </div>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="submitQuiz('${qz.id}')">জমা দিন</button>
+    </div>`;
+  }).join("");
+}
+
+window.renderStudentSettings = function() {
+  document.getElementById("tab-settings").innerHTML = `
+    <div class="card stack" style="max-width:400px">
+      <h3>পাসওয়ার্ড পরিবর্তন</h3>
+      <div class="field"><label>পুরোনো পিন</label><input type="password" id="oldPin"></div>
+      <div class="field"><label>নতুন পিন</label><input type="password" id="newPin"></div>
+      <button onclick="changeStudentPin()">আপডেট করুন</button>
+    </div>
+  `;
+};
+window.changeStudentPin = async function() {
+  const oldPin = document.getElementById("oldPin").value, newPin = document.getElementById("newPin").value;
+  if (newPin.length < 4) { toast("নতুন পিন ৪+ অক্ষর হতে হবে", "err"); return; }
+  const r = await api("/api/student/change-pin", { method: "POST", token: studentToken, body: { oldPin, newPin } });
+  if (r.ok) { toast("পাসওয়ার্ড পরিবর্তন সফল!", "ok"); document.getElementById("oldPin").value=""; document.getElementById("newPin").value=""; }
+  else { toast("পুরোনো পিন ভুল!", "err"); }
+};
+window.openClassPlayer = function(cid, clid) {
+  const c = db.courses.find(x => x.id === cid); const cl = c.chapters.flatMap(ch => ch.classes).find(x => x.id === clid);
+  
+  let sideHtml = `<div class="vp-sidebar"><div class="vp-sidebar-head"><span>কোর্স ক্লাস</span><button class="ghost sm" onclick="closeModal()">✕</button></div><div class="vp-sidebar-list">`;
+  c.chapters.forEach(ch => {
+    sideHtml += `<div class="side-chap">${esc(ch.title)}</div>`;
+    ch.classes.forEach(cl2 => {
+      sideHtml += `<div class="side-item ${cl2.id === clid ? 'active' : ''}" onclick="openClassPlayer('${c.id}','${cl2.id}')"><span>▶ ${esc(cl2.title)}</span></div>`;
+    });
+  });
+  sideHtml += `</div></div>`;
+
+  const type = cl.videoType === 'local' ? 'local' : 'yt';
+  let embed = "";
+  if (type === 'yt') { const m = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/.exec(cl.videoSource); if (m) embed = `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&autoplay=1`; }
+  
+  const pdfsHtml = cl.pdfs?.length ? `<div class="vp-pdfs">${cl.pdfs.map((p, i) => `<a href="${esc(p)}" target="_blank" class="pill" style="background:var(--primary);color:#fff;text-decoration:none">📄 PDF ${i+1}</a>`).join("")}</div>` : "";
+
+  window.openModal(`
+    <div class="player-layout">
+      <div class="vp-container">
+        ${pdfsHtml}
+        <div class="vp-stage">${type === 'local' ? `<video src="${cl.videoSource}" controls autoplay></video>` : `<iframe src="${embed}" allow="autoplay; fullscreen"></iframe>`}</div>
       </div>
+      ${sideHtml}
     </div>
   `, true);
 };
 
-window.submitQuiz = function(qid) {
-  const qz = db.quizzes.find(q => q.id === qid);
-  let score = 0;
-  const total = qz.questions.length;
-  for (let i = 0; i < total; i++) {
-    const sel = document.querySelector(`input[name="qz_${i}"]:checked`);
-    if (sel && Number(sel.value) === qz.questions[i].correct) score++;
-  }
-  const percent = Math.round((score / total) * 100);
-  const passed = percent >= 60;
-  db.quizResults.push({ id: uid(), studentId: currentStudent.id, quizId: qz.id, score, total, percent, passed, date: new Date().toISOString() });
-  saveDB(); closeModal();
-  toast(passed ? `উত্তীর্ণ হয়েছেন! স্কোর ${score}/${total} (${percent}%)` : `স্কোর ${score}/${total} (${percent}%) — পাস মার্ক ৬০%`, passed ? "ok" : "err");
-  renderStudentQuizzes();
-};
-
-window.generateCertificate = function(qid) {
-  const qz = db.quizzes.find(q => q.id === qid);
-  const course = db.courses.find(c => c.id === qz?.courseId);
-  const res = db.quizResults.filter(r => r.studentId === currentStudent.id && r.quizId === qid && r.passed).slice(-1)[0];
-  if (!qz || !res) return;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  doc.setFillColor(15, 23, 42); doc.rect(0, 0, 297, 210, 'F');
-  doc.setDrawColor(37, 99, 235); doc.setLineWidth(1.5); doc.rect(10, 10, 277, 190);
-  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(26);
-  doc.text('CERTIFICATE OF COMPLETION', 148.5, 45, { align: 'center' });
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.setTextColor(148, 163, 184);
-  doc.text('This is proudly presented to', 148.5, 65, { align: 'center' });
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(30); doc.setTextColor(37, 99, 235);
-  doc.text(currentStudent.name.toUpperCase(), 148.5, 85, { align: 'center' });
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.setTextColor(203, 213, 225);
-  doc.text('for successfully completing the assessment in', 148.5, 105, { align: 'center' });
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(255, 255, 255);
-  doc.text(course ? course.title : qz.title, 148.5, 120, { align: 'center' });
-  doc.save(`HSC_PrepHub_Certificate_${qid}.pdf`);
-  toast("PDF সার্টিফিকেট ডাউনলোড হয়েছে!", "ok");
-};
-
-window.adminLogin = async function() {
-  const u = document.getElementById("adminUser").value.trim();
-  const p = document.getElementById("adminPass").value;
-  let r;
-  try { r = await api("/api/admin/login", { method: "POST", body: { username: u, password: p } }); }
-  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
-  if (r.status === 429) { toast("অনেকবার ভুল হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।", "err"); return; }
-  if (!r.ok) { toast("ভুল ইউজারনেম বা পাসওয়ার্ড!", "err"); return; }
-
-  adminToken = r.data.token; lsSet(LS_ADMIN, adminToken);
-  adminOn = true;
-  adoptState(r.data);
-  document.getElementById("adminPass").value = "";
-  toast("অ্যাডমিন লগইন সফল", "ok");
-
-  // Ei browser-e purono (local) data thakle, ekbar server-e upload korar option dey
-  try {
-    const old = localStorage.getItem(KEY);
-    if (old && !localStorage.getItem("hsc_migrated_v6")) {
-      localStorage.setItem("hsc_migrated_v6", "1");
-      if (confirm("এই ব্রাউজারে আগের লোকাল ডেটা পাওয়া গেছে।\nএটি সার্ভারে আপলোড করে সবার জন্য চালু করবেন?\n(সার্ভারের বর্তমান ডেটা এটি দিয়ে বদলে যাবে।)")) {
-        const parsed = JSON.parse(old);
-        if (parsed && Array.isArray(parsed.courses)) {
-          db = normalizeDB(parsed); forceReplace = true; saveDB();
-          toast("পুরোনো ডেটা সার্ভারে আপলোড হচ্ছে…", "ok");
-        }
-      }
-    }
-  } catch {}
-  renderAdmin();
-};
-
-window.adminLogout = function() {
-  const t = adminToken;
-  adminOn = false; adminRendered = false; adminToken = ""; lsSet(LS_ADMIN, "");
-  if (t) api("/api/admin/logout", { method: "POST", token: t }).catch(() => {});
-  showAdminCheck();
-  pollState(true);   // memory theke admin-only data soriye public view nao
-};
-
-function renderAdmin() {
-  adminRendered = true;
-  document.getElementById("adminLogin").classList.add("hidden");
-  document.getElementById("adminArea").classList.remove("hidden");
-
-  document.getElementById("statCourses").textContent = db.courses.length;
-  document.getElementById("statStudents").textContent = db.students.length;
-  document.getElementById("statPending").textContent = db.payments.filter(p => p.status === "Pending").length;
-  document.getElementById("statMessages").textContent = db.messages.length;
-
-  document.getElementById("bkashNumber").value = db.numbers.bkash || "";
-  document.getElementById("nagadNumber").value = db.numbers.nagad || "";
-
-  window.adminTab('manage', document.querySelector('#adminTabs button'));
+function renderStudentQuizzes() {
+  const el = document.getElementById("tab-quizzes"); if (!db.quizzes.length) { el.innerHTML = '<div class="empty">কোনো কুইজ নেই।</div>'; return; }
+  el.innerHTML = db.quizzes.map(q => {
+    const course = db.courses.find(c => c.id === q.courseId); const unlocked = !course || isCourseUnlocked(currentStudent, course);
+    const prev = db.quizResults.filter(r => r.studentId === currentStudent.id && r.quizId === q.id).slice(-1)[0];
+    return `<div class="card section row between"><div><h3 style="margin:0 0 4px">${esc(q.title)}</h3><div class="muted small">প্রশ্ন: ${q.questions.length}টি</div>${prev ? `<div class="small" style="margin-top:4px">স্কোর: <b>${prev.score}/${prev.total} (${prev.percent}%)</b></div>` : ""}</div><div class="row">${unlocked ? `<button class="secondary sm" onclick="startQuiz('${q.id}')">${prev ? "আবার পরীক্ষা দিন" : "পরীক্ষা শুরু করুন"}</button>` : `<span class="pill locked">কোর্স লকড</span>`}${prev && prev.passed ? `<button class="success sm" onclick="generateCertificate('${q.id}')">🎓 সার্টিফিকেট</button>` : ""}</div></div>`;
+  }).join("");
 }
-
-window.adminTab = function(tab, btn) {
-  curAdminTab = tab;
-  ["manage", "quizAdmin", "paymentAdmin", "studentList", "messagesAdmin", "noticeAdmin", "settingsAdmin"].forEach(t => {
-    document.getElementById("admin-" + t).classList.toggle("hidden", t !== tab);
-  });
-  if (btn) {
-    document.querySelectorAll("#adminTabs button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-  }
-  if (tab === "manage") renderAdminCourses();
-  if (tab === "quizAdmin") renderAdminQuizzes();
-  if (tab === "paymentAdmin") renderAdminPayments();
-  if (tab === "studentList") renderAdminStudents();
-  if (tab === "messagesAdmin") renderAdminMessages();
-  if (tab === "noticeAdmin") renderAdminNotices();
+window.startQuiz = function(qid) {
+  const qz = db.quizzes.find(q => q.id === qid); if (!qz) return;
+  window.openModal(`<div class="stack"><h3 style="margin:0">${esc(qz.title)}</h3><div class="stack">${qz.questions.map((qu, qi) => `<div class="card" style="padding:12px"><div style="font-weight:650;margin-bottom:6px">প্রশ্ন ${qi + 1}: ${esc(qu.q)}</div><div class="stack" style="gap:4px">${qu.options.map((opt, oi) => `<label style="display:flex;align-items:center;gap:8px;padding:6px;cursor:pointer;background:var(--bg);border-radius:6px"><input type="radio" name="qz_${qi}" value="${oi}"> <span>${esc(opt)}</span></label>`).join("")}</div></div>`).join("")}</div><div class="row" style="justify-content:flex-end"><button class="ghost" onclick="closeModal()">বাতিল</button><button onclick="submitQuiz('${qz.id}')">জমা দিন</button></div></div>`, true);
 };
+window.submitQuiz = function(qid) {
+  const qz = db.quizzes.find(q => q.id === qid); let score = 0; const total = qz.questions.length;
+  for (let i = 0; i < total; i++) { const sel = document.querySelector(`input[name="qz_${i}"]:checked`); if (sel && Number(sel.value) === qz.questions[i].correct) score++; }
+  const percent = Math.round((score / total) * 100); const passed = percent >= 60;
+  db.quizResults.push({ id: uid(), studentId: currentStudent.id, quizId: qz.id, score, total, percent, passed, date: new Date().toISOString() });
+  saveDB(); closeModal(); toast(passed ? `উত্তীর্ণ! স্কোর ${score}/${total}` : `অনুত্তীর্ণ! স্কোর ${score}/${total}`, passed ? "ok" : "err"); renderStudentQuizzes();
+};
+window.generateCertificate = function(qid) {
+  const qz = db.quizzes.find(q => q.id === qid); const res = db.quizResults.filter(r => r.studentId === currentStudent.id && r.quizId === qid && r.passed).slice(-1)[0];
+  if (!qz || !res) return;
+  const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  doc.setFillColor(15, 23, 42); doc.rect(0, 0, 297, 210, 'F'); doc.setDrawColor(37, 99, 235); doc.setLineWidth(1.5); doc.rect(10, 10, 277, 190);
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(26); doc.text('CERTIFICATE OF COMPLETION', 148.5, 45, { align: 'center' });
+  doc.setFontSize(30); doc.setTextColor(37, 99, 235); doc.text(currentStudent.name.toUpperCase(), 148.5, 85, { align: 'center' });
+  doc.setFontSize(18); doc.setTextColor(255, 255, 255); doc.text(qz.title, 148.5, 120, { align: 'center' });
+  doc.save(`HSC_Certificate_${qid}.pdf`); toast("সার্টিফিকেট ডাউনলোড হয়েছে!", "ok");
+};
+window.adminLogin = async function() {
+  const u = document.getElementById("adminUser").value, p = document.getElementById("adminPass").value;
+  const r = await api("/api/admin/login", { method: "POST", body: { username: u, password: p } });
+  if (!r.ok) { toast("ভুল পাসওয়ার্ড", "err"); return; }
+  adminToken = r.data.token; lsSet(LS_ADMIN, adminToken); adminOn = true; adoptState(r.data); renderAdmin();
+};
+window.adminLogout = function() { adminToken = ""; lsSet(LS_ADMIN, ""); adminOn = false; showAdminCheck(); };
+function renderAdmin() { document.getElementById("adminLogin").classList.add("hidden"); document.getElementById("adminArea").classList.remove("hidden"); window.adminTab('manage', document.querySelector('#adminTabs button')); }
+window.adminTab = function(tab, btn) {
+  curAdminTab = tab; ["manage", "quizAdmin", "paymentAdmin", "studentList", "couponAdmin", "messagesAdmin", "noticeAdmin", "settingsAdmin"].forEach(t => document.getElementById("admin-" + t).classList.toggle("hidden", t !== tab));
+  if (btn) { document.querySelectorAll("#adminTabs button").forEach(b => b.classList.remove("active")); btn.classList.add("active"); }
+  if (tab === "manage") renderAdminCourses(); if (tab === "quizAdmin") renderAdminQuizzes(); if (tab === "paymentAdmin") renderAdminPayments(); if (tab === "studentList") renderAdminStudents(); if (tab === "couponAdmin") renderAdminCoupons(); if (tab === "messagesAdmin") renderAdminMessages(); if (tab === "noticeAdmin") renderAdminNotices();
+};
+
+window.addCoupon = function() {
+  const code = document.getElementById("couponCode").value.trim().toUpperCase(); const percent = Number(document.getElementById("couponPercent").value);
+  if (!code || !percent) return toast("কোড ও পার্সেন্ট দিন", "err");
+  db.coupons.push({ id: uid(), code, percent }); saveDB(); renderAdminCoupons(); toast("কুপন তৈরি হয়েছে", "ok");
+  document.getElementById("couponCode").value=""; document.getElementById("couponPercent").value="";
+};
+function renderAdminCoupons() {
+  const el = document.getElementById("adminCouponList"); if(!el) return;
+  el.innerHTML = `<h3>কুপন তালিকা</h3>` + (db.coupons.map(c => `<div class="item row between"><div><b>${c.code}</b> (${c.percent}% ছাড়)</div><button class="danger sm" onclick="db.coupons=db.coupons.filter(x=>x.id!=='${c.id}');saveDB();renderAdminCoupons()">মুছুন</button></div>`).join("") || '<div class="empty">কোনো কুপন নেই</div>');
+}
 
 window.addCourse = function() {
-  const title = document.getElementById("newCourseTitle").value.trim();
-  const price = Number(document.getElementById("newCoursePrice").value) || 0;
-  const thumb = document.getElementById("newCourseThumb").value.trim();
-  const desc = document.getElementById("newCourseDesc").value.trim();
-  if (!title) { toast("কোর্সের নাম দিন", "err"); return; }
-  db.courses.push({ id: uid(), title, desc, price, thumb, chapters: [] });
-  saveDB(); toast("কোর্স যোগ হয়েছে", "ok"); renderAdminCourses();
-  document.getElementById("newCourseTitle").value = "";
-  document.getElementById("newCoursePrice").value = "";
-  document.getElementById("newCourseThumb").value = "";
-  document.getElementById("newCourseDesc").value = "";
+  const title = document.getElementById("newCourseTitle").value.trim(); const price = Number(document.getElementById("newCoursePrice").value) || 0;
+  const thumb = document.getElementById("newCourseThumb").value.trim(); const desc = document.getElementById("newCourseDesc").value.trim();
+  if (!title) return toast("কোর্সের নাম দিন", "err");
+  db.courses.push({ id: uid(), title, desc, price, thumb, chapters: [] }); saveDB(); renderAdminCourses();
+  document.getElementById("newCourseTitle").value=""; document.getElementById("newCoursePrice").value=""; document.getElementById("newCourseThumb").value=""; document.getElementById("newCourseDesc").value="";
 };
+let admOpenCourse = null, admOpenChapter = null;
+window.toggleAdmCourse = function(cid) { admOpenCourse = admOpenCourse === cid ? null : cid; admOpenChapter = null; renderAdminCourses(); };
+window.toggleAdmChapter = function(chid) { admOpenChapter = admOpenChapter === chid ? null : chid; renderAdminCourses(); };
 
 function renderAdminCourses() {
-  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map(c => `
-    <div class="card section">
-      <h3>${esc(c.title)} (${money(c.price)})</h3>
-      <div class="row" style="margin-top:8px">
-        <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
-        <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
+  const host = document.getElementById("adminCourseList"); if (!db.courses.length) { host.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
+  host.innerHTML = db.courses.map((c, i) => {
+    const chs = c.chapters || []; const open = admOpenCourse === c.id;
+    return `<div class="acc cc${i % 6}${open ? " open" : ""}">
+      <div class="acc-head" onclick="toggleAdmCourse('${c.id}')"><div class="acc-ico">📘</div><div class="acc-title"><b>${esc(c.title)}</b></div><span class="chev">▾</span></div>
+      <div class="acc-body">
+        <div class="row" style="margin:12px 0 4px"><button class="sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার</button><button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button></div>
+        ${chs.map((ch, j) => `<div class="acc sub cc${(i + j + 1) % 6}${open && admOpenChapter === ch.id ? " open" : ""}">
+          <div class="acc-head" onclick="toggleAdmChapter('${ch.id}')"><div class="acc-title"><b>${esc(ch.title)}</b></div><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="row" style="margin:10px 0"><button class="sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস</button><button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button></div>
+          <div style="display:grid;gap:6px">${(ch.classes || []).map(cl => `<div class="cls-row small"><span>▶ ${esc(cl.title)}</span><div class="row"><button class="secondary sm" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button><button class="danger sm" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button></div></div>`).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}</div></div>
+        </div>`).join("")}
       </div>
-      ${(c.chapters || []).map(ch => `
-        <div class="item" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
-          <div class="row between">
-            <b>📁 ${esc(ch.title)}</b>
-            <div class="row">
-              <button class="secondary sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস যোগ</button>
-              <button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button>
-            </div>
-          </div>
-          <div style="margin-top:8px;display:grid;gap:6px">
-            ${(ch.classes || []).map(cl => `
-              <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
-                <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
-                <div class="row">
-                  <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
-                  <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
-                </div>
-              </div>
-            `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
-          </div>
-        </div>
-      `).join("") || '<div class="muted small" style="margin-top:10px">কোনো চ্যাপ্টার নেই।</div>'}
-    </div>
-  `).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
+    </div>`;
+  }).join("");
 }
-
-window.deleteCourse = function(cid) {
-  if (confirm("কোর্সটি ডিলিট করতে চান?")) {
-    db.courses = db.courses.filter(c => c.id !== cid);
-    saveDB(); renderAdminCourses();
-  }
-};
-
-window.addChapterPrompt = function(cid) {
-  const title = prompt("চ্যাপ্টারের নাম লিখুন:");
-  if (!title) return;
-  db.courses.find(x => x.id === cid).chapters.push({ id: uid(), title, classes: [] });
-  saveDB(); renderAdminCourses();
-};
-
-window.deleteChapter = function(cid, chid) {
-  if (confirm("চ্যাপ্টারটি ডিলিট করতে চান?")) {
-    const c = db.courses.find(x => x.id === cid);
-    if (c) c.chapters = c.chapters.filter(ch => ch.id !== chid);
-    saveDB(); renderAdminCourses();
-  }
-};
+window.deleteCourse = function(cid) { if (confirm("ডিলিট করবেন?")) { db.courses = db.courses.filter(c => c.id !== cid); saveDB(); renderAdminCourses(); } };
+window.addChapterPrompt = function(cid) { const t = prompt("চ্যাপ্টারের নাম:"); if (!t) return; db.courses.find(x => x.id === cid).chapters.push({ id: uid(), title: t, classes: [] }); saveDB(); renderAdminCourses(); };
+window.deleteChapter = function(cid, chid) { if (confirm("ডিলিট করবেন?")) { const c = db.courses.find(x => x.id === cid); c.chapters = c.chapters.filter(ch => ch.id !== chid); saveDB(); renderAdminCourses(); } };
 
 window.openAddClassModal = function(cid, chid) {
-  openModal(`
-    <div class="stack">
-      <h3 style="margin:0">চ্যাপ্টারে নতুন ক্লাস যোগ করুন</h3>
-      <div class="field"><label>ক্লাসের নাম *</label><input id="clTitle" placeholder="লেকচার ১"></div>
-      <div class="field"><label>ভিডিও সোর্স মাধ্যম</label>
-        <select id="clType" onchange="document.getElementById('ytBox').classList.toggle('hidden', this.value !== 'yt'); document.getElementById('localBox').classList.toggle('hidden', this.value !== 'local');">
-          <option value="yt">YouTube লিংক</option>
-          <option value="local">লোকাল ডিভাইস ভিডিও ফাইল (.mp4)</option>
-        </select>
-      </div>
-      <div id="ytBox" class="field">
-        <label>YouTube Video URL</label>
-        <input id="clYtUrl" placeholder="https://www.youtube.com/watch?v=...">
-      </div>
-      <div id="localBox" class="field hidden">
-        <label>ডিভাইস থেকে ভিডিও ফাইল সিলেক্ট করুন</label>
-        <input type="file" id="clLocalFile" accept="video/*">
-      </div>
-      <div class="field">
-        <label>PDF নোট লিংকসমূহ (কমা দিয়ে দিন)</label>
-        <input id="clPdfs" placeholder="https://link1.pdf, https://link2.pdf">
-      </div>
-      <label class="row small" style="cursor:pointer">
-        <input type="checkbox" id="clFreeChk"> ফ্রি প্রিভিউ ক্লাস
-      </label>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="saveNewClass('${cid}', '${chid}')">ক্লাস সেভ করুন</button>
-      </div>
-    </div>
-  `);
+  window.openModal(`<div class="stack"><h3>ক্লাস যোগ করুন</h3><div class="field"><label>নাম</label><input id="clTitle"></div>
+    <div class="field"><label>ভিডিও টাইপ</label><select id="clType" onchange="document.getElementById('ytBox').classList.toggle('hidden', this.value !== 'yt'); document.getElementById('localBox').classList.toggle('hidden', this.value !== 'local');"><option value="yt">YouTube</option><option value="local">লোকাল ফাইল</option></select></div>
+    <div id="ytBox" class="field"><label>YouTube URL</label><input id="clYtUrl"></div>
+    <div id="localBox" class="field hidden"><label>ভিডিও ফাইল</label><input type="file" id="clLocalFile" accept="video/*"></div>
+    <div class="field"><label>PDF লিংক</label><input id="clPdfs"></div>
+    <button onclick="saveNewClass('${cid}', '${chid}')">সেভ</button></div>`);
 };
-
 window.saveNewClass = function(cid, chid) {
-  const title = document.getElementById("clTitle").value.trim();
-  const type = document.getElementById("clType").value;
-  const isFree = document.getElementById("clFreeChk").checked;
-  const rawPdfs = document.getElementById("clPdfs").value.trim();
-  const pdfs = rawPdfs ? rawPdfs.split(",").map(p => p.trim()).filter(Boolean) : [];
-
-  if (!title) { toast("ক্লাসের নাম দিন", "err"); return; }
-  const c = db.courses.find(x => x.id === cid);
-  const ch = c?.chapters.find(x => x.id === chid);
-  if (!ch) return;
-
-  if (type === "yt") {
-    const ytUrl = document.getElementById("clYtUrl").value.trim();
-    if (!ytUrl) { toast("ইউটিউব লিংক দিন", "err"); return; }
-    ch.classes.push({ id: uid(), title, videoType: "yt", videoSource: ytUrl, pdfs, isFree });
-    saveDB(); closeModal(); toast("ক্লাস সফলভাবে যোগ হয়েছে!", "ok"); renderAdminCourses();
-  } else {
-    const fileInput = document.getElementById("clLocalFile");
-    if (!fileInput.files || !fileInput.files[0]) { toast("ভিডিও ফাইল সিলেক্ট করুন", "err"); return; }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      ch.classes.push({ id: uid(), title, videoType: "local", videoSource: e.target.result, pdfs, isFree });
-      saveDB(); closeModal(); toast("ক্লাস সফলভাবে যোগ হয়েছে!", "ok"); renderAdminCourses();
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  }
+  const title = document.getElementById("clTitle").value.trim(); const type = document.getElementById("clType").value;
+  const rawPdfs = document.getElementById("clPdfs").value.trim(); const pdfs = rawPdfs ? rawPdfs.split(",").map(p => p.trim()) : [];
+  if (!title) return toast("নাম দিন", "err"); const ch = db.courses.find(x => x.id === cid).chapters.find(x => x.id === chid);
+  if (type === "yt") { const ytUrl = document.getElementById("clYtUrl").value.trim(); if (!ytUrl) return toast("লিংক দিন", "err"); ch.classes.push({ id: uid(), title, videoType: "yt", videoSource: ytUrl, pdfs }); saveDB(); closeModal(); renderAdminCourses(); }
+  else { const file = document.getElementById("clLocalFile").files[0]; if (!file) return toast("ফাইল দিন", "err"); const reader = new FileReader(); reader.onload = (e) => { ch.classes.push({ id: uid(), title, videoType: "local", videoSource: e.target.result, pdfs }); saveDB(); closeModal(); renderAdminCourses(); }; reader.readAsDataURL(file); }
 };
-
 window.editClass = function(cid, chid, clid) {
-  const c = db.courses.find(x => x.id === cid);
-  const ch = c?.chapters.find(x => x.id === chid);
-  const cl = ch?.classes.find(x => x.id === clid);
-  if (!cl) return;
-  const isLocal = cl.videoType === "local";
-  const ytBoxClass = isLocal ? "hidden" : "";
-  const localBoxClass = isLocal ? "" : "hidden";
-  openModal(`
-    <div class="stack">
-      <h3 style="margin:0">ক্লাস এডিট করুন</h3>
-      <div class="field"><label>ক্লাসের নাম *</label><input id="editClTitle" value="${esc(cl.title)}"></div>
-      <div class="field"><label>ভিডিও সোর্স</label>
-        <select id="editClType" onchange="document.getElementById('editYtBox').classList.toggle('hidden',this.value!=='yt');document.getElementById('editLocalBox').classList.toggle('hidden',this.value!=='local')">
-          <option value="yt" ${!isLocal ? "selected" : ""}>YouTube লিংক</option>
-          <option value="local" ${isLocal ? "selected" : ""}>লোকাল ভিডিও ফাইল</option>
-        </select>
-      </div>
-      <div id="editYtBox" class="field ${ytBoxClass}"><label>YouTube URL</label><input id="editClYtUrl" value="${!isLocal ? esc(cl.videoSource) : ""}" placeholder="https://www.youtube.com/watch?v=..."></div>
-      <div id="editLocalBox" class="field ${localBoxClass}"><label>নতুন ভিডিও আপলোড (ঐচ্ছিক)</label><input id="editClLocalFile" type="file" accept="video/*"><small class="muted">নতুন ফাইল না দিলে আগের ভিডিওটি থাকবে।</small></div>
-      <div class="field"><label>PDF নোট লিংক (কমা দিয়ে আলাদা করুন)</label><input id="editClPdfs" value="${esc((cl.pdfs || []).join(", "))}"></div>
-      <label class="row small"><input type="checkbox" id="editClFreeChk" ${cl.isFree ? "checked" : ""}> ফ্রি প্রিভিউ ক্লাস</label>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="saveEditedClass('${cid}','${chid}','${clid}')">পরিবর্তন সেভ</button>
-      </div>
-    </div>
-  `);
+  const cl = db.courses.find(x => x.id === cid).chapters.find(x => x.id === chid).classes.find(x => x.id === clid);
+  window.openModal(`<div class="stack"><h3>এডিট ক্লাস</h3><div class="field"><label>নাম</label><input id="editClTitle" value="${esc(cl.title)}"></div><div class="field"><label>PDF লিংক</label><input id="editClPdfs" value="${esc((cl.pdfs||[]).join(", "))}"></div><button onclick="saveEditedClass('${cid}','${chid}','${clid}')">সেভ</button></div>`);
 };
-
 window.saveEditedClass = function(cid, chid, clid) {
-  const c = db.courses.find(x => x.id === cid);
-  const ch = c?.chapters.find(x => x.id === chid);
-  const cl = ch?.classes.find(x => x.id === clid);
-  if (!cl) return;
-  const title = document.getElementById("editClTitle").value.trim();
-  const type = document.getElementById("editClType").value;
-  const pdfs = document.getElementById("editClPdfs").value.split(",").map(x => x.trim()).filter(Boolean);
-  if (!title) { toast("ক্লাসের নাম দিন", "err"); return; }
-  cl.title = title;
-  cl.pdfs = pdfs;
-  cl.isFree = document.getElementById("editClFreeChk").checked;
-
-  if (type === "yt") {
-    const url = document.getElementById("editClYtUrl").value.trim();
-    if (!parseYouTubeEmbed(url)) { toast("সঠিক YouTube লিংক দিন", "err"); return; }
-    cl.videoType = "yt";
-    cl.videoSource = url;
-    if (saveDB()) { closeModal(); toast("ক্লাস আপডেট হয়েছে", "ok"); renderAdminCourses(); }
-    return;
-  }
-
-  const file = document.getElementById("editClLocalFile").files?.[0];
-  if (file) {
-    if (!file.type.startsWith("video/")) { toast("সঠিক ভিডিও ফাইল নির্বাচন করুন", "err"); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      cl.videoType = "local";
-      cl.videoSource = reader.result;
-      if (saveDB()) { closeModal(); toast("ভিডিওসহ ক্লাস আপডেট হয়েছে", "ok"); renderAdminCourses(); }
-    };
-    reader.onerror = () => toast("ভিডিও ফাইল পড়া যায়নি", "err");
-    reader.readAsDataURL(file);
-  } else if (cl.videoType === "local" && cl.videoSource) {
-    if (saveDB()) { closeModal(); toast("ক্লাস আপডেট হয়েছে", "ok"); renderAdminCourses(); }
-  } else {
-    toast("লোকাল ভিডিওর জন্য একটি ফাইল নির্বাচন করুন", "err");
-  }
+  const cl = db.courses.find(x => x.id === cid).chapters.find(x => x.id === chid).classes.find(x => x.id === clid);
+  cl.title = document.getElementById("editClTitle").value.trim(); const raw = document.getElementById("editClPdfs").value.trim(); cl.pdfs = raw ? raw.split(",").map(p=>p.trim()) : [];
+  saveDB(); closeModal(); renderAdminCourses();
 };
-
-window.deleteClass = function(cid, chid, clid) {
-  if (confirm("ক্লাসটি ডিলিট করতে চান?")) {
-    const c = db.courses.find(x => x.id === cid);
-    const ch = c?.chapters.find(x => x.id === chid);
-    if (ch) ch.classes = ch.classes.filter(cl => cl.id !== clid);
-    saveDB(); renderAdminCourses();
-  }
-};
-
-function renderAdminQuizzes() {
-  const sel = document.getElementById("quizCourseSelect");
-  sel.innerHTML = db.courses.map(c => `<option value="${c.id}">${esc(c.title)}</option>`).join("");
-  document.getElementById("adminQuizList").innerHTML = db.quizzes.length ? db.quizzes.map(q => `
-    <div class="card row between">
-      <div><b>${esc(q.title)}</b><div class="muted small">প্রশ্ন সংখ্যা: ${q.questions.length}টি</div></div>
-      <button class="danger sm" onclick="deleteQuiz('${q.id}')">মুছুন</button>
-    </div>
-  `).join("") : '<div class="empty">কোনো কুইজ নেই।</div>';
-}
-
-window.addQuizQuestionTemp = function() {
-  const q = document.getElementById("qPrompt").value.trim();
-  const opts = [0, 1, 2, 3].map(i => document.getElementById("qOpt" + i).value.trim()).filter(Boolean);
-  const correct = Number(document.getElementById("qCorrect").value);
-  if (!q || opts.length < 2) { toast("প্রশ্ন ও কমপক্ষে ২টি অপশন দিন।", "err"); return; }
-  tempQuizQuestions.push({ q, options: opts, correct });
-  ["qPrompt", "qOpt0", "qOpt1", "qOpt2", "qOpt3"].forEach(id => document.getElementById(id).value = "");
-  document.getElementById("tempQPreview").textContent = `${tempQuizQuestions.length}টি প্রশ্ন যোগ হয়েছে।`;
-};
-
-window.saveQuiz = function() {
-  const courseId = document.getElementById("quizCourseSelect").value;
-  const title = document.getElementById("quizTitle").value.trim();
-  if (!title || !tempQuizQuestions.length) { toast("শিরোনাম ও প্রশ্ন দিন।", "err"); return; }
-  db.quizzes.push({ id: uid(), courseId, title, questions: tempQuizQuestions });
-  tempQuizQuestions = [];
-  document.getElementById("quizTitle").value = "";
-  document.getElementById("tempQPreview").textContent = "০টি প্রশ্ন যোগ হয়েছে।";
-  saveDB(); toast("কুইজ প্রকাশিত হয়েছে!", "ok"); renderAdminQuizzes();
-};
-
-window.deleteQuiz = function(qid) {
-  if (confirm("কুইজটি ডিলিট করতে চান?")) {
-    db.quizzes = db.quizzes.filter(q => q.id !== qid);
-    saveDB(); renderAdminQuizzes();
-  }
-};
-
+window.deleteClass = function(cid, chid, clid) { if(confirm("ডিলিট?")) { const ch = db.courses.find(x => x.id === cid).chapters.find(x => x.id === chid); ch.classes = ch.classes.filter(x => x.id !== clid); saveDB(); renderAdminCourses(); } };
 function renderAdminPayments() {
-  document.getElementById("adminPaymentList").innerHTML = db.payments.length ? db.payments.map(p => `
-    <div class="card item">
-      <b>${esc(p.studentName)}</b> · ${money(p.amount)} (${esc(p.courseTitle)})<br>
-      <small>TrxID: <code>${esc(p.transaction)}</code> · <span class="pill ${p.status.toLowerCase()}">${p.status}</span></small>
-      ${p.status === "Pending" ? `<div class="row" style="margin-top:6px"><button class="success sm" onclick="approvePay('${p.id}')">Approve</button><button class="danger sm" onclick="rejectPay('${p.id}')">Reject</button></div>` : ""}
-    </div>
-  `).join("") : '<div class="empty">কোনো পেমেন্ট নেই।</div>';
+  document.getElementById("adminPaymentList").innerHTML = db.payments.map(p => `<div class="item row between"><div><b>${esc(p.studentName)}</b> - ${esc(p.courseTitle)} (${money(p.amount)})<br><small>TrxID: ${esc(p.transaction)}</small></div><div>${p.status==='Pending'?`<button class="success sm" onclick="db.payments.find(x=>x.id==='${p.id}').status='Approved';saveDB();renderAdminPayments()">অ্যাপ্রুভ</button>`:`<span class="pill approved">Approved</span>`}</div></div>`).join("") || '<div class="empty">পেমেন্ট নেই</div>';
+  document.getElementById("bkashNumber").value = db.numbers.bkash || ""; document.getElementById("nagadNumber").value = db.numbers.nagad || "";
 }
-
-window.approvePay = function(pid) {
-  const p = db.payments.find(x => x.id === pid);
-  if (p) { p.status = "Approved"; saveDB(); renderAdminPayments(); toast("পেমেন্ট অ্যাপ্রুভড", "ok"); }
-};
-
-window.rejectPay = function(pid) {
-  const p = db.payments.find(x => x.id === pid);
-  if (p) { p.status = "Rejected"; saveDB(); renderAdminPayments(); toast("পেমেন্ট রিজেক্টেড"); }
-};
+window.savePaymentNumbers = function() { db.numbers.bkash = document.getElementById("bkashNumber").value.trim(); db.numbers.nagad = document.getElementById("nagadNumber").value.trim(); saveDB(); toast("সেভ হয়েছে","ok"); };
 
 function renderAdminStudents() {
-  const host = document.getElementById("adminStudentList");
-  host.innerHTML = db.students.length ? db.students.map(s => `
-    <div class="card item" style="margin-bottom:10px">
-      <div class="row between">
-        <div>
-          <b>নাম:</b> ${esc(s.name)}<br>
-          <b>ইমেইল:</b> ${esc(s.email)}<br>
-          <span class="pill">পাসকোড: নিরাপদ hash আকারে সংরক্ষিত</span>
-        </div>
-        <div class="row">
-          <button class="secondary sm" onclick="openStudentPinReset('${s.id}')">পাসকোড Reset</button>
-          <button class="danger sm" onclick="removeStudent('${s.id}')">User Remove</button>
-        </div>
-      </div>
-      <p class="muted small" style="margin:8px 0 0">আসল পাসকোড দেখা যায় না; প্রয়োজন হলে Admin নতুন পাসকোড সেট করতে পারবেন।</p>
-    </div>
-  `).join("") : '<div class="empty">কোনো শিক্ষার্থী নেই।</div>';
+  document.getElementById("adminStudentList").innerHTML = db.students.map(s => `<div class="item row between"><div><b>${esc(s.name)}</b><br><small>${esc(s.email)}</small></div><button class="danger sm" onclick="if(confirm('ডিলিট?')){db.students=db.students.filter(x=>x.id!=='${s.id}');saveDB();renderAdminStudents()}">ডিলিট</button></div>`).join("") || '<div class="empty">স্টুডেন্ট নেই</div>';
 }
-
-window.openStudentPinReset = function(sid) {
-  const student = db.students.find(x => x.id === sid);
-  if (!student) return;
-  openModal(`
-    <div class="stack">
-      <h3 style="margin:0">Student পাসকোড Reset</h3>
-      <p class="muted small">${esc(student.name)} · ${esc(student.email)}</p>
-      <div class="field"><label>নতুন পাসকোড (কমপক্ষে ৪ অক্ষর)</label><input id="studentNewPin" type="password" minlength="4" autocomplete="new-password" placeholder="নতুন পাসকোড"></div>
-      <div class="field"><label>নতুন পাসকোড আবার লিখুন</label><input id="studentNewPinConfirm" type="password" minlength="4" autocomplete="new-password" placeholder="পুনরায় লিখুন"></div>
-      <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="closeModal()">বাতিল</button><button onclick="saveStudentPinReset('${sid}')">পাসকোড পরিবর্তন</button></div>
-    </div>
-  `);
-};
-
-window.saveStudentPinReset = async function(sid) {
-  const student = db.students.find(x => x.id === sid);
-  const pin = document.getElementById("studentNewPin")?.value || "";
-  const confirmPin = document.getElementById("studentNewPinConfirm")?.value || "";
-  if (!student) return;
-  if (pin.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসকোড দিন", "err"); return; }
-  if (pin !== confirmPin) { toast("দুটি পাসকোড মিলছে না", "err"); return; }
-  try {
-    student.pinHash = await makeStudentPinHash(student.email, pin);
-  } catch {
-    toast("নিরাপদ পাসকোড তৈরি করা যাচ্ছে না। HTTPS বা Secure Browser Context দিয়ে সাইটটি খুলুন।", "err");
-    return;
-  }
-  if (saveDB()) { closeModal(); toast("Student পাসকোড পরিবর্তন হয়েছে", "ok"); renderAdminStudents(); }
-};
-
-window.removeStudent = function(sid) {
-  const student = db.students.find(x => x.id === sid);
-  if (!student) return;
-  if (!confirm(`${student.name} (${student.email})-কে সরাতে চান? তার পেমেন্ট, মেসেজ ও কুইজ রেজাল্টও মুছে যাবে।`)) return;
-  db.students = db.students.filter(x => x.id !== sid);
-  db.payments = db.payments.filter(x => x.studentId !== sid);
-  db.messages = db.messages.filter(x => x.studentId !== sid);
-  db.quizResults = db.quizResults.filter(x => x.studentId !== sid);
-  try {
-    const prefix = `hsc_player_progress_${sid}_`;
-    Object.keys(localStorage).forEach(key => { if (key.startsWith(prefix)) localStorage.removeItem(key); });
-  } catch {}
-  if (currentStudent?.id === sid) { currentStudent = null; renderStudent(); }
-  saveDB();
-  document.getElementById("statStudents").textContent = db.students.length;
-  renderAdminStudents();
-  toast("Student account remove করা হয়েছে", "ok");
-};
-
 function renderAdminMessages() {
-  document.getElementById("adminMessagesList").innerHTML = db.messages.length ? db.messages.map(m => `
-    <div class="card item">
-      <b>${esc(m.studentName)} (${esc(m.email)})</b>: ${esc(m.message)}<br>
-      ${m.reply ? `<b style="color:var(--green)">উত্তর:</b> ${esc(m.reply)}` : `<div class="row" style="margin-top:6px"><input id="rep_${m.id}" placeholder="উত্তর লিখুন"><button class="sm" onclick="replyMsg('${m.id}')">রিপ্লাই</button></div>`}
-    </div>
-  `).join("") : '<div class="empty">কোনো বার্তা নেই।</div>';
+  const sel = document.getElementById("adminMsgTo"); sel.innerHTML = `<option value="all">সবাই</option>` + db.students.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  document.getElementById("adminMessagesList").innerHTML = db.messages.filter(m => !m.fromAdmin).map(m => `<div class="item"><b>${esc(m.studentName)}</b><br>${esc(m.message)}<br>${m.reply?`<span style="color:var(--green)">উত্তর: ${esc(m.reply)}</span>`:`<input id="rep_${m.id}" placeholder="উত্তর..."><button class="sm" onclick="replyMessage('${m.id}')">পাঠান</button>`}</div>`).join("") || '<div class="empty">মেসেজ নেই</div>';
 }
-
-window.replyMsg = function(mid) {
-  const rep = document.getElementById("rep_" + mid)?.value.trim();
-  const m = db.messages.find(x => x.id === mid);
-  if (m && rep) { m.reply = rep; saveDB(); renderAdminMessages(); toast("রিপ্লাই পাঠানো হয়েছে", "ok"); }
+window.replyMessage = function(mid) {
+  const txt = document.getElementById("rep_"+mid).value.trim(); if(!txt) return;
+  const m = db.messages.find(x => x.id === mid); m.reply = txt; db.messages.push({ id: uid(), studentId: m.studentId, studentName: m.studentName, message: "Admin reply", reply: txt, fromAdmin: true, date: new Date().toISOString() });
+  saveDB(); renderAdminMessages();
+};
+window.adminSendMessage = function() {
+  const to = document.getElementById("adminMsgTo").value, txt = document.getElementById("adminMsgBody").value.trim(); if(!txt) return;
+  if(to==="all") db.students.forEach(s => db.messages.push({ id: uid(), studentId: s.id, studentName: s.name, message: "Admin Message", reply: txt, fromAdmin: true, date: new Date().toISOString() }));
+  else { const s = db.students.find(x => x.id === to); if(s) db.messages.push({ id: uid(), studentId: s.id, studentName: s.name, message: "Admin Message", reply: txt, fromAdmin: true, date: new Date().toISOString() }); }
+  saveDB(); document.getElementById("adminMsgBody").value=""; toast("পাঠানো হয়েছে", "ok");
 };
 
 function renderAdminNotices() {
-  const list = db.notices.slice().reverse();
-  document.getElementById("adminNoticeList").innerHTML = `<h2>প্রকাশিত নোটিশ (${list.length})</h2>` + (list.length ? list.map(n => `
-    <div class="card item" style="margin-bottom:10px">
-      <div class="row between" style="align-items:flex-start">
-        <div style="flex:1;min-width:200px">
-          <b>${esc(n.title)}</b>
-          <div style="white-space:pre-wrap">${esc(n.body)}</div>
-          <div class="muted small" style="margin-top:4px">${fmtDate(n.edited || n.date)}${n.edited ? " (সম্পাদিত)" : ""}</div>
-        </div>
-        <div class="row">
-          <button class="secondary sm" onclick="editNotice('${n.id}')">এডিট</button>
-          <button class="danger sm" onclick="deleteNotice('${n.id}')">ডিলিট</button>
-        </div>
-      </div>
-    </div>`).join("") : '<div class="empty">কোনো নোটিশ নেই।</div>');
+  document.getElementById("adminNoticeList").innerHTML = db.notices.map(n => `<div class="notice row between"><div><b>${esc(n.title)}</b><br>${esc(n.body)}</div><button class="danger sm" onclick="db.notices=db.notices.filter(x=>x.id!=='${n.id}');saveDB();renderAdminNotices()">মুছুন</button></div>`).join("") || '<div class="empty">নোটিশ নেই</div>';
 }
-
 window.addNotice = function() {
-  const title = document.getElementById("noticeTitle").value.trim();
-  const body = document.getElementById("noticeBody").value.trim();
-  if (!title || !body) { toast("শিরোনাম ও বিস্তারিত দুটোই দিন", "err"); return; }
-  db.notices.push({ id: uid(), title, body, date: new Date().toISOString() });
-  saveDB();
-  document.getElementById("noticeTitle").value = "";
-  document.getElementById("noticeBody").value = "";
-  renderAdminNotices(); toast("নোটিশ প্রকাশিত", "ok");
-};
-
-window.editNotice = function(nid) {
-  const n = db.notices.find(x => x.id === nid);
-  if (!n) return;
-  openModal(`
-    <div class="stack">
-      <h3 style="margin:0">নোটিশ এডিট করুন</h3>
-      <div class="field"><label>শিরোনাম</label><input id="editNoticeTitle" value="${esc(n.title)}"></div>
-      <div class="field"><label>বিস্তারিত</label><textarea id="editNoticeBody">${esc(n.body)}</textarea></div>
-      <div class="row" style="justify-content:flex-end">
-        <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="saveEditedNotice('${nid}')">পরিবর্তন সেভ</button>
-      </div>
-    </div>
-  `);
-};
-
-window.saveEditedNotice = function(nid) {
-  const n = db.notices.find(x => x.id === nid);
-  if (!n) return;
-  const title = document.getElementById("editNoticeTitle").value.trim();
-  const body = document.getElementById("editNoticeBody").value.trim();
-  if (!title || !body) { toast("শিরোনাম ও বিস্তারিত দুটোই দিন", "err"); return; }
-  n.title = title; n.body = body; n.edited = new Date().toISOString();
-  if (saveDB()) { closeModal(); renderAdminNotices(); toast("নোটিশ আপডেট হয়েছে", "ok"); }
-};
-
-window.deleteNotice = function(nid) {
-  const n = db.notices.find(x => x.id === nid);
-  if (!n) return;
-  if (!confirm(`"${n.title}" নোটিশটি ডিলিট করতে চান?`)) return;
-  db.notices = db.notices.filter(x => x.id !== nid);
-  saveDB(); renderAdminNotices(); toast("নোটিশ ডিলিট হয়েছে", "ok");
-};
-
-window.savePaymentNumbers = function() {
-  db.numbers = { bkash: document.getElementById("bkashNumber").value, nagad: document.getElementById("nagadNumber").value };
-  saveDB(); toast("পেমেন্ট নাম্বার সংরক্ষিত", "ok");
+  const t = document.getElementById("noticeTitle").value.trim(), b = document.getElementById("noticeBody").value.trim(); if(!t || !b) return;
+  db.notices.push({ id: uid(), title: t, body: b, date: new Date().toISOString() }); saveDB(); renderAdminNotices(); document.getElementById("noticeTitle").value=""; document.getElementById("noticeBody").value="";
 };
 
 window.changeAdminPass = async function() {
-  const p = document.getElementById("newAdminPass").value;
-  if (p.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড দিন", "err"); return; }
-  db.adminPassHash = await sha256Hex(p); saveDB();
-  document.getElementById("newAdminPass").value = "";
-  toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
+  const p = document.getElementById("newAdminPass").value; if(p.length < 4) return toast("৪+ অক্ষর দিন","err");
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(p));
+  db.adminPassHash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+  saveDB(); toast("পাসওয়ার্ড আপডেট হয়েছে", "ok"); document.getElementById("newAdminPass").value="";
 };
 
-window.exportDB = function() {
-  const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "hsc_prephub_backup.json"; a.click();
-};
-
-window.importDB = function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    try {
-      const parsed = JSON.parse(event.target.result);
-      if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.courses)) throw new Error("bad");
-      db = normalizeDB(parsed);
-      forceReplace = true;
-      saveDB();
-      toast("ডেটা সফলভাবে ইমপোর্ট হয়েছে!", "ok");
-      renderAdmin();
-    } catch {
-      toast("সঠিক JSON ফাইল দিন।", "err");
-    }
-  };
-  reader.readAsText(file);
-};
-
-async function init() {
-  document.getElementById("year").textContent = new Date().getFullYear();
-  try { await bootstrap(); }
-  catch { toast("সার্ভারের সাথে সংযোগ হচ্ছে না। কিছুক্ষণ পরে আবার চেষ্টা হবে।", "err"); }
-  if (lsGet(LS_VIEW) === "admin" && adminOn) showAdminCheck(); else showView("student");
-  setInterval(pollState, 12000);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) pollState(); });
-  window.addEventListener("online", () => pollState(true));
+function renderStudentNotices() {
+  document.getElementById("tab-notices").innerHTML = db.notices.map(n => `<div class="notice"><b>${esc(n.title)}</b><div>${esc(n.body)}</div></div>`).join("") || '<div class="empty">নোটিশ নেই</div>';
 }
-init();
+function renderStudentPayments() {
+  document.getElementById("tab-payments").innerHTML = db.payments.filter(p => p.studentId === currentStudent.id).map(p => `<div class="item row between"><div><b>${esc(p.courseTitle)}</b><br><small>${esc(p.transaction)} · ${p.status}</small></div></div>`).join("") || '<div class="empty">পেমেন্ট নেই</div>';
+}
+function renderStudentContact() {
+  const msgs = db.messages.filter(m => m.studentId === currentStudent.id);
+  document.getElementById("tab-contact").innerHTML = `<div class="card stack" style="max-width:650px;margin:auto"><h3>Contact Author</h3><div class="field"><textarea id="msgBody"></textarea></div><button onclick="sendAuthorMessage()">পাঠান</button><h4>আপনার বার্তা:</h4>${msgs.map(m => m.fromAdmin ? `<div class="item" style="background:var(--bg);padding:8px;border-radius:6px"><b>Admin:</b> ${esc(m.reply)}</div>` : `<div class="item"><b>আপনি:</b> ${esc(m.message)}</div>`).join("")}</div>`;
+}
+window.sendAuthorMessage = function() {
+  const text = document.getElementById("msgBody").value.trim(); if(!text) return;
+  db.messages.push({ id: uid(), studentId: currentStudent.id, studentName: currentStudent.name, email: currentStudent.email, message: text, date: new Date().toISOString(), reply: "" });
+  saveDB(); renderStudentContact();
+};
+
+window.addQuizQuestionTemp = function() {
+  const q = document.getElementById("qPrompt").value.trim(); const o = [0,1,2,3].map(i => document.getElementById("qOpt"+i).value.trim());
+  const c = Number(document.getElementById("qCorrect").value); if(!q || o.some(x=>!x)) return toast("সব ঘর দিন","err");
+  tempQuizQuestions.push({ q, options: o, correct: c }); document.getElementById("tempQPreview").textContent = tempQuizQuestions.length + "টি প্রশ্ন যোগ হয়েছে";
+  document.getElementById("qPrompt").value=""; [0,1,2,3].forEach(i => document.getElementById("qOpt"+i).value="");
+};
+window.saveQuiz = function() {
+  const cid = document.getElementById("quizCourseSelect").value, title = document.getElementById("quizTitle").value.trim();
+  if(!title || !tempQuizQuestions.length) return toast("শিরোনাম ও প্রশ্ন দিন","err");
+  db.quizzes.push({ id: uid(), courseId: cid, title, questions: tempQuizQuestions }); tempQuizQuestions = [];
+  saveDB(); renderAdminQuizzes(); document.getElementById("quizTitle").value=""; document.getElementById("tempQPreview").textContent="";
+};
+function renderAdminQuizzes() {
+  document.getElementById("quizCourseSelect").innerHTML = `<option value="">সাধারণ</option>` + db.courses.map(c => `<option value="${c.id}">${esc(c.title)}</option>`).join("");
+  document.getElementById("adminQuizList").innerHTML = `<h3>কুইজ তালিকা</h3>` + (db.quizzes.map(q => `<div class="item row between"><b>${esc(q.title)}</b><button class="danger sm" onclick="db.quizzes=db.quizzes.filter(x=>x.id!=='${q.id}');saveDB();renderAdminQuizzes()">মুছুন</button></div>`).join("") || '<div class="empty">কুইজ নেই</div>');
+}
+
+document.getElementById("year").textContent = new Date().getFullYear();
+if (lsGet(LS_VIEW) === "admin" && adminToken) showAdminCheck();
+bootstrap().catch(() => {});
+
 })();
 </script>
 </body>
