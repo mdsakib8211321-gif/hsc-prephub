@@ -3,7 +3,8 @@
 /**
  * HSC PrepHub – shared-database server (MongoDB Atlas version)
  *
- *  - Sob data (course, notice, student, payment ...) MongoDB-te save hoy.
+ *  - Sob data MongoDB-r alada alada collection-e save hoy:
+ *      students, courses, notices, payments, messages, quizzes, quizResults, settings, sessions
  *  - Login session-o MongoDB-te thake, tai restart/redeploy-e logout hoy na.
  *  - Video/PDF/image MongoDB GridFS-e save hoy (Render-er disk-er upor nirbhor kore na).
  *
@@ -74,7 +75,7 @@ function normalizeState(d) {
   SHARED.forEach((k) => d[k].forEach((x) => { if (!Number.isFinite(x._rev)) x._rev = 0; }));
   return d;
 }
-let state, sessions = {}, col, bucket;
+let state, sessions = {}, dbh, bucket;
 
 // Sob MongoDB write ek-ek kore line-e hoy, jate order na bhange.
 let chain = Promise.resolve();
@@ -82,9 +83,53 @@ function enqueue(fn) {
   chain = chain.then(fn).catch((e) => console.error("MongoDB write failed:", e.message));
   return chain;
 }
+
+// Prottek dhoroner data nijer collection-e: ekta item = ekta document (_id = item.id).
+const COLS = ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults"];
+const lastSaved = {};      // collection -> Map(id -> json)  (last DB-te ja likha ache)
+let lastSettings = "";
+
+function snapshot() {
+  const snap = {};
+  for (const name of COLS) {
+    const m = new Map();
+    state[name].forEach((item, i) => {
+      if (!item.id || m.has(String(item.id))) item.id = uid();
+      const doc = JSON.parse(JSON.stringify(item));
+      doc._id = String(item.id); doc._order = i;
+      m.set(doc._id, { doc, js: JSON.stringify(doc) });
+    });
+    snap[name] = m;
+  }
+  const settings = { _id: "main", rev: state.rev, adminUser: state.adminUser, adminPassHash: state.adminPassHash, numbers: state.numbers };
+  return { snap, settings, settingsJs: JSON.stringify(settings) };
+}
+async function writeSnapshot({ snap, settings, settingsJs }) {
+  for (const name of COLS) {
+    const prev = lastSaved[name] || new Map();
+    const ops = [];
+    for (const [id, v] of snap[name]) if (prev.get(id) !== v.js) ops.push({ replaceOne: { filter: { _id: id }, replacement: v.doc, upsert: true } });
+    for (const id of prev.keys()) if (!snap[name].has(id)) ops.push({ deleteOne: { filter: { _id: id } } });
+    if (ops.length) await dbh.collection(name).bulkWrite(ops, { ordered: false });
+    lastSaved[name] = new Map([...snap[name]].map(([id, v]) => [id, v.js]));
+  }
+  if (settingsJs !== lastSettings) {
+    await dbh.collection("settings").replaceOne({ _id: "main" }, { ...settings, updated: new Date() }, { upsert: true });
+    lastSettings = settingsJs;
+  }
+}
 function saveState() {
-  const json = JSON.stringify(state);
-  return enqueue(() => col.replaceOne({ _id: "db" }, { _id: "db", json, updated: new Date() }, { upsert: true }));
+  const snap = snapshot();                      // ekhoni-r obostha dhore rakho
+  return enqueue(() => writeSnapshot(snap));
+}
+async function loadFromCollections() {
+  const st = await dbh.collection("settings").findOne({ _id: "main" });
+  const d = { rev: st.rev, adminUser: st.adminUser, adminPassHash: st.adminPassHash, numbers: st.numbers };
+  for (const name of COLS) {
+    const docs = await dbh.collection(name).find({}).sort({ _order: 1 }).toArray();
+    d[name] = docs.map(({ _id, _order, ...item }) => item);
+  }
+  return d;
 }
 
 /* ---------- sessions (disk-e save, restart-e thake) ---------- */
@@ -92,7 +137,7 @@ let sessTimer = null;
 function flushSessions() {
   if (sessTimer) { clearTimeout(sessTimer); sessTimer = null; }
   const json = JSON.stringify(sessions);
-  return enqueue(() => col.replaceOne({ _id: "sessions" }, { _id: "sessions", json, updated: new Date() }, { upsert: true }));
+  return enqueue(() => dbh.collection("sessions").replaceOne({ _id: "all" }, { _id: "all", json, updated: new Date() }, { upsert: true }));
 }
 function saveSessions() {           // chhoto change (expiry barano, revoke) – ektu pore likho
   if (sessTimer) return;
@@ -453,20 +498,25 @@ async function init() {
   if (!MONGODB_URI) throw new Error("MONGODB_URI environment variable set kora nei (Render > Environment-e dite hobe)");
   mongoose.set("strictQuery", true);
   await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
-  const db = mongoose.connection.db;
-  col = db.collection("app");
-  bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: "media" });
+  dbh = mongoose.connection.db;
+  bucket = new mongoose.mongo.GridFSBucket(dbh, { bucketName: "media" });
 
-  const doc = await col.findOne({ _id: "db" });
-  if (doc) {
-    state = normalizeState(JSON.parse(doc.json));
+  if (await dbh.collection("settings").findOne({ _id: "main" })) {
+    state = normalizeState(await loadFromCollections());
+    const sn = snapshot();              // ja DB-te ache seta "last saved" hishebe dhoro
+    for (const name of COLS) lastSaved[name] = new Map([...sn.snap[name]].map(([id, v]) => [id, v.js]));
+    lastSettings = sn.settingsJs;
   } else {
-    let seed = null;                       // prothom bar: purono db.json thakle seta import koro
-    if (fs.existsSync(DB_FILE)) { try { seed = JSON.parse(fs.readFileSync(DB_FILE, "utf8")); console.log("db.json MongoDB-te import hocche"); } catch {} }
+    // Prothom bar: aager ek-document ("app") thakle seta, na hole purono db.json, na hole default
+    let seed = null;
+    const legacy = await dbh.collection("app").findOne({ _id: "db" });
+    if (legacy) { try { seed = JSON.parse(legacy.json); console.log("purono 'app' data alada collection-e bhag kora hocche"); } catch {} }
+    if (!seed && fs.existsSync(DB_FILE)) { try { seed = JSON.parse(fs.readFileSync(DB_FILE, "utf8")); console.log("db.json MongoDB-te import hocche"); } catch {} }
     state = normalizeState(seed || defaults());
     await saveState();
   }
-  const sdoc = await col.findOne({ _id: "sessions" });
+  let sdoc = await dbh.collection("sessions").findOne({ _id: "all" });
+  if (!sdoc) sdoc = await dbh.collection("app").findOne({ _id: "sessions" });   // purono login-o rakho
   try { sessions = sdoc ? JSON.parse(sdoc.json) : {}; } catch { sessions = {}; }
   ready = true;
   console.log("Database: MongoDB connected");
