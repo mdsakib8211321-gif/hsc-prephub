@@ -216,6 +216,8 @@ button.danger{background:#fee2e2;color:#b91c1c}
 .badge{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:1.5;text-align:center}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .footer{color:#7c3aed}
+.acc-head{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.acc-open{box-shadow:0 0 0 2px rgba(124,58,237,.5)}
 </style>
 </head>
 <body>
@@ -1659,7 +1661,8 @@ window.addCourse = function() {
   const thumb = document.getElementById("newCourseThumb").value.trim();
   const desc = document.getElementById("newCourseDesc").value.trim();
   if (!title) { toast("কোর্সের নাম দিন", "err"); return; }
-  db.courses.push({ id: uid(), title, desc, price, thumb, chapters: [] });
+  const nc = { id: uid(), title, desc, price, thumb, chapters: [] };
+  db.courses.push(nc); adminOpen.course = nc.id; adminOpen.chapter[nc.id] = null;
   saveDB(); toast("কোর্স যোগ হয়েছে", "ok"); renderAdminCourses();
   document.getElementById("newCourseTitle").value = "";
   document.getElementById("newCoursePrice").value = "";
@@ -1667,48 +1670,78 @@ window.addCourse = function() {
   document.getElementById("newCourseDesc").value = "";
 };
 
+// একসময়ে একটি কোর্স এবং ওই কোর্সের একটি চ্যাপ্টার খোলা থাকে, বাকি সব ছোট (minimize) থাকে।
+const adminOpen = { course: null, chapter: {} };
+window.toggleCourseOpen = function(cid) {
+  if (adminOpen.course === cid) adminOpen.course = null;
+  else { adminOpen.course = cid; adminOpen.chapter[cid] = null; }
+  renderAdminCourses();
+};
+window.toggleChapterOpen = function(cid, chid) {
+  adminOpen.chapter[cid] = adminOpen.chapter[cid] === chid ? null : chid;
+  renderAdminCourses();
+};
+
 function renderAdminCourses() {
-  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map((c, ci) => `
-    <div class="card section">
-      <div class="row between">
-        <h3 style="margin:0">${esc(c.title)} (${money(c.price)})</h3>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button class="ghost sm" ${ci === 0 ? "disabled" : ""} onclick="moveCourse('${c.id}',-1)">⬆️ উপরে</button>
-        <button class="ghost sm" ${ci === db.courses.length - 1 ? "disabled" : ""} onclick="moveCourse('${c.id}',1)">⬇️ নিচে</button>
-        <button class="secondary sm" onclick="openCourseEdit('${c.id}')">✏️ কোর্স এডিট</button>
-        <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
-        <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
-      </div>
-      ${(c.chapters || []).map((ch, hi) => `
-        <div class="item" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
-          <div class="row between">
-            <b>📁 ${esc(ch.title)}</b>
-            <div class="row">
-              <button class="ghost sm" style="padding:2px 8px" ${hi === 0 ? "disabled" : ""} onclick="moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
-              <button class="ghost sm" style="padding:2px 8px" ${hi === c.chapters.length - 1 ? "disabled" : ""} onclick="moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
-              <button class="secondary sm" onclick="editChapterTitle('${c.id}','${ch.id}')">✏️</button>
-              <button class="secondary sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস যোগ</button>
-              <button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button>
-            </div>
-          </div>
-          <div style="margin-top:8px;display:grid;gap:6px">
-            ${(ch.classes || []).map((cl, li) => `
-              <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
-                <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
-                <div class="row">
-                  <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
-                  <button class="ghost sm" style="padding:2px 8px" ${li === ch.classes.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
-                  <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
-                  <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
-                </div>
-              </div>
-            `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
-          </div>
+  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map((c, ci) => {
+    const isOpen = adminOpen.course === c.id;
+    const chs = c.chapters || [];
+    const clsCount = chs.reduce((n, ch) => n + (ch.classes || []).length, 0);
+    return `
+    <div class="card section ${isOpen ? "acc-open" : ""}">
+      <div class="row between acc-head" onclick="toggleCourseOpen('${c.id}')">
+        <div>
+          <h3 style="margin:0">${isOpen ? "▼" : "▶"} ${esc(c.title)} (${money(c.price)})</h3>
+          <div class="muted small">${chs.length}টি চ্যাপ্টার · ${clsCount}টি ক্লাস</div>
         </div>
-      `).join("") || '<div class="muted small" style="margin-top:10px">কোনো চ্যাপ্টার নেই।</div>'}
-    </div>
-  `).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
+        <div class="row">
+          <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${ci === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',-1)">⬆️</button>
+          <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${ci === db.courses.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',1)">⬇️</button>
+        </div>
+      </div>
+      ${isOpen ? `
+        <div class="row" style="margin-top:10px">
+          <button class="secondary sm" onclick="openCourseEdit('${c.id}')">✏️ কোর্স এডিট</button>
+          <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
+          <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
+        </div>
+        ${chs.map((ch, hi) => {
+          const chOpen = adminOpen.chapter[c.id] === ch.id;
+          const cls = ch.classes || [];
+          return `
+          <div class="item ${chOpen ? "acc-open" : ""}" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+            <div class="row between acc-head" onclick="toggleChapterOpen('${c.id}','${ch.id}')">
+              <div><b>${chOpen ? "▼" : "▶"} 📁 ${esc(ch.title)}</b> <span class="muted small">· ${cls.length}টি ক্লাস</span></div>
+              <div class="row">
+                <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${hi === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
+                <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${hi === chs.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
+              </div>
+            </div>
+            ${chOpen ? `
+              <div class="row" style="margin-top:8px">
+                <button class="secondary sm" onclick="editChapterTitle('${c.id}','${ch.id}')">✏️ নাম বদলান</button>
+                <button class="secondary sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস যোগ</button>
+                <button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button>
+              </div>
+              <div style="margin-top:8px;display:grid;gap:6px">
+                ${cls.map((cl, li) => `
+                  <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
+                    <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
+                    <div class="row">
+                      <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
+                      <button class="ghost sm" style="padding:2px 8px" ${li === cls.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
+                      <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
+                      <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
+                    </div>
+                  </div>
+                `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
+              </div>
+            ` : ""}
+          </div>`;
+        }).join("") || '<div class="muted small" style="margin-top:10px">কোনো চ্যাপ্টার নেই।</div>'}
+      ` : ""}
+    </div>`;
+  }).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
 }
 
 function moveItem(list, i, dir) {
@@ -1775,6 +1808,7 @@ window.saveCourseEdit = function(cid) {
 window.deleteCourse = function(cid) {
   if (confirm("কোর্সটি ডিলিট করতে চান?")) {
     db.courses = db.courses.filter(c => c.id !== cid);
+    if (adminOpen.course === cid) adminOpen.course = null;
     saveDB(); renderAdminCourses();
   }
 };
@@ -1782,7 +1816,9 @@ window.deleteCourse = function(cid) {
 window.addChapterPrompt = function(cid) {
   const title = prompt("চ্যাপ্টারের নাম লিখুন:");
   if (!title) return;
-  db.courses.find(x => x.id === cid).chapters.push({ id: uid(), title, classes: [] });
+  const nch = { id: uid(), title, classes: [] };
+  db.courses.find(x => x.id === cid).chapters.push(nch);
+  adminOpen.course = cid; adminOpen.chapter[cid] = nch.id;
   saveDB(); renderAdminCourses();
 };
 
@@ -1790,6 +1826,7 @@ window.deleteChapter = function(cid, chid) {
   if (confirm("চ্যাপ্টারটি ডিলিট করতে চান?")) {
     const c = db.courses.find(x => x.id === cid);
     if (c) c.chapters = c.chapters.filter(ch => ch.id !== chid);
+    if (adminOpen.chapter[cid] === chid) adminOpen.chapter[cid] = null;
     saveDB(); renderAdminCourses();
   }
 };
