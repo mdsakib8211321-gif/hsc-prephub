@@ -602,11 +602,11 @@ function patchMedia(serverCourses) {
 function sessionExpired(role) {
   if (role === "admin") {
     adminOn = false; adminRendered = false; adminToken = ""; lsSet(LS_ADMIN, "");
-    toast("অ্যাডমিন সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
+    toast("অ্যাডমিন সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
     if (!document.getElementById("adminView").classList.contains("hidden")) showAdminCheck();
   } else {
     studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null;
-    toast("সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
+    toast("সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
     renderStudent();
   }
 }
@@ -620,7 +620,7 @@ async function pushStudentItems() {
   if (r.status === 401) { sessionExpired("student"); return; }
   if (!r.ok) { const e = new Error("sync"); e.code = r.status; throw e; }
   (r.data.accepted || []).concat(r.data.rejected || []).forEach(id => syncedIds.add(id));
-  if ((r.data.rejected || []).length) toast("কিছু তথ্য সংরক্ষণ করা যায়নি।", "err");
+  if ((r.data.rejected || []).length) toast("কিছু তথ্য সংরক্ষণ করা যায়নি।", "err");
 }
 
 async function pushAdminState() {
@@ -647,8 +647,8 @@ async function runPush() {
       if (adminOn && adminToken) await pushAdminState();
     }
   } catch (err) {
-    if (err && err.code === 413) { toast("ফাইলটি সার্ভারের সীমার চেয়ে বড়। YouTube লিংক ব্যবহার করুন।", "err"); }
-    else { dirty = true; toast("সার্ভারে সংরক্ষণ করা যায়নি, আবার চেষ্টা হচ্ছে…", "err"); setTimeout(schedulePush, 6000); }
+    if (err && err.code === 413) { toast("ফাইলটি সার্ভারের সীমার চেয়ে বড়। YouTube লিংক ব্যবহার করুন।", "err"); }
+    else { dirty = true; toast("সার্ভারে সংরক্ষণ করা যায়নি, আবার চেষ্টা হচ্ছে…", "err"); setTimeout(schedulePush, 6000); }
   } finally { pushing = false; }
 }
 
@@ -784,9 +784,9 @@ window.joinStudent = async function() {
   let r;
   try { r = await api("/api/student/join", { method: "POST", body: { name, email, pin } }); }
   catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
-  if (r.status === 401) { toast("পাসকোড ভুল হয়েছে!", "err"); return; }
-  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
-  if (!r.ok) { toast("লগইন করা যায়নি। আবার চেষ্টা করুন।", "err"); return; }
+  if (r.status === 401) { toast("পাসকোড ভুল হয়েছে!", "err"); return; }
+  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
+  if (!r.ok) { toast("লগইন করা যায়নি। আবার চেষ্টা করুন।", "err"); return; }
 
   studentToken = r.data.token; lsSet(LS_STUDENT, studentToken);
   currentStudent = r.data.me;
@@ -801,7 +801,7 @@ window.logoutStudent = function() {
   studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null;
   if (t) api("/api/student/logout", { method: "POST", token: t }).catch(() => {});
   renderStudent();
-  toast("লগআউট হয়েছে।");
+  toast("লগআউট হয়েছে।");
   pollState(true);
 };
 
@@ -977,7 +977,7 @@ function loadYouTubeApi() {
   };
   const tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
-  tag.onerror = () => { ytApiLoading = false; setPlayerStatus('YouTube Player লোড হয়নি — ইন্টারনেট চেক করুন'); };
+  tag.onerror = () => { ytApiLoading = false; setPlayerStatus('YouTube Player লোড হয়নি — ইন্টারনেট চেক করুন'); };
   document.head.appendChild(tag);
 }
 
@@ -1017,7 +1017,7 @@ function pPlaying() {
   return false;
 }
 function pPlay() {
-  if (isLocalActive()) activeVideoElement.play().catch(() => toast('ভিডিও চালু করা যায়নি', 'err'));
+  if (isLocalActive()) activeVideoElement.play().catch(() => toast('ভিডিও চালু করা যায়নি', 'err'));
   else if (isYtActive()) ytPlayerInstance.playVideo();
 }
 function pPause() {
@@ -1140,11 +1140,11 @@ async function pToggleFullscreen() {
   }
 }
 async function pPip() {
-  if (!isLocalActive() || !document.pictureInPictureEnabled) { toast('Picture-in-Picture এই ভিডিও/ব্রাউজারে সমর্থিত নয়', 'err'); return; }
+  if (!isLocalActive() || !document.pictureInPictureEnabled) { toast('Picture-in-Picture এই ভিডিও/ব্রাউজারে সমর্থিত নয়', 'err'); return; }
   try {
     if (document.pictureInPictureElement) await document.exitPictureInPicture();
     else await activeVideoElement.requestPictureInPicture();
-  } catch { toast('Picture-in-Picture চালু করা যায়নি', 'err'); }
+  } catch { toast('Picture-in-Picture চালু করা যায়নি', 'err'); }
 }
 function pTheater() {
   const box = $('modalBox'); if (!box) return;
@@ -1183,7 +1183,7 @@ function initYouTubePlayer() {
         if (s === 0) { ctx.finished = true; saveVideoPosition(); goToAdjacentClass(1, true); return; }
         updateUI(); showVpControls();
       },
-      onError: (e) => { if (e.target === ytPlayerInstance) setPlayerStatus('ভিডিও লোড করা যায়নি (YouTube error ' + e.data + ')'); }
+      onError: (e) => { if (e.target === ytPlayerInstance) setPlayerStatus('ভিডিও লোড করা যায়নি (YouTube error ' + e.data + ')'); }
     }
   });
   ytProgressTimer = setInterval(() => {
@@ -1214,7 +1214,7 @@ function bindLocalVideo(video) {
   on('canplay', () => $('vp')?.classList.remove('buffering'));
   on('volumechange', updateUI);
   on('ended', () => { ctx.finished = true; saveVideoPosition(); updateUI(); showVpControls(); goToAdjacentClass(1, true); });
-  on('error', () => { $('vp')?.classList.remove('buffering'); setPlayerStatus('ভিডিও লোড করা যায়নি'); });
+  on('error', () => { $('vp')?.classList.remove('buffering'); setPlayerStatus('ভিডিও লোড করা যায়নি'); });
   video.volume = vpPrefs.volume; video.muted = vpPrefs.muted; video.playbackRate = vpPrefs.rate;
   video.play().catch(() => {});
 }
@@ -1452,7 +1452,7 @@ function renderStudentContact() {
       <div class="field"><textarea id="msgBody" placeholder="আপনার বার্তা লিখুন..."></textarea></div>
       <button onclick="sendAuthorMessage()">বার্তা পাঠান</button>
       <h4 style="margin-top:20px">আপনার বার্তা ও উত্তর:</h4>
-      ${myMsgs.length ? myMsgs.slice().reverse().map(m => `<div class="item"><b>বার্তা:</b> ${esc(m.message)}<br>${m.reply ? `<b style="color:var(--green)">উত্তর:</b> ${esc(m.reply)}` : '<span class="muted small">উত্তরের অপেক্ষায়...</span>'}</div>`).join("") : '<div class="empty">কোনো বার্তা নেই।</div>'}
+      ${myMsgs.length ? myMsgs.slice().reverse().map(m => `<div class="item"><b>বার্তা:</b> ${esc(m.message)}<br>${m.reply ? `<b style="color:var(--green)">উত্তর:</b> ${esc(m.reply)}` : '<span class="muted small">উত্তরের অপেক্ষায়...</span>'}</div>`).join("") : '<div class="empty">কোনো বার্তা নেই।</div>'}
     </div>
   `;
 }
@@ -1586,8 +1586,8 @@ window.adminLogin = async function() {
   let r;
   try { r = await api("/api/admin/login", { method: "POST", body: { username: u, password: p } }); }
   catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
-  if (r.status === 429) { toast("অনেকবার ভুল হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।", "err"); return; }
-  if (!r.ok) { toast("ভুল ইউজারনেম বা পাসওয়ার্ড!", "err"); return; }
+  if (r.status === 429) { toast("অনেকবার ভুল হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।", "err"); return; }
+  if (!r.ok) { toast("ভুল ইউজারনেম বা পাসওয়ার্ড!", "err"); return; }
 
   adminToken = r.data.token; lsSet(LS_ADMIN, adminToken);
   adminOn = true;
@@ -1600,7 +1600,7 @@ window.adminLogin = async function() {
     const old = localStorage.getItem(KEY);
     if (old && !localStorage.getItem("hsc_migrated_v6")) {
       localStorage.setItem("hsc_migrated_v6", "1");
-      if (confirm("এই ব্রাউজারে আগের লোকাল ডেটা পাওয়া গেছে।\nএটি সার্ভারে আপলোড করে সবার জন্য চালু করবেন?\n(সার্ভারের বর্তমান ডেটা এটি দিয়ে বদলে যাবে।)")) {
+      if (confirm("এই ব্রাউজারে আগের লোকাল ডেটা পাওয়া গেছে।\nএটি সার্ভারে আপলোড করে সবার জন্য চালু করবেন?\n(সার্ভারের বর্তমান ডেটা এটি দিয়ে বদলে যাবে।)")) {
         const parsed = JSON.parse(old);
         if (parsed && Array.isArray(parsed.courses)) {
           db = normalizeDB(parsed); forceReplace = true; saveDB();
@@ -1668,27 +1668,37 @@ window.addCourse = function() {
 };
 
 function renderAdminCourses() {
-  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map(c => `
+  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map((c, ci) => `
     <div class="card section">
-      <h3>${esc(c.title)} (${money(c.price)})</h3>
+      <div class="row between">
+        <h3 style="margin:0">${esc(c.title)} (${money(c.price)})</h3>
+      </div>
       <div class="row" style="margin-top:8px">
+        <button class="ghost sm" ${ci === 0 ? "disabled" : ""} onclick="moveCourse('${c.id}',-1)">⬆️ উপরে</button>
+        <button class="ghost sm" ${ci === db.courses.length - 1 ? "disabled" : ""} onclick="moveCourse('${c.id}',1)">⬇️ নিচে</button>
+        <button class="secondary sm" onclick="openCourseEdit('${c.id}')">✏️ কোর্স এডিট</button>
         <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
         <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
       </div>
-      ${(c.chapters || []).map(ch => `
+      ${(c.chapters || []).map((ch, hi) => `
         <div class="item" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
           <div class="row between">
             <b>📁 ${esc(ch.title)}</b>
             <div class="row">
+              <button class="ghost sm" style="padding:2px 8px" ${hi === 0 ? "disabled" : ""} onclick="moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
+              <button class="ghost sm" style="padding:2px 8px" ${hi === c.chapters.length - 1 ? "disabled" : ""} onclick="moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
+              <button class="secondary sm" onclick="editChapterTitle('${c.id}','${ch.id}')">✏️</button>
               <button class="secondary sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস যোগ</button>
               <button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button>
             </div>
           </div>
           <div style="margin-top:8px;display:grid;gap:6px">
-            ${(ch.classes || []).map(cl => `
+            ${(ch.classes || []).map((cl, li) => `
               <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
                 <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
                 <div class="row">
+                  <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
+                  <button class="ghost sm" style="padding:2px 8px" ${li === ch.classes.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
                   <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
                   <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
                 </div>
@@ -1700,6 +1710,67 @@ function renderAdminCourses() {
     </div>
   `).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
 }
+
+function moveItem(list, i, dir) {
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= list.length) return false;
+  [list[i], list[j]] = [list[j], list[i]];
+  return true;
+}
+window.moveCourse = function(cid, dir) {
+  if (moveItem(db.courses, db.courses.findIndex(c => c.id === cid), dir)) { saveDB(); renderAdminCourses(); }
+};
+window.moveChapter = function(cid, chid, dir) {
+  const c = db.courses.find(x => x.id === cid); if (!c) return;
+  if (moveItem(c.chapters, c.chapters.findIndex(ch => ch.id === chid), dir)) { saveDB(); renderAdminCourses(); }
+};
+window.moveClass = function(cid, chid, clid, dir) {
+  const ch = db.courses.find(x => x.id === cid)?.chapters.find(x => x.id === chid); if (!ch) return;
+  if (moveItem(ch.classes, ch.classes.findIndex(cl => cl.id === clid), dir)) { saveDB(); renderAdminCourses(); }
+};
+
+window.editChapterTitle = function(cid, chid) {
+  const ch = db.courses.find(x => x.id === cid)?.chapters.find(x => x.id === chid); if (!ch) return;
+  const t = prompt("চ্যাপ্টারের নতুন নাম লিখুন:", ch.title);
+  if (t === null) return;
+  if (!t.trim()) { toast("চ্যাপ্টারের নাম খালি রাখা যাবে না", "err"); return; }
+  ch.title = t.trim().slice(0, 200);
+  saveDB(); renderAdminCourses(); toast("চ্যাপ্টারের নাম বদলানো হয়েছে", "ok");
+};
+
+window.openCourseEdit = function(cid) {
+  const c = db.courses.find(x => x.id === cid); if (!c) return;
+  openModal(`
+    <div class="stack">
+      <h3 style="margin:0">কোর্স এডিট করুন</h3>
+      <div class="field"><label>কোর্সের নাম *</label><input id="ecTitle" value="${esc(c.title)}"></div>
+      <div class="field"><label>ফি (টাকা)</label><input id="ecPrice" type="number" min="0" value="${Number(c.price) || 0}"></div>
+      <div class="field"><label>থাম্বনেইল ইমেজ URL</label><input id="ecThumb" value="${esc(c.thumb || "")}" placeholder="https://image-url.com"></div>
+      <div class="field"><label>কোর্সের বিবরণ</label><textarea id="ecDesc">${esc(c.desc || "")}</textarea></div>
+      <p class="muted small">ফি বদলালে যারা আগে কিনে ফেলেছে তাদের কোনো সমস্যা হবে না, নতুন ফি শুধু নতুন কেনার ক্ষেত্রে। ফি ০ করলে কোর্সটি সবার জন্য ফ্রি হয়ে যাবে।</p>
+      <div class="row" style="justify-content:flex-end">
+        <button class="ghost" onclick="closeModal()">বাতিল</button>
+        <button onclick="saveCourseEdit('${c.id}')">পরিবর্তন সেভ</button>
+      </div>
+    </div>
+  `);
+};
+
+window.saveCourseEdit = function(cid) {
+  const c = db.courses.find(x => x.id === cid); if (!c) return;
+  const title = document.getElementById("ecTitle").value.trim();
+  const rawPrice = document.getElementById("ecPrice").value;
+  const price = Math.max(0, Math.round(Number(rawPrice)));
+  if (!title) { toast("কোর্সের নাম দিন", "err"); return; }
+  if (rawPrice === "" || !Number.isFinite(price)) { toast("সঠিক ফি দিন", "err"); return; }
+  if (price === 0 && Number(c.price) > 0 && !confirm("ফি ০ করলে কোর্সটি সবার জন্য ফ্রি হয়ে যাবে। চালিয়ে যাবেন?")) return;
+  c.title = title.slice(0, 200);
+  c.price = price;
+  c.thumb = document.getElementById("ecThumb").value.trim();
+  c.desc = document.getElementById("ecDesc").value.trim();
+  db.payments.forEach(p => { if (p.courseId === c.id) p.courseTitle = c.title; });   // পেমেন্ট তালিকায়ও নতুন নাম দেখাবে
+  saveDB(); closeModal(); renderAdminCourses(); toast("কোর্স আপডেট হয়েছে", "ok");
+};
 
 window.deleteCourse = function(cid) {
   if (confirm("কোর্সটি ডিলিট করতে চান?")) {
@@ -1923,10 +1994,10 @@ function renderAdminPayments() {
 window.deletePay = function(pid) {
   const p = db.payments.find(x => x.id === pid);
   if (!p) return;
-  const warn = p.status === "Approved" ? "\n\n⚠ এটি Approved পেমেন্ট। মুছলে ছাত্রের এই কোর্স আবার লক হয়ে যাবে।" : "";
+  const warn = p.status === "Approved" ? "\n\n⚠ এটি Approved পেমেন্ট। মুছলে ছাত্রের এই কোর্স আবার লক হয়ে যাবে।" : "";
   if (!confirm(`${p.studentName}-এর "${p.courseTitle}" পেমেন্ট হিস্ট্রি মুছে ফেলবেন?${warn}`)) return;
   db.payments = db.payments.filter(x => x.id !== pid);
-  saveDB(); renderAdminPayments(); refreshAdminStats(); toast("পেমেন্ট হিস্ট্রি মুছে ফেলা হয়েছে", "ok");
+  saveDB(); renderAdminPayments(); refreshAdminStats(); toast("পেমেন্ট হিস্ট্রি মুছে ফেলা হয়েছে", "ok");
 };
 
 window.deleteRejectedPays = function() {
@@ -1934,7 +2005,7 @@ window.deleteRejectedPays = function() {
   if (!n) return;
   if (!confirm(`${n}টি Rejected পেমেন্ট হিস্ট্রি মুছে ফেলবেন?`)) return;
   db.payments = db.payments.filter(p => p.status !== "Rejected");
-  saveDB(); renderAdminPayments(); refreshAdminStats(); toast("Rejected পেমেন্ট মুছে ফেলা হয়েছে", "ok");
+  saveDB(); renderAdminPayments(); refreshAdminStats(); toast("Rejected পেমেন্ট মুছে ফেলা হয়েছে", "ok");
 };
 
 function refreshAdminStats() {
@@ -2027,7 +2098,7 @@ function fillAdminMsgTargets() {
   const q = (document.getElementById("adminMsgSearch")?.value || "").trim().toLowerCase();
   const cur = sel.value;
   const list = db.students.filter(s => !q || (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q)).slice(0, 200);
-  sel.innerHTML = list.length ? list.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (${esc(s.email)})</option>`).join("") : '<option value="">কোনো ছাত্র পাওয়া যায়নি</option>';
+  sel.innerHTML = list.length ? list.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (${esc(s.email)})</option>`).join("") : '<option value="">কোনো ছাত্র পাওয়া যায়নি</option>';
   if (cur && list.some(s => s.id === cur)) sel.value = cur;
 }
 window.fillAdminMsgTargets = fillAdminMsgTargets;
@@ -2040,7 +2111,7 @@ window.sendAdminMessage = function() {
   if (!text) { toast("বার্তা খালি রাখা যাবে না।", "err"); return; }
   db.messages.push({ id: uid(), studentId: st.id, studentName: st.name, email: st.email, message: text.slice(0, 2000), from: "admin", date: new Date().toISOString(), reply: "" });
   document.getElementById("adminMsgBody").value = "";
-  saveDB(); toast(`${st.name}-কে বার্তা পাঠানো হয়েছে`, "ok"); renderAdminMessages();
+  saveDB(); toast(`${st.name}-কে বার্তা পাঠানো হয়েছে`, "ok"); renderAdminMessages();
 };
 
 window.deleteMsg = function(mid) {
@@ -2048,7 +2119,7 @@ window.deleteMsg = function(mid) {
   if (!m) return;
   if (!confirm("এই বার্তাটি মুছে ফেলবেন?")) return;
   db.messages = db.messages.filter(x => x.id !== mid);
-  saveDB(); renderAdminMessages(); refreshAdminStats(); toast("বার্তা মুছে ফেলা হয়েছে", "ok");
+  saveDB(); renderAdminMessages(); refreshAdminStats(); toast("বার্তা মুছে ফেলা হয়েছে", "ok");
 };
 
 function renderAdminMessages() {
@@ -2126,7 +2197,7 @@ window.saveEditedNotice = function(nid) {
   const body = document.getElementById("editNoticeBody").value.trim();
   if (!title || !body) { toast("শিরোনাম ও বিস্তারিত দুটোই দিন", "err"); return; }
   n.title = title; n.body = body; n.edited = new Date().toISOString();
-  if (saveDB()) { closeModal(); renderAdminNotices(); toast("নোটিশ আপডেট হয়েছে", "ok"); }
+  if (saveDB()) { closeModal(); renderAdminNotices(); toast("নোটিশ আপডেট হয়েছে", "ok"); }
 };
 
 window.deleteNotice = function(nid) {
@@ -2134,7 +2205,7 @@ window.deleteNotice = function(nid) {
   if (!n) return;
   if (!confirm(`"${n.title}" নোটিশটি ডিলিট করতে চান?`)) return;
   db.notices = db.notices.filter(x => x.id !== nid);
-  saveDB(); renderAdminNotices(); toast("নোটিশ ডিলিট হয়েছে", "ok");
+  saveDB(); renderAdminNotices(); toast("নোটিশ ডিলিট হয়েছে", "ok");
 };
 
 window.savePaymentNumbers = function() {
@@ -2144,10 +2215,10 @@ window.savePaymentNumbers = function() {
 
 window.changeAdminPass = async function() {
   const p = document.getElementById("newAdminPass").value;
-  if (p.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড দিন", "err"); return; }
+  if (p.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড দিন", "err"); return; }
   db.adminPassHash = await sha256Hex(p); saveDB();
   document.getElementById("newAdminPass").value = "";
-  toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
+  toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
 };
 
 window.exportDB = function() {
