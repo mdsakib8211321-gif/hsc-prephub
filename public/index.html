@@ -216,8 +216,97 @@ button.danger{background:#fee2e2;color:#b91c1c}
 .badge{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:1.5;text-align:center}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .footer{color:#7c3aed}
+
+/* ---------- animations ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes chevTurn{from{transform:rotate(0)}to{transform:rotate(90deg)}}
+@keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes floaty{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-14px) translateX(8px)}}
+@keyframes gradMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(46px)}to{opacity:1;transform:none}}
+@keyframes backdropIn{from{opacity:0}to{opacity:1}}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}
+@keyframes wave{0%,100%{transform:rotate(0)}20%{transform:rotate(16deg)}40%{transform:rotate(-10deg)}60%{transform:rotate(12deg)}80%{transform:rotate(-4deg)}}
+header{background-size:220% 220%;animation:gradMove 16s ease infinite}
+.hero{animation:fadeUp .6s cubic-bezier(.2,.8,.2,1) both}
+.hero::after{animation:floaty 8s ease-in-out infinite}
+.hero::before{animation:floaty 11s ease-in-out infinite reverse}
+#studentArea:not(.hidden),#adminView:not(.hidden),#studentView:not(.hidden){animation:fadeUp .5s cubic-bezier(.2,.8,.2,1) both}
+#studentArea [id^="tab-"]:not(.hidden),#adminView [id^="admin-"]:not(.hidden){animation:fadeUp .4s cubic-bezier(.2,.8,.2,1) both}
+.fresh>*,.fresh .grid>*{animation:popIn .5s cubic-bezier(.2,.8,.2,1) both}
+.fresh>*:nth-child(2),.fresh .grid>*:nth-child(2){animation-delay:.06s}
+.fresh>*:nth-child(3),.fresh .grid>*:nth-child(3){animation-delay:.12s}
+.fresh>*:nth-child(4),.fresh .grid>*:nth-child(4){animation-delay:.18s}
+.fresh>*:nth-child(5),.fresh .grid>*:nth-child(5){animation-delay:.24s}
+.fresh>*:nth-child(6),.fresh .grid>*:nth-child(6){animation-delay:.3s}
+.fresh>*:nth-child(n+7),.fresh .grid>*:nth-child(n+7){animation-delay:.36s}
+.modal-backdrop:not(.hidden){animation:backdropIn .25s ease both}
+.modal-backdrop:not(.hidden) .modal{animation:modalIn .35s cubic-bezier(.2,.9,.3,1.15) both}
+.toast{animation:toastIn .38s cubic-bezier(.2,.8,.2,1) both;transition:opacity .3s}
+.badge{animation:pulse 1.8s infinite}
+.prog-bar>span{transform-origin:left center;animation:barGrow .9s cubic-bezier(.2,.8,.2,1) both}
+#welcome{animation:fadeUp .6s both}
+#welcome::after{content:" 👋";display:inline-block;transform-origin:70% 70%;animation:wave 2.2s ease 1s 1}
+.field input,.field select,.field textarea{transition:box-shadow .25s,border-color .25s}
+.field input:focus,.field select:focus,.field textarea:focus{box-shadow:0 0 0 4px rgba(124,58,237,.18)}
+button{transition:transform .15s,box-shadow .25s,filter .2s,background .2s}
+@media (hover:hover){
+  button:not(.vp-btn):not(.pw-eye):hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px rgba(124,58,237,.28)}
+  .grid>.card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(124,58,237,.2)}
+  .tabs button:hover:not(:disabled){transform:translateY(-2px)}
+}
+button:not(.vp-btn):not(.pw-eye):active:not(:disabled){transform:scale(.96)}
+.grid>.card{transition:transform .25s,box-shadow .25s}
+.chev{display:inline-block;transition:transform .2s}
+.acc-open>.acc-head .chev{transform:rotate(90deg)}
+.acc-new>:not(.acc-head){animation:slideDown .3s cubic-bezier(.2,.8,.2,1) both}
+.acc-new>.acc-head .chev{animation:chevTurn .25s ease both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- account create / login ---------- */
+.auth-wrap{max-width:480px;margin:auto;display:grid;gap:14px}
+.auth-card{animation:fadeUp .6s cubic-bezier(.2,.8,.2,1) both}
+.auth-wrap .auth-card:last-child{animation-delay:.14s}
+#registerCard{border-top-color:#7c3aed}
+#loginCard{border-top-color:#06b6d4}
+.auth-or{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:700;font-size:.85rem}
+.auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:48px}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent!important;color:var(--muted)!important;padding:6px 10px;box-shadow:none!important}
+.auth-msg{min-height:1.3em;font-size:.88rem;font-weight:650}
+.auth-msg.err{color:#dc2626}.auth-msg.ok{color:#16a34a}
+.shake{animation:shake .45s}
+
+/* ---------- student course accordion ---------- */
+.stu-chapter{margin:10px 0;padding:12px;background:var(--bg);border-radius:12px;border:1px solid var(--line)}
+.stu-classes{margin-top:8px}
+.stu-class{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;margin-top:8px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+.stu-class.done{border-left:4px solid #22c55e}
+.stu-course>.acc-head{cursor:pointer}
+
+/* ---------- player: close button + class list under video ---------- */
+.vp-below{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.vp-close{flex:1;min-width:210px;background:linear-gradient(135deg,#ef4444,#f97316)!important;font-weight:800}
+.vp-list{margin-top:6px}
+.vp-list-title{margin:10px 0 6px}
+.vp-item{cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s}
+.vp-item:hover{transform:translateX(4px)}
+.vp-item.now{border-left:4px solid #ef4444;background:linear-gradient(90deg,rgba(239,68,68,.13),transparent 70%),var(--card);font-weight:700}
 .acc-head{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .acc-open{box-shadow:0 0 0 2px rgba(124,58,237,.5)}
+.prog{margin:8px 0 12px}
+.prog-bar{height:10px;border-radius:99px;background:rgba(124,58,237,.16);overflow:hidden}
+.prog-bar>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#22c55e,#06b6d4,#7c3aed);transition:width .4s}
+.cpn-ok{color:#15803d;font-weight:700}.cpn-err{color:#b91c1c;font-weight:700}
+.cpn-row{border-left:4px solid #f59e0b;background:linear-gradient(90deg,rgba(245,158,11,.12),transparent 70%),var(--card)}
+.cpn-off{opacity:.55}
+.code-chip{font-family:monospace;font-weight:800;letter-spacing:1px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px}
+[data-theme="dark"] .code-chip{background:#78350f;color:#fde68a}
 </style>
 </head>
 <body>
@@ -241,13 +330,28 @@ button.danger{background:#fee2e2;color:#b91c1c}
       <p>কোর্স, ইউটিউব ও লোকাল ভিডিও ক্লাস, একাধিক PDF নোট, MCQ পরীক্ষা ও সার্টিফিকেট—সব এক জায়গায়।</p>
     </div>
 
-    <div id="joinBox" class="card stack" style="max-width:480px;margin:auto">
-      <h2>শিক্ষার্থী লগইন বা সাইনআপ</h2>
-      <p class="muted small">ইমেইল ও একটি লোকাল পাসকোড দিয়ে নিরাপদে প্রবেশ করুন।</p>
-      <div class="field"><label>আপনার নাম</label><input id="studentName" placeholder="পূর্ণ নাম"></div>
-      <div class="field"><label>ইমেইল</label><input id="studentEmail" type="email" placeholder="name@example.com"></div>
-      <div class="field"><label>লোকাল পাসকোড (কমপক্ষে ৪ অক্ষর)</label><input id="studentPin" type="password" placeholder="পাসকোড"></div>
-      <button onclick="joinStudent()">প্রবেশ করুন / অ্যাকাউন্ট খুলুন</button>
+    <div id="joinBox" class="auth-wrap">
+      <div class="card stack auth-card" id="registerCard">
+        <h2>✨ নতুন অ্যাকাউন্ট খুলুন</h2>
+        <p class="muted small">নাম, ইমেইল ও পাসওয়ার্ড দিয়ে অ্যাকাউন্ট তৈরি করুন। একবার লগইন করলে বারবার লগইন করতে হবে না। তবে একটি অ্যাকাউন্ট একসময়ে একটি ডিভাইসেই চলবে।</p>
+        <div class="field"><label>আপনার নাম</label><input id="regName" placeholder="পূর্ণ নাম" autocomplete="name"></div>
+        <div class="field"><label>ইমেইল</label><input id="regEmail" type="email" placeholder="name@example.com" autocomplete="email"></div>
+        <div class="field"><label>পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><div class="pw-wrap"><input id="regPass" type="password" placeholder="পাসওয়ার্ড" autocomplete="new-password"><button type="button" class="pw-eye" onclick="togglePw('regPass', this)" aria-label="পাসওয়ার্ড দেখান">👁</button></div></div>
+        <div class="field"><label>পাসওয়ার্ড আবার লিখুন</label><input id="regPass2" type="password" placeholder="আবার লিখুন" autocomplete="new-password"></div>
+        <div id="regMsg" class="auth-msg"></div>
+        <button id="regBtn" onclick="registerStudent(this)">অ্যাকাউন্ট তৈরি করুন</button>
+      </div>
+
+      <div class="auth-or"><span>অথবা</span></div>
+
+      <div class="card stack auth-card" id="loginCard">
+        <h2>🔑 লগইন করুন</h2>
+        <p class="muted small">ইতিমধ্যে অ্যাকাউন্ট আছে? ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।</p>
+        <div class="field"><label>ইমেইল</label><input id="loginEmail" type="email" placeholder="name@example.com" autocomplete="email"></div>
+        <div class="field"><label>পাসওয়ার্ড</label><div class="pw-wrap"><input id="loginPass" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password"><button type="button" class="pw-eye" onclick="togglePw('loginPass', this)" aria-label="পাসওয়ার্ড দেখান">👁</button></div></div>
+        <div id="loginMsg" class="auth-msg"></div>
+        <button id="loginBtn" onclick="loginStudent(this)">লগইন</button>
+      </div>
     </div>
 
     <div id="studentArea" class="hidden">
@@ -308,6 +412,7 @@ button.danger{background:#fee2e2;color:#b91c1c}
         <button class="active" onclick="adminTab('manage', this)">কোর্স ম্যানেজমেন্ট</button>
         <button onclick="adminTab('quizAdmin', this)">MCQ কুইজ</button>
         <button onclick="adminTab('paymentAdmin', this)">পেমেন্ট যাচাই</button>
+        <button onclick="adminTab('couponAdmin', this)">🎟 কুপন</button>
         <button onclick="adminTab('studentList', this)">স্টুডেন্ট তালিকা</button>
         <button onclick="adminTab('messagesAdmin', this)">ছাত্র মেসেজ (Inbox)</button>
         <button onclick="adminTab('noticeAdmin', this)">নোটিশ</button>
@@ -371,10 +476,28 @@ button.danger{background:#fee2e2;color:#b91c1c}
         </div>
       </div>
 
+      <div id="admin-couponAdmin" class="hidden">
+        <div class="card stack">
+          <h3>🎟 নতুন কুপন তৈরি করুন</h3>
+          <div class="grid">
+            <div class="field"><label>কুপন কোড</label><div class="row"><input id="cpCode" placeholder="যেমন: HSC20" style="text-transform:uppercase"><button class="secondary sm" onclick="genCouponCode()">🎲 অটো</button></div></div>
+            <div class="field"><label>ছাড়ের ধরন</label><select id="cpType"><option value="percent">শতকরা (%)</option><option value="fixed">নির্দিষ্ট টাকা (৳)</option></select></div>
+            <div class="field"><label>ছাড়ের পরিমাণ</label><input id="cpValue" type="number" min="1" placeholder="যেমন: 20"></div>
+            <div class="field"><label>কোন কোর্সে চলবে</label><select id="cpCourse"></select></div>
+            <div class="field"><label>সর্বোচ্চ ব্যবহার (০ = সীমাহীন)</label><input id="cpMax" type="number" min="0" value="0"></div>
+            <div class="field"><label>মেয়াদ শেষের তারিখ (ঐচ্ছিক)</label><input id="cpExp" type="date"></div>
+          </div>
+          <button onclick="addCoupon()">কুপন যোগ করুন</button>
+          <div class="muted small">একজন ছাত্র একটি কুপন একবারই ব্যবহার করতে পারবে। ১০০% ছাড়ের কুপনে কোর্স নিজে থেকে আনলক হবে।</div>
+        </div>
+        <div class="section"><h2>কুপন তালিকা</h2><div id="adminCouponList"></div></div>
+      </div>
+
       <div id="admin-studentList" class="hidden">
         <div class="section">
           <h2>রেজিস্টার্ড শিক্ষার্থী তালিকা</h2>
           <p class="muted small">Student পাসকোড দেখা যাবে না; Admin এখানে নতুন পাসকোড সেট বা User Remove করতে পারবেন।</p>
+          <div class="field"><input id="stuSearch" placeholder="🔎 নাম বা ইমেইল দিয়ে খুঁজুন..." oninput="renderAdminStudents()"></div>
           <div id="adminStudentList"></div>
         </div>
       </div>
@@ -408,8 +531,11 @@ button.danger{background:#fee2e2;color:#b91c1c}
         <div class="grid">
           <div class="card stack">
             <h3>অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3>
-            <div class="field"><label>নতুন পাসওয়ার্ড</label><input id="newAdminPass" type="password"></div>
+            <div class="field"><label>বর্তমান পাসওয়ার্ড</label><input id="curAdminPass" type="password" autocomplete="current-password"></div>
+            <div class="field"><label>নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><input id="newAdminPass" type="password" autocomplete="new-password"></div>
+            <div class="field"><label>নতুন পাসওয়ার্ড আবার লিখুন</label><input id="newAdminPass2" type="password" autocomplete="new-password"></div>
             <button onclick="changeAdminPass()">পাসওয়ার্ড আপডেট</button>
+            <div class="muted small">পাসওয়ার্ড বদলালে অন্য সব ডিভাইসে admin লগআউট হয়ে যাবে।</div>
           </div>
           <div class="card stack">
             <h3>ডেটা ব্যাকআপ ও রিস্টোর</h3>
@@ -556,7 +682,7 @@ async function verifyStudentPin(email, storedHash, pin) {
 
 function normalizeDB(d) {
   if (!d || typeof d !== "object" || Array.isArray(d)) return makeDefaults();
-  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults"].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; });
+  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "progress", "coupons"].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; });
   if (!d.numbers || typeof d.numbers !== "object") d.numbers = { bkash: "", nagad: "" };
   if (!d.adminUser) d.adminUser = "BILLU";
   if (!d.adminPassHash) d.adminPassHash = DEFAULT_ADMIN_HASH;
@@ -601,14 +727,19 @@ function patchMedia(serverCourses) {
   } catch {}
 }
 
-function sessionExpired(role) {
+const LOGOUT_MSG = {
+  other_device: "আপনার অ্যাকাউন্টে অন্য ডিভাইসে লগইন হয়েছে, তাই এখান থেকে লগআউট হয়েছে।",
+  pin_reset: "আপনার পাসকোড পরিবর্তন হয়েছে। নতুন পাসকোড দিয়ে আবার লগইন করুন।"
+};
+function sessionExpired(role, reason) {
   if (role === "admin") {
     adminOn = false; adminRendered = false; adminToken = ""; lsSet(LS_ADMIN, "");
     toast("অ্যাডমিন সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
     if (!document.getElementById("adminView").classList.contains("hidden")) showAdminCheck();
   } else {
     studentToken = ""; lsSet(LS_STUDENT, ""); currentStudent = null;
-    toast("সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
+    try { closeModal(); } catch {}
+    toast(LOGOUT_MSG[reason] || "সেশন শেষ হয়েছে, আবার লগইন করুন।", "err");
     renderStudent();
   }
 }
@@ -619,10 +750,10 @@ async function pushStudentItems() {
   const body = { payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults") };
   if (!body.payments.length && !body.messages.length && !body.quizResults.length) return;
   const r = await api("/api/student/sync", { method: "POST", token: studentToken, body });
-  if (r.status === 401) { sessionExpired("student"); return; }
+  if (r.status === 401) { sessionExpired("student", r.data?.reason); return; }
   if (!r.ok) { const e = new Error("sync"); e.code = r.status; throw e; }
   (r.data.accepted || []).concat(r.data.rejected || []).forEach(id => syncedIds.add(id));
-  if ((r.data.rejected || []).length) toast("কিছু তথ্য সংরক্ষণ করা যায়নি।", "err");
+  if ((r.data.rejected || []).length) { toast("কিছু তথ্য সংরক্ষণ করা যায়নি (কুপন বা সংযোগ সমস্যা হতে পারে)।", "err"); setTimeout(() => pollState(true), 800); }
 }
 
 async function pushAdminState() {
@@ -682,7 +813,7 @@ async function bootstrap() {
   if (studentToken) {
     const r = await api("/api/state", { token: studentToken });
     if (r.ok && r.data.role === "student" && r.data.me) { currentStudent = r.data.me; adoptState(r.data); got = true; }
-    else if (r.status === 401) { studentToken = ""; lsSet(LS_STUDENT, ""); }
+    else if (r.status === 401) { studentToken = ""; lsSet(LS_STUDENT, ""); if (LOGOUT_MSG[r.data?.reason]) setTimeout(() => toast(LOGOUT_MSG[r.data.reason], "err"), 600); }
     else if (!r.ok) throw new Error("state");
   }
   if (adminToken) {
@@ -705,7 +836,7 @@ async function pollState(force) {
     if (pushing || dirty || pushTimer || modalOpen()) return;
     const token = adminOn ? adminToken : studentToken;
     const r = await api("/api/state?since=" + (force === true ? -1 : serverRev), { token });
-    if (r.status === 401) { sessionExpired(adminOn ? "admin" : "student"); return; }
+    if (r.status === 401) { sessionExpired(adminOn ? "admin" : "student", r.data?.reason); return; }
     if (!r.ok || r.data.unchanged) return;
     if (pushing || dirty || pushTimer || modalOpen()) return;
     adoptState(r.data);
@@ -744,6 +875,12 @@ window.closeModal = function() {
   document.getElementById("modalBox").classList.remove("player-theater-active");
   document.getElementById("modalBackdrop").classList.add("hidden");
   document.getElementById("modalBox").innerHTML = "";
+  try {
+    if (currentStudent && !document.getElementById("studentView").classList.contains("hidden")) {
+      if (curStudentTab === "myCourses") renderMyEnrolledCourses();
+      if (curStudentTab === "courses") renderAllCourses();
+    }
+  } catch {}
 };
 
 window.toggleTheme = function() {
@@ -774,29 +911,69 @@ window.showAdminCheck = function() {
   }
 };
 
-window.joinStudent = async function() {
-  const name = document.getElementById("studentName").value.trim();
-  const email = document.getElementById("studentEmail").value.trim().toLowerCase();
-  const pin = document.getElementById("studentPin").value;
-
-  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !pin || pin.length < 4) {
-    toast("সঠিক নাম, ইমেইল এবং অন্তত ৪ অক্ষরের পাসকোড দিন।", "err");
-    return;
-  }
-  let r;
-  try { r = await api("/api/student/join", { method: "POST", body: { name, email, pin } }); }
-  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
-  if (r.status === 401) { toast("পাসকোড ভুল হয়েছে!", "err"); return; }
-  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
-  if (!r.ok) { toast("লগইন করা যায়নি। আবার চেষ্টা করুন।", "err"); return; }
-
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function authMsg(id, text, type) {
+  const m = $(id); if (!m) return;
+  m.textContent = text || "";
+  m.className = "auth-msg" + (type ? " " + type : "");
+  if (type === "err") { const card = m.closest(".auth-card"); if (card) { card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake"); } }
+}
+window.togglePw = function(id, btn) {
+  const i = $(id); if (!i) return;
+  const show = i.type === "password";
+  i.type = show ? "text" : "password";
+  if (btn) btn.textContent = show ? "🙈" : "👁";
+};
+async function finishStudentAuth(r) {
   studentToken = r.data.token; lsSet(LS_STUDENT, studentToken);
   currentStudent = r.data.me;
   if (!adminOn) adoptState(r.data);
-  document.getElementById("studentPin").value = "";
+  ["regPass", "regPass2", "loginPass"].forEach(id => { const e = $(id); if (e) e.value = ""; });
+  authMsg("regMsg", ""); authMsg("loginMsg", "");
   toast("স্বাগতম, " + currentStudent.name, "ok");
   renderStudent();
+}
+async function authCall(path, body, btn, msgId) {
+  if (btn) btn.disabled = true;
+  try { return await api(path, { method: "POST", body }); }
+  catch { authMsg(msgId, "সার্ভারের সাথে সংযোগ করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।", "err"); return null; }
+  finally { if (btn) btn.disabled = false; }
+}
+window.registerStudent = async function(btn) {
+  const name = $("regName").value.trim(), email = $("regEmail").value.trim().toLowerCase();
+  const p1 = $("regPass").value, p2 = $("regPass2").value;
+  authMsg("regMsg", "");
+  if (!name) return authMsg("regMsg", "আপনার নাম লিখুন।", "err");
+  if (!EMAIL_RE.test(email)) return authMsg("regMsg", "সঠিক ইমেইল লিখুন।", "err");
+  if (p1.length < 6) return authMsg("regMsg", "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন।", "err");
+  if (p1 !== p2) return authMsg("regMsg", "দুটি পাসওয়ার্ড মিলছে না।", "err");
+  const r = await authCall("/api/student/register", { name, email, password: p1 }, btn, "regMsg");
+  if (!r) return;
+  if (r.status === 409) {
+    authMsg("regMsg", "এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। নিচের ফর্ম থেকে লগইন করুন।", "err");
+    $("loginEmail").value = email; $("loginPass").focus();
+    return;
+  }
+  if (r.status === 429) return authMsg("regMsg", "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err");
+  if (r.status === 400) return authMsg("regMsg", "তথ্য সঠিক নয়। নাম, ইমেইল ও ৬+ অক্ষরের পাসওয়ার্ড দিন।", "err");
+  if (!r.ok) return authMsg("regMsg", "অ্যাকাউন্ট তৈরি করা যায়নি। আবার চেষ্টা করুন।", "err");
+  await finishStudentAuth(r);
 };
+window.loginStudent = async function(btn) {
+  const email = $("loginEmail").value.trim().toLowerCase(), pass = $("loginPass").value;
+  authMsg("loginMsg", "");
+  if (!EMAIL_RE.test(email)) return authMsg("loginMsg", "সঠিক ইমেইল লিখুন।", "err");
+  if (!pass) return authMsg("loginMsg", "পাসওয়ার্ড লিখুন।", "err");
+  const r = await authCall("/api/student/login", { email, password: pass }, btn, "loginMsg");
+  if (!r) return;
+  if (r.status === 401) return authMsg("loginMsg", "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে। অ্যাকাউন্ট না থাকলে উপরের ফর্ম থেকে অ্যাকাউন্ট খুলুন।", "err");
+  if (r.status === 429) return authMsg("loginMsg", "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err");
+  if (r.status === 400) return authMsg("loginMsg", "সঠিক ইমেইল ও পাসওয়ার্ড দিন।", "err");
+  if (!r.ok) return authMsg("loginMsg", "লগইন করা যায়নি। আবার চেষ্টা করুন।", "err");
+  await finishStudentAuth(r);
+};
+[["regName", "regBtn"], ["regEmail", "regBtn"], ["regPass", "regBtn"], ["regPass2", "regBtn"]].forEach(([i, b]) => $(i)?.addEventListener("keydown", e => { if (e.key === "Enter") registerStudent($(b)); }));
+[["loginEmail", "loginBtn"], ["loginPass", "loginBtn"]].forEach(([i, b]) => $(i)?.addEventListener("keydown", e => { if (e.key === "Enter") loginStudent($(b)); }));
 
 window.logoutStudent = function() {
   const t = studentToken;
@@ -817,6 +994,12 @@ function renderStudent() {
   window.studentTab('courses', document.querySelector("#studentTabs button"));
 }
 
+let lastStudentTabShown = null, lastAdminTabShown = null;
+function flashFresh(el) {
+  if (!el) return;
+  el.classList.remove("fresh"); void el.offsetWidth; el.classList.add("fresh");
+  clearTimeout(el._fr); el._fr = setTimeout(() => el.classList.remove("fresh"), 1200);
+}
 window.studentTab = function(tab, btn) {
   curStudentTab = tab;
   ["courses", "myCourses", "quizzes", "notices", "payments", "contact"].forEach(t => {
@@ -832,6 +1015,7 @@ window.studentTab = function(tab, btn) {
   if (tab === "notices") renderStudentNotices();
   if (tab === "payments") renderStudentPayments();
   if (tab === "contact") renderStudentContact();
+  if (tab !== lastStudentTabShown) { flashFresh(document.getElementById("tab-" + tab)); lastStudentTabShown = tab; }
   updateMsgBadge();
 };
 
@@ -848,7 +1032,7 @@ function renderAllCourses() {
     const unlocked = isCourseUnlocked(currentStudent, c);
     const pay = db.payments.slice().reverse().find(p => p.studentId === currentStudent?.id && p.courseId === c.id);
     let badge = unlocked ? `<span class="pill unlocked">আনলকড</span>` : pay?.status === "Pending" ? `<span class="pill pending">পেন্ডিং (১২ ঘণ্টা অপেক্ষা)</span>` : `<span class="pill locked">লকড</span>`;
-    let btn = !unlocked && pay?.status !== "Pending" ? `<button onclick="openPayModal('${c.id}')">কোর্স কিনুন (${money(c.price)})</button>` : unlocked ? `<button class="secondary" onclick="window.studentTab('myCourses', document.querySelectorAll('#studentTabs button')[1])">কোর্সটি দেখুন</button>` : `<button class="secondary" disabled>ভেরিফিকেশন চলছে</button>`;
+    let btn = !unlocked && pay?.status !== "Pending" ? `<button onclick="openPayModal('${c.id}')">কোর্স কিনুন (${money(c.price)})</button>` : unlocked ? `<button class="secondary" onclick="openMyCourse('${c.id}')">কোর্সটি দেখুন</button>` : `<button class="secondary" disabled>ভেরিফিকেশন চলছে</button>`;
 
     return `
       <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
@@ -857,12 +1041,30 @@ function renderAllCourses() {
           <div class="row between"><h3>${esc(c.title)}</h3>${badge}</div>
           <p class="muted small">${esc(c.desc)}</p>
           <div style="font-weight:700;color:var(--primary);margin:6px 0">${money(c.price)}</div>
+          ${unlocked ? (() => { const pr = courseProgress(c); return pr.total ? `<div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div><div class="muted small">${pr.pct}% সম্পন্ন</div></div>` : ""; })() : ""}
         </div>
         <div style="margin-top:12px">${btn}</div>
       </div>
     `;
   }).join("") + `</div>`;
 }
+
+// আমার কোর্স: একসময়ে একটি কোর্স ও তার একটি চ্যাপ্টার খোলা, বাকি সব minimize
+const stuOpen = { course: null, chapter: {} };
+window.toggleStuCourse = function(cid) {
+  if (stuOpen.course === cid) stuOpen.course = null;
+  else { stuOpen.course = cid; stuOpen.chapter[cid] = null; accAnim = cid; }
+  renderMyEnrolledCourses();
+};
+window.toggleStuChapter = function(cid, chid) {
+  if (stuOpen.chapter[cid] === chid) stuOpen.chapter[cid] = null;
+  else { stuOpen.chapter[cid] = chid; accAnim = chid; }
+  renderMyEnrolledCourses();
+};
+window.openMyCourse = function(cid) {
+  stuOpen.course = cid; stuOpen.chapter[cid] = null; accAnim = cid;
+  window.studentTab('myCourses', document.querySelectorAll('#studentTabs button')[1]);
+};
 
 function renderMyEnrolledCourses() {
   const el = document.getElementById("tab-myCourses");
@@ -871,29 +1073,114 @@ function renderMyEnrolledCourses() {
     el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted)">আপনার কোনো এনরোলড কোর্স নেই। "সব কোর্স ও ভর্তি" থেকে কোর্স কিনুন।</div>';
     return;
   }
-  el.innerHTML = myCourses.map(c => `
-    <div class="card section">
-      <h3>📘 ${esc(c.title)}</h3>
-      <p class="muted small">${esc(c.desc)}</p>
-      <div class="section">
-        <h4 style="margin:0 0 10px">চ্যাপ্টার ও ক্লাসসমূহ:</h4>
-        ${(c.chapters || []).map(ch => `
-          <div style="margin-bottom:12px;background:var(--bg);padding:12px;border-radius:10px;border:1px solid var(--line)">
-            <b>📁 ${esc(ch.title)}</b>
-            <div style="margin-top:8px;display:grid;gap:6px">
-              ${(ch.classes || []).map(cl => `
-                <div class="card row between" style="padding:10px 14px">
-                  <span>▶ ${esc(cl.title)}</span>
-                  <button class="secondary sm" onclick="openClassPlayer('${c.id}', '${ch.id}', '${cl.id}')">ক্লাস দেখুন</button>
-                </div>
-              `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
-            </div>
-          </div>
-        `).join("") || '<div class="muted small">কোনো চ্যাপ্টার নেই।</div>'}
+  el.innerHTML = myCourses.map(c => {
+    const open = stuOpen.course === c.id;
+    const pr = courseProgress(c), nx = nextClassFor(c);
+    const chs = c.chapters || [];
+    return `
+    <div class="card section stu-course ${open ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}">
+      <div class="acc-head" onclick="toggleStuCourse('${c.id}')">
+        <div class="row between">
+          <h3 style="margin:0"><span class="chev">▶</span> 📘 ${esc(c.title)}</h3>
+          <span class="pill">${pr.pct}%</span>
+        </div>
+        <div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div>
+          <div class="muted small" style="margin-top:4px">${pr.done}/${pr.total} ক্লাস সম্পন্ন · ${chs.length}টি চ্যাপ্টার</div></div>
       </div>
-    </div>
-  `).join("");
+      ${open ? `
+        ${c.desc ? `<p class="muted small" style="margin:8px 0">${esc(c.desc)}</p>` : ""}
+        <div class="row" style="margin:6px 0 10px">${nx ? `<button class="sm" onclick="openClassPlayer('${c.id}','${nx.chapter.id}','${nx.cls.id}')">▶ ${pr.done ? "চালিয়ে যান" : "শুরু করুন"}</button>` : (pr.total ? "<b>🎉 কোর্স সম্পন্ন!</b>" : "")}</div>
+        ${chs.map(ch => {
+          const chOpen = stuOpen.chapter[c.id] === ch.id;
+          const cls = ch.classes || [];
+          const doneN = cls.filter(x => isClassDone(x.id)).length;
+          return `
+          <div class="stu-chapter ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}">
+            <div class="acc-head row between" onclick="toggleStuChapter('${c.id}','${ch.id}')">
+              <b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b><span class="muted small">${doneN}/${cls.length} ক্লাস</span>
+            </div>
+            ${chOpen ? `<div class="stu-classes">${cls.map(cl => `
+              <div class="stu-class ${isClassDone(cl.id) ? "done" : ""}">
+                <span>${isClassDone(cl.id) ? "✅" : "▶"} ${esc(cl.title)}</span>
+                <span class="row"><button class="ghost sm" onclick="toggleDone('${c.id}','${cl.id}')">${isClassDone(cl.id) ? "আনডু" : "✓ শেষ"}</button><button class="secondary sm" onclick="openClassPlayer('${c.id}', '${ch.id}', '${cl.id}')">ক্লাস দেখুন</button></span>
+              </div>`).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}</div>` : ""}
+          </div>`;
+        }).join("") || '<div class="muted small">কোনো চ্যাপ্টার নেই।</div>'}
+      ` : ""}
+    </div>`;
+  }).join("");
+  accAnim = null;
 }
+
+// ---------- course progress ----------
+function myProgress() { return currentStudent ? db.progress.find(p => p.studentId === currentStudent.id) : null; }
+function isClassDone(clId) { const p = myProgress(); return !!(p && p.done && p.done[clId]); }
+function courseProgress(course) {
+  const list = (course?.chapters || []).flatMap(ch => ch.classes || []);
+  const done = list.filter(cl => isClassDone(cl.id)).length;
+  return { total: list.length, done, pct: list.length ? Math.round(done / list.length * 100) : 0 };
+}
+function nextClassFor(course) {
+  const list = (course?.chapters || []).flatMap(ch => (ch.classes || []).map(cl => ({ chapter: ch, cls: cl })));
+  if (!list.length) return null;
+  const p = myProgress();
+  const lastId = p?.last?.courseId === course.id ? p.last.classId : null;
+  if (lastId) {
+    const i = list.findIndex(x => x.cls.id === lastId);
+    if (i >= 0) { const after = list.slice(i).find(x => !isClassDone(x.cls.id)); if (after) return after; }
+  }
+  return list.find(x => !isClassDone(x.cls.id)) || null;
+}
+async function sendProgress(courseId, classId, done) {
+  if (!currentStudent || !studentToken) return;
+  try {
+    const r = await api("/api/student/progress", { method: "POST", token: studentToken, body: { courseId, classId, done } });
+    if (r.status === 401) sessionExpired("student", r.data?.reason);
+  } catch {}
+}
+function updateDoneBtn() {
+  const b = $('vpDoneBtn'); if (!b || !activeVideoContext) return;
+  const d = isClassDone(activeVideoContext.cl.id);
+  b.textContent = d ? "✅ সম্পন্ন (আনডু করতে ট্যাপ করুন)" : "☑️ ক্লাস সম্পন্ন চিহ্নিত করুন";
+  renderPlayerList();
+}
+// প্লেয়ারের নিচে কোর্সের বাকি ক্লাসের তালিকা: চলতি চ্যাপ্টার খোলা, বাকি চ্যাপ্টার minimize
+let playerOpenCh = null;
+function renderPlayerList() {
+  const host = $('vpClassList'), ctx = activeVideoContext;
+  if (!host || !ctx) return;
+  const c = ctx.course, curId = ctx.cl.id;
+  host.innerHTML = `<h4 class="vp-list-title">📚 কোর্সের সব ক্লাস</h4>` + (c.chapters || []).map(ch => {
+    const open = playerOpenCh === ch.id, cls = ch.classes || [];
+    return `<div class="stu-chapter ${open ? 'acc-open' : ''}">
+      <div class="acc-head row between" onclick="togglePlayerChapter('${ch.id}')"><b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b><span class="muted small">${cls.filter(x => isClassDone(x.id)).length}/${cls.length}</span></div>
+      ${open ? `<div class="stu-classes">${cls.map(cl => `<div class="stu-class vp-item ${cl.id === curId ? 'now' : ''} ${isClassDone(cl.id) ? 'done' : ''}" onclick="openClassPlayer('${c.id}','${ch.id}','${cl.id}')"><span>${cl.id === curId ? '🔴 এখন চলছে: ' : (isClassDone(cl.id) ? '✅ ' : '▶ ')}${esc(cl.title)}</span></div>`).join('') || '<div class="muted small">কোনো ক্লাস নেই।</div>'}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+window.togglePlayerChapter = function(chid) { playerOpenCh = playerOpenCh === chid ? null : chid; renderPlayerList(); };
+function setClassDone(course, cl, done, quiet) {
+  if (!currentStudent) return;
+  let p = myProgress();
+  if (!p) { p = { id: currentStudent.id, studentId: currentStudent.id, done: {}, last: null }; db.progress.push(p); }
+  if (!p.done) p.done = {};
+  if (done) { p.done[cl.id] = new Date().toISOString(); p.last = { courseId: course.id, classId: cl.id, ts: new Date().toISOString() }; }
+  else delete p.done[cl.id];
+  sendProgress(course.id, cl.id, done);
+  if (!quiet) toast(done ? "ক্লাস সম্পন্ন ✅" : "সম্পন্ন চিহ্ন সরানো হয়েছে", "ok");
+  updateDoneBtn();
+}
+window.toggleCurrentDone = function() {
+  const c = activeVideoContext; if (!c) return;
+  setClassDone(c.course, c.cl, !isClassDone(c.cl.id));
+};
+window.toggleDone = function(cid, clid) {
+  const c = db.courses.find(x => x.id === cid);
+  const cl = (c?.chapters || []).flatMap(ch => ch.classes || []).find(x => x.id === clid);
+  if (!cl) return;
+  setClassDone(c, cl, !isClassDone(clid), true);
+  renderMyEnrolledCourses();
+};
 
 function parseYouTubeEmbed(raw) {
   if (!raw) return "";
@@ -985,6 +1272,14 @@ function loadYouTubeApi() {
 
 function saveVideoPosition() {
   if (!activeVideoContext) return;
+  try {
+    const cx = activeVideoContext;
+    if (currentStudent && !isClassDone(cx.cl.id)) {
+      const dur = cx.type === 'local' ? (activeVideoElement?.duration || 0) : (ytDuration || 0);
+      const cur = cx.type === 'local' ? (activeVideoElement?.currentTime || 0) : (ytCurrentTime || 0);
+      if (cx.finished || (Number.isFinite(dur) && dur > 30 && cur / dur >= 0.9)) setClassDone(cx.course, cx.cl, true, true);
+    }
+  } catch {}
   let time = 0;
   if (!activeVideoContext.finished) {
     time = activeVideoContext.type === 'local' ? (activeVideoElement?.currentTime || 0) : (ytCurrentTime || 0);
@@ -1271,8 +1566,13 @@ function vpShellMarkup(wm) {
         </div>
       </div>
     </div>
+    <div class="vp-below">
+      <button class="vp-close" onclick="closeModal()">✕ বন্ধ করুন · ক্লাস তালিকায় ফিরুন</button>
+      <button class="secondary sm" id="vpDoneBtn" onclick="toggleCurrentDone()">✅ ক্লাস সম্পন্ন চিহ্নিত করুন</button>
+    </div>
     <div id="vpPdfs"></div>
     <div class="vp-status"><span id="playerStatus">ভিডিও প্রস্তুত</span><span>Space/K = Play·Pause · F = Fullscreen · ←/→ = ৫s · J/L = ১০s · M = Mute</span></div>
+    <div id="vpClassList" class="vp-list"></div>
   </div>`;
 }
 
@@ -1356,6 +1656,17 @@ window.openClassPlayer = function(cid, chid, clid) {
     ? `<div class="row" style="gap:8px">${cl.pdfs.map((p, idx) => `<a href="${esc(p)}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;background:var(--primary);color:#fff">📄 PDF নোট ${idx + 1}</a>`).join('')}</div>`
     : '';
   setPlayerStatus('ভিডিও লোড হচ্ছে…');
+  playerOpenCh = ch.id; stuOpen.course = c.id; stuOpen.chapter[c.id] = ch.id;   // ফিরে এলে এই কোর্স ও চ্যাপ্টারই খোলা থাকবে
+  updateDoneBtn();
+  try {
+    const mp = myProgress();
+    if (currentStudent && !(mp?.last && mp.last.classId === cl.id)) {
+      let p2 = mp;
+      if (!p2) { p2 = { id: currentStudent.id, studentId: currentStudent.id, done: {}, last: null }; db.progress.push(p2); }
+      p2.last = { courseId: c.id, classId: cl.id, ts: new Date().toISOString() };
+      sendProgress(c.id, cl.id, undefined);
+    }
+  } catch {}
 
   if (type === 'local' && cl.videoSource) {
     stage.innerHTML = '<video id="studentLocalVideo" playsinline preload="metadata" controlslist="nodownload"></video>';
@@ -1405,18 +1716,71 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+let payCoupon = null;
+const CPN_ERR = {
+  invalid: "কুপন কোড সঠিক নয়।", expired: "এই কুপনের মেয়াদ শেষ।", not_for_course: "এই কোর্সে এই কুপন চলবে না।",
+  used: "আপনি আগেই এই কুপন ব্যবহার করেছেন।", limit: "এই কুপনের ব্যবহারের সীমা শেষ।", rate_limited: "অনেকবার চেষ্টা হয়েছে, কিছুক্ষণ পরে আবার চেষ্টা করুন।"
+};
+function updatePayTotals(c) {
+  const final = payCoupon ? payCoupon.final : Number(c.price);
+  const line = document.getElementById("payCpnLine");
+  if (line) {
+    line.classList.toggle("hidden", !payCoupon);
+    if (payCoupon) { document.getElementById("payCpnLabel").textContent = "🎟 কুপন " + payCoupon.code; document.getElementById("payCpnAmt").textContent = "−" + money(payCoupon.discount); }
+  }
+  const f = document.getElementById("payFinal"); if (f) f.textContent = money(final);
+  const free = payCoupon && payCoupon.final <= 0;
+  document.getElementById("payPaidBox")?.classList.toggle("hidden", !!free);
+  document.getElementById("payFreeNote")?.classList.toggle("hidden", !free);
+}
+window.resetCoupon = function() {
+  if (!payCoupon) return;
+  payCoupon = null;
+  const c = db.courses.find(x => x.id === window.__payCid); if (c) updatePayTotals(c);
+  const m = document.getElementById("payCpnMsg"); if (m) m.textContent = "";
+};
+window.applyCoupon = async function(cid) {
+  const c = db.courses.find(x => x.id === cid); if (!c) return;
+  const code = (document.getElementById("payCoupon").value || "").trim().toUpperCase();
+  const msg = document.getElementById("payCpnMsg");
+  if (!code) { msg.className = "small cpn-err"; msg.textContent = "কুপন কোড লিখুন।"; return; }
+  let r;
+  try { r = await api("/api/student/coupon", { method: "POST", token: studentToken, body: { courseId: cid, code } }); }
+  catch { msg.className = "small cpn-err"; msg.textContent = "সার্ভারের সাথে সংযোগ করা যাচ্ছে না।"; return; }
+  if (r.status === 401) { sessionExpired("student", r.data?.reason); return; }
+  if (r.status === 429) { msg.className = "small cpn-err"; msg.textContent = CPN_ERR.rate_limited; return; }
+  if (!r.ok || !r.data?.valid) { payCoupon = null; updatePayTotals(c); msg.className = "small cpn-err"; msg.textContent = CPN_ERR[r.data?.error] || CPN_ERR.invalid; return; }
+  payCoupon = { code: r.data.code, discount: r.data.discount, final: r.data.final, courseId: cid };
+  updatePayTotals(c);
+  msg.className = "small cpn-ok";
+  msg.textContent = `✅ ${money(r.data.discount)} ছাড় পেয়েছেন!`;
+};
+
 window.openPayModal = function(cid) {
   const c = db.courses.find(x => x.id === cid);
   if (!c) return;
+  payCoupon = null; window.__payCid = cid;
   openModal(`
     <div class="stack">
       <h3 style="margin:0">কোর্স পেমেন্ট & ভর্তি</h3>
-      <p class="small muted">bKash: ${db.numbers.bkash} | Nagad: ${db.numbers.nagad}</p>
-      <div class="field"><label>পেমেন্ট মাধ্যম</label><select id="payM"><option value="bKash">bKash</option><option value="Nagad">Nagad</option></select></div>
-      <div class="field"><label>Transaction ID (TrxID)</label><input id="payTx" placeholder="যেমন: 9N87AH65K" style="text-transform:uppercase"></div>
+      <div class="card" style="padding:10px 14px">
+        <div class="row between"><span>কোর্সের দাম</span><b>${money(c.price)}</b></div>
+        <div id="payCpnLine" class="row between hidden"><span id="payCpnLabel"></span><b id="payCpnAmt" style="color:#15803d"></b></div>
+        <div class="row between" style="font-size:1.1rem"><span>পরিশোধযোগ্য</span><b id="payFinal" style="color:var(--primary)">${money(c.price)}</b></div>
+      </div>
+      <div class="field"><label>কুপন কোড (থাকলে)</label>
+        <div class="row"><input id="payCoupon" placeholder="যেমন: HSC20" style="text-transform:uppercase" oninput="resetCoupon()"><button class="secondary" onclick="applyCoupon('${c.id}')">প্রয়োগ</button></div>
+        <div id="payCpnMsg" class="small"></div>
+      </div>
+      <div id="payFreeNote" class="hidden cpn-ok">🎉 ১০০% ছাড়! পেমেন্ট লাগবে না, সাবমিট করলেই কোর্স আনলক হবে।</div>
+      <div id="payPaidBox" class="stack">
+        <p class="small muted">bKash: ${db.numbers.bkash} | Nagad: ${db.numbers.nagad}</p>
+        <div class="field"><label>পেমেন্ট মাধ্যম</label><select id="payM"><option value="bKash">bKash</option><option value="Nagad">Nagad</option></select></div>
+        <div class="field"><label>Transaction ID (TrxID)</label><input id="payTx" placeholder="যেমন: 9N87AH65K" style="text-transform:uppercase"></div>
+      </div>
       <div class="row" style="justify-content:flex-end">
         <button class="ghost" onclick="closeModal()">বাতিল</button>
-        <button onclick="submitPayment('${c.id}')">পেমেন্ট সাবমিট করুন</button>
+        <button onclick="submitPayment('${c.id}')">সাবমিট করুন</button>
       </div>
     </div>
   `);
@@ -1424,21 +1788,26 @@ window.openPayModal = function(cid) {
 
 window.submitPayment = function(cid) {
   const c = db.courses.find(x => x.id === cid);
-  const tx = document.getElementById("payTx").value.trim().toUpperCase();
-  if (!tx) { toast("TrxID দিন", "err"); return; }
+  if (!c) return;
+  const cp = payCoupon && payCoupon.courseId === cid ? payCoupon : null;
+  const free = !!cp && cp.final <= 0;
+  const tx = (document.getElementById("payTx")?.value || "").trim().toUpperCase();
+  if (!free && !tx) { toast("TrxID দিন", "err"); return; }
   db.payments.push({
     id: uid(), studentId: currentStudent.id, studentName: currentStudent.name, email: currentStudent.email,
-    courseId: c.id, courseTitle: c.title, method: document.getElementById("payM").value, transaction: tx,
-    amount: c.price, status: "Pending", date: new Date().toISOString()
+    courseId: c.id, courseTitle: c.title, method: document.getElementById("payM")?.value || "", transaction: tx || ("COUPON-" + cp.code),
+    amount: cp ? cp.final : c.price, coupon: cp ? cp.code : "", couponCode: cp ? cp.code : "", discount: cp ? cp.discount : 0,
+    status: free ? "Approved" : "Pending", date: new Date().toISOString()
   });
+  payCoupon = null;
   saveDB(); closeModal();
-  toast("পেমেন্ট সাবমিট হয়েছে। অ্যাডমিন যাচাই করে ১২ ঘণ্টার মধ্যে অনুমোদন করবেন।", "ok");
+  toast(free ? "কুপন প্রয়োগ হয়েছে, কোর্স আনলক হয়েছে! 🎉" : "পেমেন্ট সাবমিট হয়েছে। অ্যাডমিন যাচাই করে ১২ ঘণ্টার মধ্যে অনুমোদন করবেন।", "ok");
   window.studentTab('courses');
 };
 
 function renderStudentPayments() {
   const rows = db.payments.filter(p => p.studentId === currentStudent.id);
-  document.getElementById("tab-payments").innerHTML = `<div class="card"><h3>পেমেন্ট ইতিহাস</h3>${rows.length ? rows.map(p => `<div class="item"><b>${esc(p.courseTitle)}</b> · ${money(p.amount)}<br><small>TrxID: ${esc(p.transaction)} · স্ট্যাটাস: <span class="pill ${p.status.toLowerCase()}">${p.status}</span></small></div>`).join("") : '<div class="empty">কোনো পেমেন্ট নেই।</div>'}</div>`;
+  document.getElementById("tab-payments").innerHTML = `<div class="card"><h3>পেমেন্ট ইতিহাস</h3>${rows.length ? rows.map(p => `<div class="item"><b>${esc(p.courseTitle)}</b> · ${money(p.amount)}<br><small>TrxID: ${esc(p.transaction)}${p.couponCode ? ` · 🎟 ${esc(p.couponCode)} (−${money(p.discount)})` : ""} · স্ট্যাটাস: <span class="pill ${p.status.toLowerCase()}">${p.status}</span></small></div>`).join("") : '<div class="empty">কোনো পেমেন্ট নেই।</div>'}</div>`;
 }
 
 function renderStudentContact() {
@@ -1640,7 +2009,7 @@ function renderAdmin() {
 
 window.adminTab = function(tab, btn) {
   curAdminTab = tab;
-  ["manage", "quizAdmin", "paymentAdmin", "studentList", "messagesAdmin", "noticeAdmin", "settingsAdmin"].forEach(t => {
+  ["manage", "quizAdmin", "paymentAdmin", "couponAdmin", "studentList", "messagesAdmin", "noticeAdmin", "settingsAdmin"].forEach(t => {
     document.getElementById("admin-" + t).classList.toggle("hidden", t !== tab);
   });
   if (btn) {
@@ -1650,9 +2019,11 @@ window.adminTab = function(tab, btn) {
   if (tab === "manage") renderAdminCourses();
   if (tab === "quizAdmin") renderAdminQuizzes();
   if (tab === "paymentAdmin") renderAdminPayments();
+  if (tab === "couponAdmin") renderAdminCoupons();
   if (tab === "studentList") renderAdminStudents();
   if (tab === "messagesAdmin") renderAdminMessages();
   if (tab === "noticeAdmin") renderAdminNotices();
+  if (tab !== lastAdminTabShown) { flashFresh(document.getElementById("admin-" + tab)); lastAdminTabShown = tab; }
 };
 
 window.addCourse = function() {
@@ -1671,14 +2042,16 @@ window.addCourse = function() {
 };
 
 // একসময়ে একটি কোর্স এবং ওই কোর্সের একটি চ্যাপ্টার খোলা থাকে, বাকি সব ছোট (minimize) থাকে।
+let accAnim = null;   // এইমাত্র যেটা খোলা হলো, শুধু তার অ্যানিমেশন চলবে
 const adminOpen = { course: null, chapter: {} };
 window.toggleCourseOpen = function(cid) {
   if (adminOpen.course === cid) adminOpen.course = null;
-  else { adminOpen.course = cid; adminOpen.chapter[cid] = null; }
+  else { adminOpen.course = cid; adminOpen.chapter[cid] = null; accAnim = cid; }
   renderAdminCourses();
 };
 window.toggleChapterOpen = function(cid, chid) {
   adminOpen.chapter[cid] = adminOpen.chapter[cid] === chid ? null : chid;
+  if (adminOpen.chapter[cid]) accAnim = chid;
   renderAdminCourses();
 };
 
@@ -1688,10 +2061,10 @@ function renderAdminCourses() {
     const chs = c.chapters || [];
     const clsCount = chs.reduce((n, ch) => n + (ch.classes || []).length, 0);
     return `
-    <div class="card section ${isOpen ? "acc-open" : ""}">
+    <div class="card section ${isOpen ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}">
       <div class="row between acc-head" onclick="toggleCourseOpen('${c.id}')">
         <div>
-          <h3 style="margin:0">${isOpen ? "▼" : "▶"} ${esc(c.title)} (${money(c.price)})</h3>
+          <h3 style="margin:0"><span class="chev">▶</span> ${esc(c.title)} (${money(c.price)})</h3>
           <div class="muted small">${chs.length}টি চ্যাপ্টার · ${clsCount}টি ক্লাস</div>
         </div>
         <div class="row">
@@ -1709,9 +2082,9 @@ function renderAdminCourses() {
           const chOpen = adminOpen.chapter[c.id] === ch.id;
           const cls = ch.classes || [];
           return `
-          <div class="item ${chOpen ? "acc-open" : ""}" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+          <div class="item ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
             <div class="row between acc-head" onclick="toggleChapterOpen('${c.id}','${ch.id}')">
-              <div><b>${chOpen ? "▼" : "▶"} 📁 ${esc(ch.title)}</b> <span class="muted small">· ${cls.length}টি ক্লাস</span></div>
+              <div><b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b> <span class="muted small">· ${cls.length}টি ক্লাস</span></div>
               <div class="row">
                 <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${hi === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
                 <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${hi === chs.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
@@ -1742,6 +2115,7 @@ function renderAdminCourses() {
       ` : ""}
     </div>`;
   }).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
+  accAnim = null;
 }
 
 function moveItem(list, i, dir) {
@@ -2019,7 +2393,7 @@ function renderAdminPayments() {
   document.getElementById("adminPaymentList").innerHTML = bar + (list.length ? list.map(p => `
     <div class="card item ${p.status === "Approved" ? "pay-ok" : p.status === "Rejected" ? "pay-no" : "pay-wait"}">
       <b>${esc(p.studentName)}</b> · ${money(p.amount)} (${esc(p.courseTitle)})<br>
-      <small>TrxID: <code>${esc(p.transaction)}</code> · <span class="pill ${p.status.toLowerCase()}">${p.status}</span>${p.date ? " · " + fmtDT(p.date) : ""}</small>
+      <small>TrxID: <code>${esc(p.transaction)}</code>${p.couponCode ? ` · 🎟 ${esc(p.couponCode)} (−${money(p.discount)})` : ""} · <span class="pill ${p.status.toLowerCase()}">${p.status}</span>${p.date ? " · " + fmtDT(p.date) : ""}</small>
       <div class="row" style="margin-top:6px">
         ${p.status === "Pending" ? `<button class="success sm" onclick="approvePay('${p.id}')">Approve</button><button class="danger sm" onclick="rejectPay('${p.id}')">Reject</button>` : ""}
         <button class="ghost sm" onclick="deletePay('${p.id}')">🗑 হিস্ট্রি মুছুন</button>
@@ -2062,22 +2436,26 @@ window.rejectPay = function(pid) {
 
 function renderAdminStudents() {
   const host = document.getElementById("adminStudentList");
-  host.innerHTML = db.students.length ? db.students.map(s => `
+  const q = (document.getElementById("stuSearch")?.value || "").trim().toLowerCase();
+  const all = db.students.filter(s => !q || (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q));
+  const list = all.slice(0, 100);
+  const doneMap = new Map(db.progress.map(p => [p.studentId, Object.keys(p.done || {}).length]));
+  host.innerHTML = (list.length ? list.map(s => `
     <div class="card item" style="margin-bottom:10px">
       <div class="row between">
         <div>
           <b>নাম:</b> ${esc(s.name)}<br>
           <b>ইমেইল:</b> ${esc(s.email)}<br>
-          <span class="pill">পাসকোড: নিরাপদ hash আকারে সংরক্ষিত</span>
+          <span class="pill">📚 ${doneMap.get(s.id) || 0}টি ক্লাস সম্পন্ন</span>
         </div>
         <div class="row">
           <button class="secondary sm" onclick="openStudentPinReset('${s.id}')">পাসকোড Reset</button>
           <button class="danger sm" onclick="removeStudent('${s.id}')">User Remove</button>
         </div>
       </div>
-      <p class="muted small" style="margin:8px 0 0">আসল পাসকোড দেখা যায় না; প্রয়োজন হলে Admin নতুন পাসকোড সেট করতে পারবেন।</p>
     </div>
-  `).join("") : '<div class="empty">কোনো শিক্ষার্থী নেই।</div>';
+  `).join("") : '<div class="empty">কোনো শিক্ষার্থী পাওয়া যায়নি।</div>') +
+    (all.length > list.length ? `<div class="muted small" style="text-align:center">আরও ${all.length - list.length} জন আছে, খুঁজে পেতে সার্চ করুন।</div>` : "");
 }
 
 window.openStudentPinReset = function(sid) {
@@ -2089,9 +2467,16 @@ window.openStudentPinReset = function(sid) {
       <p class="muted small">${esc(student.name)} · ${esc(student.email)}</p>
       <div class="field"><label>নতুন পাসকোড (কমপক্ষে ৪ অক্ষর)</label><input id="studentNewPin" type="password" minlength="4" autocomplete="new-password" placeholder="নতুন পাসকোড"></div>
       <div class="field"><label>নতুন পাসকোড আবার লিখুন</label><input id="studentNewPinConfirm" type="password" minlength="4" autocomplete="new-password" placeholder="পুনরায় লিখুন"></div>
+      <button class="secondary sm" onclick="randomStudentPin()">🎲 র‍্যান্ডম ৬ ডিজিটের পাসকোড বানান</button>
+      <p class="muted small">পাসকোড বদলালে ছাত্র সব ডিভাইসে লগআউট হবে। নতুন পাসকোডটি ছাত্রকে জানিয়ে দিন।</p>
       <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="closeModal()">বাতিল</button><button onclick="saveStudentPinReset('${sid}')">পাসকোড পরিবর্তন</button></div>
     </div>
   `);
+};
+window.randomStudentPin = function() {
+  const pin = String(Math.floor(100000 + Math.random() * 900000));
+  const a = document.getElementById("studentNewPin"), b = document.getElementById("studentNewPinConfirm");
+  a.type = "text"; b.type = "text"; a.value = pin; b.value = pin;
 };
 
 window.saveStudentPinReset = async function(sid) {
@@ -2101,13 +2486,14 @@ window.saveStudentPinReset = async function(sid) {
   if (!student) return;
   if (pin.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসকোড দিন", "err"); return; }
   if (pin !== confirmPin) { toast("দুটি পাসকোড মিলছে না", "err"); return; }
-  try {
-    student.pinHash = await makeStudentPinHash(student.email, pin);
-  } catch {
-    toast("নিরাপদ পাসকোড তৈরি করা যাচ্ছে না। HTTPS বা Secure Browser Context দিয়ে সাইটটি খুলুন।", "err");
-    return;
-  }
-  if (saveDB()) { closeModal(); toast("Student পাসকোড পরিবর্তন হয়েছে", "ok"); renderAdminStudents(); }
+  let r;
+  try { r = await api("/api/admin/student-pin", { method: "POST", token: adminToken, body: { studentId: sid, pin } }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
+  if (r.status === 401) { sessionExpired("admin"); return; }
+  if (!r.ok) { toast("পাসকোড পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।", "err"); return; }
+  closeModal();
+  toast(`${student.name}-এর পাসকোড পরিবর্তন হয়েছে`, "ok");
+  renderAdminStudents();
 };
 
 window.removeStudent = function(sid) {
@@ -2118,6 +2504,7 @@ window.removeStudent = function(sid) {
   db.payments = db.payments.filter(x => x.studentId !== sid);
   db.messages = db.messages.filter(x => x.studentId !== sid);
   db.quizResults = db.quizResults.filter(x => x.studentId !== sid);
+  db.progress = db.progress.filter(x => x.studentId !== sid);
   try {
     const prefix = `hsc_player_progress_${sid}_`;
     Object.keys(localStorage).forEach(key => { if (key.startsWith(prefix)) localStorage.removeItem(key); });
@@ -2127,6 +2514,56 @@ window.removeStudent = function(sid) {
   document.getElementById("statStudents").textContent = db.students.length;
   renderAdminStudents();
   toast("Student account remove করা হয়েছে", "ok");
+};
+
+function renderAdminCoupons() {
+  const sel = document.getElementById("cpCourse");
+  if (sel) {
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">সব কোর্সে</option>' + db.courses.map(c => `<option value="${esc(c.id)}">${esc(c.title)}</option>`).join("");
+    if (cur && db.courses.some(c => c.id === cur)) sel.value = cur;
+  }
+  const uses = code => db.payments.filter(p => p.couponCode === code && p.status !== "Rejected").length;
+  const host = document.getElementById("adminCouponList");
+  host.innerHTML = db.coupons.length ? db.coupons.slice().reverse().map(c => {
+    const course = c.courseId ? db.courses.find(x => x.id === c.courseId) : null;
+    const used = uses(c.code);
+    const expired = c.expires && new Date(c.expires).getTime() + 86400000 < Date.now();
+    return `<div class="card item cpn-row ${c.active && !expired ? "" : "cpn-off"}">
+      <div class="row between"><span class="code-chip">${esc(c.code)}</span><span><b>${c.type === "percent" ? c.value + "% ছাড়" : money(c.value) + " ছাড়"}</b></span></div>
+      <div class="muted small" style="margin:6px 0">${course ? "কোর্স: " + esc(course.title) : "সব কোর্সে"} · ব্যবহার: ${used}${c.maxUses ? " / " + c.maxUses : " (সীমাহীন)"}${c.expires ? " · মেয়াদ: " + esc(c.expires) : ""}${expired ? " · <b style='color:#b91c1c'>মেয়াদ শেষ</b>" : ""}${c.active ? "" : " · <b>বন্ধ</b>"}</div>
+      <div class="row"><button class="secondary sm" onclick="toggleCoupon('${c.id}')">${c.active ? "বন্ধ করুন" : "চালু করুন"}</button><button class="ghost sm" onclick="deleteCoupon('${c.id}')">🗑 মুছুন</button></div>
+    </div>`;
+  }).join("") : '<div class="empty">এখনো কোনো কুপন নেই।</div>';
+}
+window.genCouponCode = function() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c = "";
+  for (let i = 0; i < 6; i++) c += abc[Math.floor(Math.random() * abc.length)];
+  document.getElementById("cpCode").value = c;
+};
+window.addCoupon = function() {
+  const code = document.getElementById("cpCode").value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+  const type = document.getElementById("cpType").value;
+  const value = Number(document.getElementById("cpValue").value) || 0;
+  if (code.length < 3) { toast("কুপন কোড কমপক্ষে ৩ অক্ষরের হতে হবে (A-Z, 0-9)।", "err"); return; }
+  if (value <= 0) { toast("ছাড়ের পরিমাণ দিন।", "err"); return; }
+  if (type === "percent" && value > 100) { toast("শতকরা ছাড় ১০০-এর বেশি হতে পারে না।", "err"); return; }
+  if (db.coupons.some(c => c.code === code)) { toast("এই কোড আগে থেকেই আছে।", "err"); return; }
+  db.coupons.push({ id: uid(), code, type, value, courseId: document.getElementById("cpCourse").value,
+    maxUses: Math.max(0, Math.floor(Number(document.getElementById("cpMax").value) || 0)), expires: document.getElementById("cpExp").value || "",
+    active: true, created: new Date().toISOString() });
+  ["cpCode", "cpValue", "cpExp"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("cpMax").value = "0";
+  saveDB(); renderAdminCoupons(); toast("কুপন যোগ হয়েছে: " + code, "ok");
+};
+window.toggleCoupon = function(id) {
+  const c = db.coupons.find(x => x.id === id); if (!c) return;
+  c.active = !c.active; saveDB(); renderAdminCoupons();
+};
+window.deleteCoupon = function(id) {
+  const c = db.coupons.find(x => x.id === id); if (!c) return;
+  if (!confirm(`"${c.code}" কুপন মুছে ফেলবেন?`)) return;
+  db.coupons = db.coupons.filter(x => x.id !== id); saveDB(); renderAdminCoupons(); toast("কুপন মুছে ফেলা হয়েছে", "ok");
 };
 
 function fillAdminMsgTargets() {
@@ -2251,11 +2688,21 @@ window.savePaymentNumbers = function() {
 };
 
 window.changeAdminPass = async function() {
+  const cur = document.getElementById("curAdminPass").value;
   const p = document.getElementById("newAdminPass").value;
-  if (p.length < 4) { toast("কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড দিন", "err"); return; }
-  db.adminPassHash = await sha256Hex(p); saveDB();
-  document.getElementById("newAdminPass").value = "";
-  toast("পাসওয়ার্ড পরিবর্তন হয়েছে", "ok");
+  const p2 = document.getElementById("newAdminPass2").value;
+  if (!cur) { toast("বর্তমান পাসওয়ার্ড দিন", "err"); return; }
+  if (p.length < 6) { toast("নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন", "err"); return; }
+  if (p !== p2) { toast("দুটি নতুন পাসওয়ার্ড মিলছে না", "err"); return; }
+  let r;
+  try { r = await api("/api/admin/password", { method: "POST", token: adminToken, body: { current: cur, next: p } }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
+  if (r.status === 401 && r.data?.error === "bad_current") { toast("বর্তমান পাসওয়ার্ড ভুল", "err"); return; }
+  if (r.status === 401) { sessionExpired("admin"); return; }
+  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে, কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
+  if (!r.ok) { toast("পাসওয়ার্ড বদলানো যায়নি", "err"); return; }
+  ["curAdminPass", "newAdminPass", "newAdminPass2"].forEach(id => document.getElementById(id).value = "");
+  toast("পাসওয়ার্ড পরিবর্তন হয়েছে। অন্য ডিভাইসে লগআউট হবে।", "ok");
 };
 
 window.exportDB = function() {
