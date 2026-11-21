@@ -25,7 +25,7 @@ const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, "data
 const DB_FILE = path.join(DATA_DIR, "db.json");
 const INDEX_FILE = path.join(__dirname, "public", "index.html");
 const MAX_BODY = (Number(process.env.MAX_BODY_MB) || 500) * 1024 * 1024;
-const SESSION_MS = 60 * 24 * 3600 * 1000; // 60 din
+const SESSION_MS = 180 * 24 * 3600 * 1000; // 180 din (use korle abar barhe)
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DEFAULT_ADMIN_HASH = "301afa612ee582e4e918ec287098f3342fd2bb7cd59a934814fa7e403a67beb0";
 const SHARED = ["students", "payments", "messages", "quizResults"];
@@ -60,13 +60,13 @@ function defaults() {
         pdfs: ["https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"], isFree: true }] }]
     }],
     notices: [{ id: "n1", title: "স্বাগতম", body: "HSC PrepHub এ আপনাকে স্বাগতম।", date: new Date().toISOString() }],
-    payments: [], messages: [], quizzes: [], quizResults: [],
+    payments: [], messages: [], quizzes: [], quizResults: [], coupons: [], progress: [],
     numbers: { bkash: "01700000000", nagad: "01800000000" }
   };
 }
 function normalizeState(d) {
   if (!isObj(d)) d = defaults();
-  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults"].forEach((k) => { if (!Array.isArray(d[k])) d[k] = []; });
+  ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "coupons", "progress"].forEach((k) => { if (!Array.isArray(d[k])) d[k] = []; });
   if (!isObj(d.numbers)) d.numbers = { bkash: "", nagad: "" };
   if (!d.adminUser) d.adminUser = "BILLU";
   if (!isHex64(d.adminPassHash) && !String(d.adminPassHash || "").startsWith("fb_")) d.adminPassHash = DEFAULT_ADMIN_HASH;
@@ -85,7 +85,7 @@ function enqueue(fn) {
 }
 
 // Prottek dhoroner data nijer collection-e: ekta item = ekta document (_id = item.id).
-const COLS = ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults"];
+const COLS = ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "coupons", "progress"];
 const lastSaved = {};      // collection -> Map(id -> json)  (last DB-te ja likha ache)
 let lastSettings = "";
 
@@ -118,6 +118,11 @@ async function writeSnapshot({ snap, settings, settingsJs }) {
     lastSettings = settingsJs;
   }
 }
+let soonTimer = null;
+function saveStateSoon() {            // progress-er moto bar bar hoy emon change: kichukkhon pore ekbar likho
+  if (soonTimer) return;
+  soonTimer = setTimeout(() => { soonTimer = null; saveState(); }, 4000);
+}
 function saveState() {
   const snap = snapshot();                      // ekhoni-r obostha dhore rakho
   return enqueue(() => writeSnapshot(snap));
@@ -149,7 +154,7 @@ async function newSession(role, studentId) {
   await flushSessions();            // notun login sathe sathe DB-te
   return token;
 }
-for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { if (ready) await flushSessions(); process.exit(0); });
+for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { if (ready) { if (soonTimer) { clearTimeout(soonTimer); soonTimer = null; await saveState(); } await flushSessions(); } process.exit(0); });
 function getSession(req) {
   const m = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || "");
   if (!m) return null;
@@ -160,6 +165,21 @@ function getSession(req) {
   if (s.role === "student" && !state.students.some((x) => x.id === s.studentId)) { delete sessions[key]; saveSessions(); return null; }
   if (s.exp - Date.now() < SESSION_MS / 2) { s.exp = Date.now() + SESSION_MS; saveSessions(); }
   return { key, role: s.role, studentId: s.studentId };
+}
+const replacedKeys = new Map();     // session key -> { why, t }  (kon karone logout hoyeche)
+function revokeStudent(studentId, why) {
+  let changed = false;
+  for (const k of Object.keys(sessions)) {
+    const x = sessions[k];
+    if (x.role === "student" && x.studentId === studentId) { delete sessions[k]; replacedKeys.set(k, { why, t: Date.now() }); changed = true; }
+  }
+  while (replacedKeys.size > 5000) replacedKeys.delete(replacedKeys.keys().next().value);
+  if (changed) saveSessions();
+}
+function sessionBody(req) {          // 401 body: logout-er karon sho
+  const m = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || "");
+  const r = m && replacedKeys.get(sha256(m[1]));
+  return r ? { error: "session", reason: r.why } : { error: "session" };
 }
 function revokeWhere(fn) {
   let changed = false;
@@ -237,6 +257,31 @@ async function walkMedia(node) {
 }
 
 /* ---------- views ---------- */
+/* ---------- coupons ---------- */
+function cleanCoupon(c) {
+  const code = String(c.code || "").toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 30);
+  if (!code) return null;
+  const type = c.type === "fixed" ? "fixed" : "percent";
+  let value = Math.max(0, Number(c.value) || 0);
+  if (type === "percent") value = Math.min(100, value);
+  return { id: typeof c.id === "string" && c.id ? c.id.slice(0, 64) : uid(), code, type, value, courseId: str(c.courseId, 64),
+    maxUses: Math.max(0, Math.floor(Number(c.maxUses) || 0)), expires: str(c.expires, 40), active: c.active !== false, created: str(c.created, 40) };
+}
+function checkCoupon(codeRaw, course, studentId) {
+  const code = String(codeRaw || "").trim().toUpperCase();
+  const c = state.coupons.find((x) => x.code === code);
+  if (!c || !c.active) return { ok: false, error: "invalid" };
+  if (c.expires) { const t = new Date(c.expires).getTime(); if (Number.isFinite(t) && t + 86400000 < Date.now()) return { ok: false, error: "expired" }; }
+  if (c.courseId && c.courseId !== course.id) return { ok: false, error: "not_for_course" };
+  let total = 0, mine = 0;
+  for (const p of state.payments) if (p.couponCode === code && p.status !== "Rejected") { total++; if (p.studentId === studentId) mine++; }
+  if (mine > 0) return { ok: false, error: "used" };
+  if (c.maxUses > 0 && total >= c.maxUses) return { ok: false, error: "limit" };
+  const price = Math.max(0, Number(course.price) || 0);
+  const discount = c.type === "fixed" ? Math.min(price, c.value) : Math.round((price * c.value) / 100);
+  return { ok: true, code, discount, price, final: Math.max(0, price - discount) };
+}
+
 function viewFor(role, me) {
   if (role === "admin") return state;
   const approved = new Set(me ? state.payments.filter((p) => p.studentId === me.id && p.status === "Approved").map((p) => p.courseId) : []);
@@ -249,7 +294,7 @@ function viewFor(role, me) {
   const mine = (k) => (me ? state[k].filter((x) => x.studentId === me.id) : []);
   return {
     adminUser: "", courses, notices: state.notices, quizzes: state.quizzes, numbers: state.numbers,
-    students: me ? [pubStudent(me)] : [], payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults")
+    students: me ? [pubStudent(me)] : [], payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults"), progress: mine("progress")
   };
 }
 const pubStudent = (s) => ({ id: s.id, name: s.name, email: s.email, joined: s.joined });
@@ -278,18 +323,19 @@ async function applyAdminState(inc, baseRev, replace, sess) {
   if (isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
   if (typeof inc.adminUser === "string" && inc.adminUser.trim()) state.adminUser = inc.adminUser.trim().slice(0, 100);
 
+  const seenCodes = new Set();
+  state.coupons = arr(inc.coupons).filter(isObj).map(cleanCoupon).filter((c) => c && !seenCodes.has(c.code) && seenCodes.add(c.code));
+
   const oldStudents = state.students;
+  const oldPin = new Map(oldStudents.map((s) => [s.id, s.pinHash]));
   for (const k of SHARED) state[k] = mergeShared(state[k], arr(inc[k]), baseRev, newRev, replace);
+  state.students.forEach((s) => { if (oldPin.has(s.id)) s.pinHash = oldPin.get(s.id); });   // pinHash shudhu server-er endpoint-e bodlay
 
   const nowById = new Map(state.students.map((s) => [s.id, s]));
   const gone = new Set();
   for (const o of oldStudents) { const n = nowById.get(o.id); if (!n || n.pinHash !== o.pinHash) gone.add(o.id); }
   if (gone.size) revokeWhere((s) => s.role === "student" && gone.has(s.studentId));
-
-  if (isHex64(inc.adminPassHash) && inc.adminPassHash !== state.adminPassHash) {
-    state.adminPassHash = inc.adminPassHash;
-    revokeWhere((s, k) => s.role === "admin" && k !== sess.key); // password bodlale onno admin session bondho
-  }
+  state.progress = state.progress.filter((p) => nowById.has(p.studentId));   // chole jawa student-er progress muchhe dao
   state.rev = newRev;
   await saveState();
 }
@@ -356,7 +402,7 @@ async function route(req, res) {
 
   if (M === "GET" && p === "/api/state") {
     const sess = getSession(req);
-    if (req.headers.authorization && !sess) return json(res, 401, { error: "session" });
+    if (req.headers.authorization && !sess) return json(res, 401, sessionBody(req));
     let role = "public", me = null;
     if (sess) {
       if (sess.role === "admin") role = "admin";
@@ -379,6 +425,39 @@ async function route(req, res) {
     return json(res, 200, { token: await newSession("admin"), role: "admin", rev: state.rev, db: viewFor("admin") });
   }
 
+  if (M === "POST" && p === "/api/admin/password") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const key = "apw|" + clientIp(req);
+    if (limited(key, 5)) return json(res, 429, { error: "rate_limited" });
+    const b = await readJson(req);
+    const next = str(b.next, 300);
+    if (verifyAdminPass(str(b.current, 300)) === null) { addFail(key); return json(res, 401, { error: "bad_current" }); }
+    if (next.length < 6) return json(res, 400, { error: "too_short" });
+    state.adminPassHash = sha256(next);
+    revokeWhere((s, k) => s.role === "admin" && k !== sess.key);   // onno admin session bondho
+    state.rev += 1;
+    await saveState();
+    return json(res, 200, { ok: true });
+  }
+
+  if (M === "POST" && p === "/api/admin/student-pin") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const b = await readJson(req);
+    const pin = str(b.pin, 200);
+    if (pin.length < 4) return json(res, 400, { error: "too_short" });
+    if (!state.students.some((x) => x.id === b.studentId)) return json(res, 404, { error: "no_student" });
+    const hash = await hashPin(pin);
+    const st = state.students.find((x) => x.id === b.studentId);
+    if (!st) return json(res, 404, { error: "no_student" });
+    st.pinHash = hash;
+    state.rev += 1; st._rev = state.rev;
+    revokeStudent(st.id, "pin_reset");
+    await saveState();
+    return json(res, 200, { ok: true, rev: state.rev });
+  }
+
   if (M === "PUT" && p === "/api/admin/state") {
     const sess = getSession(req);
     if (!sess || sess.role !== "admin") return json(res, 401, { error: "session" });
@@ -393,6 +472,45 @@ async function route(req, res) {
     const sess = getSession(req);
     if (sess) { delete sessions[sess.key]; saveSessions(); }
     return json(res, 200, { ok: true });
+  }
+
+  /* ---------- notun: alada "account toiri" ar "login" ---------- */
+  if (M === "POST" && p === "/api/student/register") {
+    const ip = clientIp(req);
+    const b = await readJson(req);
+    const name = str(b.name, 100).trim();
+    const email = str(b.email, 200).trim().toLowerCase();
+    const pass = str(b.password, 200);
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || pass.length < 6) return json(res, 400, { error: "invalid_input" });
+    if (limited("new|" + ip, 20)) return json(res, 429, { error: "rate_limited" });
+    if (state.students.some((x) => x.email === email)) { addFail("new|" + ip); return json(res, 409, { error: "email_exists" }); }
+    const pinHash = await hashPin(pass);
+    if (state.students.some((x) => x.email === email)) return json(res, 409, { error: "email_exists" });   // hash korar somoy onno keu khule thakle
+    addFail("new|" + ip);
+    const student = { id: uid(), name, email, pinHash, joined: new Date().toISOString(), _rev: state.rev + 1 };
+    state.students.push(student);
+    state.rev += 1;
+    await saveState();
+    return json(res, 200, { token: await newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
+  }
+
+  if (M === "POST" && p === "/api/student/login") {
+    const ip = clientIp(req);
+    const b = await readJson(req);
+    const email = str(b.email, 200).trim().toLowerCase();
+    const pass = str(b.password, 200);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !pass) return json(res, 400, { error: "invalid_input" });
+    const key = "stu|" + ip + "|" + email;
+    if (limited(key)) return json(res, 429, { error: "rate_limited" });
+    const s0 = state.students.find((x) => x.email === email);
+    if (!s0 || !s0.pinHash) { await hashPin(pass); addFail(key); return json(res, 401, { error: "bad_credentials" }); }   // email ache kina bujhte dei na
+    if (!(await verifyPin(email, s0.pinHash, pass))) { addFail(key); return json(res, 401, { error: "bad_credentials" }); }
+    const student = state.students.find((x) => x.id === s0.id);
+    if (!student) return json(res, 401, { error: "bad_credentials" });
+    if (!student.pinHash.startsWith("pbkdf2$")) { student.pinHash = await hashPin(pass); await saveState(); }   // purono hash upgrade
+    fails.delete(key);
+    revokeStudent(student.id, "other_device");          // ek account = ek device
+    return json(res, 200, { token: await newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
   }
 
   if (M === "POST" && p === "/api/student/join") {
@@ -429,12 +547,47 @@ async function route(req, res) {
     fails.delete(key);
     state.rev += 1;
     await saveState();
+    revokeStudent(student.id, "other_device");        // ek account = ek device: purono device logout
     return json(res, 200, { token: await newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
+  }
+
+  if (M === "POST" && p === "/api/student/coupon") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "student") return json(res, 401, sessionBody(req));
+    const key = "cpn|" + sess.studentId;
+    if (limited(key, 15)) return json(res, 429, { error: "rate_limited" });
+    const b = await readJson(req);
+    const course = state.courses.find((c) => c.id === b.courseId);
+    if (!course) return json(res, 404, { error: "no_course" });
+    const r = checkCoupon(b.code, course, sess.studentId);
+    if (!r.ok) { addFail(key); return json(res, 200, { valid: false, error: r.error }); }
+    return json(res, 200, { valid: true, code: r.code, discount: r.discount, final: r.final, price: r.price });
+  }
+
+  if (M === "POST" && p === "/api/student/progress") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "student") return json(res, 401, sessionBody(req));
+    const key = "pg|" + sess.studentId;
+    if (limited(key, 600)) return json(res, 429, { error: "rate_limited" });
+    addFail(key);
+    const b = await readJson(req);
+    const classId = str(b.classId, 64), courseId = str(b.courseId, 64);
+    const course = state.courses.find((c) => c.id === courseId);
+    if (!course || !arr(course.chapters).some((ch) => arr(ch.classes).some((cl) => cl.id === classId))) return json(res, 400, { error: "bad_class" });
+    let doc = state.progress.find((x) => x.studentId === sess.studentId);
+    if (!doc) { doc = { id: sess.studentId, studentId: sess.studentId, done: {}, last: null }; state.progress.push(doc); }
+    if (!isObj(doc.done)) doc.done = {};
+    const now = new Date().toISOString();
+    if (b.done === true) { if (doc.done[classId] || Object.keys(doc.done).length < 3000) doc.done[classId] = now; }
+    else if (b.done === false) delete doc.done[classId];
+    if (b.done !== false) doc.last = { courseId, classId, ts: now };
+    saveStateSoon();
+    return json(res, 200, { ok: true });
   }
 
   if (M === "POST" && p === "/api/student/sync") {
     const sess = getSession(req);
-    if (!sess || sess.role !== "student") return json(res, 401, { error: "session" });
+    if (!sess || sess.role !== "student") return json(res, 401, sessionBody(req));
     const me = state.students.find((s) => s.id === sess.studentId);
     if (!me) return json(res, 401, { error: "session" });
     const b = await readJson(req);
@@ -447,10 +600,18 @@ async function route(req, res) {
       if (!okId(x)) continue;
       if (state.payments.some((q) => q.id === x.id)) { accepted.push(x.id); continue; }
       const course = state.courses.find((c) => c.id === x.courseId);
-      const tx = str(x.transaction, 100).trim().toUpperCase();
-      if (x.studentId !== me.id || !course || !tx) { rejected.push(x.id); continue; }
+      if (x.studentId !== me.id || !course) { rejected.push(x.id); continue; }
+      let tx = str(x.transaction, 100).trim().toUpperCase();
+      let amount = course.price, couponCode = "", discount = 0, status = "Pending";
+      if (x.coupon) {                                   // dam server-i hishab kore, client-er kotha biswas kori na
+        const cr = checkCoupon(x.coupon, course, me.id);
+        if (!cr.ok) { rejected.push(x.id); continue; }
+        couponCode = cr.code; discount = cr.discount; amount = cr.final;
+        if (amount <= 0) { status = "Approved"; if (!tx) tx = "COUPON-" + couponCode; }
+      }
+      if (!tx) { rejected.push(x.id); continue; }
       state.payments.push({ id: x.id, studentId: me.id, studentName: me.name, email: me.email, courseId: course.id, courseTitle: course.title,
-        method: str(x.method, 30), transaction: tx, amount: course.price, status: "Pending", date: new Date().toISOString(), _rev: newRev });
+        method: str(x.method, 30), transaction: tx, amount, couponCode, discount, status, date: new Date().toISOString(), _rev: newRev });
       accepted.push(x.id); changed = true;
     }
     for (const x of arr(b.messages).slice(0, 20)) {
