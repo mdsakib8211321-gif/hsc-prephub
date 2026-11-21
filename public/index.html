@@ -972,8 +972,9 @@ window.loginStudent = async function(btn) {
   if (!r.ok) return authMsg("loginMsg", "লগইন করা যায়নি। আবার চেষ্টা করুন।", "err");
   await finishStudentAuth(r);
 };
-[["regName", "regBtn"], ["regEmail", "regBtn"], ["regPass", "regBtn"], ["regPass2", "regBtn"]].forEach(([i, b]) => $(i)?.addEventListener("keydown", e => { if (e.key === "Enter") registerStudent($(b)); }));
-[["loginEmail", "loginBtn"], ["loginPass", "loginBtn"]].forEach(([i, b]) => $(i)?.addEventListener("keydown", e => { if (e.key === "Enter") loginStudent($(b)); }));
+// নোট: এখানে $ ব্যবহার করা যাবে না, কারণ $ ফাইলের আরও নিচে বানানো (পেজ লোডের সময় তখনো তৈরি হয় না)
+[["regName", "regBtn"], ["regEmail", "regBtn"], ["regPass", "regBtn"], ["regPass2", "regBtn"]].forEach(([i, b]) => document.getElementById(i)?.addEventListener("keydown", e => { if (e.key === "Enter") registerStudent(document.getElementById(b)); }));
+[["loginEmail", "loginBtn"], ["loginPass", "loginBtn"]].forEach(([i, b]) => document.getElementById(i)?.addEventListener("keydown", e => { if (e.key === "Enter") loginStudent(document.getElementById(b)); }));
 
 window.logoutStudent = function() {
   const t = studentToken;
