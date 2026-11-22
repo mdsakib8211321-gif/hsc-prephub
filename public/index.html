@@ -216,6 +216,9 @@ button.danger{background:#fee2e2;color:#b91c1c}
 .badge{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:1.5;text-align:center}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .footer{color:#7c3aed}
+#appErrorBox{position:fixed;left:0;right:0;top:0;z-index:99999;background:#7f1d1d;color:#fff;padding:12px 16px;font-size:.85rem;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#appErrorBox b{display:block;margin-bottom:4px}
+#appErrorBox button{background:#fff;color:#7f1d1d;padding:4px 10px;font-size:.8rem;margin-top:6px}
 
 /* ---------- animations ---------- */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -558,6 +561,26 @@ button:not(.vp-btn):not(.pw-eye):active:not(:disabled){transform:scale(.96)}
 <div id="modalBackdrop" class="modal-backdrop hidden"><div id="modalBox" class="modal"></div></div>
 <div id="toastWrap" class="toast-wrap"></div>
 
+<script>
+  // পেজে কোনো লুকানো JavaScript ভুল হলে এখানে লাল বক্সে দেখাবে, যাতে বোঝা যায় কেন কোনো বোতাম কাজ করছে না।
+  (function () {
+    var shown = false;
+    function showAppError(msg) {
+      if (shown) return; shown = true;
+      try {
+        var box = document.createElement("div");
+        box.id = "appErrorBox";
+        box.innerHTML = "<b>⚠️ পেজে একটি সমস্যা হয়েছে, তাই কিছু বোতাম কাজ নাও করতে পারে।</b>" +
+          "দয়া করে এই বার্তাটির একটি স্ক্রিনশট নিয়ে পাঠান:<br><code style=\"word-break:break-all\"></code>" +
+          "<div><button onclick=\"this.parentElement.parentElement.remove()\">বন্ধ করুন</button></div>";
+        box.querySelector("code").textContent = String(msg).slice(0, 500);
+        document.body.insertBefore(box, document.body.firstChild);
+      } catch (e) {}
+    }
+    window.addEventListener("error", function (e) { showAppError((e && e.message) || "unknown script error"); });
+    window.addEventListener("unhandledrejection", function (e) { showAppError("Promise error: " + ((e.reason && e.reason.message) || e.reason)); });
+  })();
+</script>
 <script>
 (() => {
 "use strict";
@@ -1642,7 +1665,7 @@ window.openClassPlayer = function(cid, chid, clid) {
   saveVideoPosition();
   stopPlayback();
   clearTimeout(vpClickTimer);
-  const type = cl.videoType === 'local' ? 'local' : 'yt';
+  const type = cl.videoType === 'local' ? 'local' : (cl.videoType === 'embed' ? 'embed' : 'yt');
   activeVideoContext = { course: c, chapter: ch, cl, type, finished: false };
 
   // The shell is created once and reused when switching classes, so fullscreen is not lost.
@@ -1674,6 +1697,14 @@ window.openClassPlayer = function(cid, chid, clid) {
     const video = stage.firstChild;
     video.src = cl.videoSource;
     bindLocalVideo(video);
+  } else if (type === 'embed') {
+    if (cl.videoSource) {
+      stage.innerHTML = '<iframe src="' + esc(cl.videoSource) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0"></iframe>';
+      setPlayerStatus('');
+    } else {
+      stage.innerHTML = '<div class="empty">ভিডিও সোর্স উপলব্ধ নেই।</div>';
+      setPlayerStatus('ভিডিও সোর্স উপলব্ধ নেই');
+    }
   } else {
     const embed = type === 'yt' ? parseYouTubeEmbed(cl.videoSource) : '';
     if (embed) {
@@ -2100,7 +2131,7 @@ function renderAdminCourses() {
               <div style="margin-top:8px;display:grid;gap:6px">
                 ${cls.map((cl, li) => `
                   <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
-                    <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
+                    <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : cl.videoType === 'embed' ? 'Player link' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
                     <div class="row">
                       <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
                       <button class="ghost sm" style="padding:2px 8px" ${li === cls.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
@@ -2212,14 +2243,20 @@ window.openAddClassModal = function(cid, chid) {
       <h3 style="margin:0">চ্যাপ্টারে নতুন ক্লাস যোগ করুন</h3>
       <div class="field"><label>ক্লাসের নাম *</label><input id="clTitle" placeholder="লেকচার ১"></div>
       <div class="field"><label>ভিডিও সোর্স মাধ্যম</label>
-        <select id="clType" onchange="document.getElementById('ytBox').classList.toggle('hidden', this.value !== 'yt'); document.getElementById('localBox').classList.toggle('hidden', this.value !== 'local');">
+        <select id="clType" onchange="document.getElementById('ytBox').classList.toggle('hidden', this.value !== 'yt'); document.getElementById('localBox').classList.toggle('hidden', this.value !== 'local'); document.getElementById('embedBox').classList.toggle('hidden', this.value !== 'embed');">
           <option value="yt">YouTube লিংক</option>
+          <option value="embed">প্লেয়ার/এমবেড লিংক (অন্য ওয়েবসাইট)</option>
           <option value="local">লোকাল ডিভাইস ভিডিও ফাইল (.mp4)</option>
         </select>
       </div>
       <div id="ytBox" class="field">
         <label>YouTube Video URL</label>
         <input id="clYtUrl" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <div id="embedBox" class="field hidden">
+        <label>প্লেয়ার/এমবেড লিংক</label>
+        <input id="clEmbedUrl" placeholder="https://example.com/embed/xxxx">
+        <small class="muted">যেকোনো ভিডিও প্লেয়ারের embed/iframe লিংক দিন (Google Drive preview, Vimeo embed, নিজের সার্ভারের প্লেয়ার ইত্যাদি)।</small>
       </div>
       <div id="localBox" class="field hidden">
         <label>ডিভাইস থেকে ভিডিও ফাইল সিলেক্ট করুন</label>
@@ -2257,6 +2294,11 @@ window.saveNewClass = function(cid, chid) {
     if (!ytUrl) { toast("ইউটিউব লিংক দিন", "err"); return; }
     ch.classes.push({ id: uid(), title, videoType: "yt", videoSource: ytUrl, pdfs, isFree });
     saveDB(); closeModal(); toast("ক্লাস সফলভাবে যোগ হয়েছে!", "ok"); renderAdminCourses();
+  } else if (type === "embed") {
+    const url = document.getElementById("clEmbedUrl").value.trim();
+    if (!/^https?:\/\//i.test(url)) { toast("সঠিক প্লেয়ার লিংক দিন (http/https দিয়ে শুরু)", "err"); return; }
+    ch.classes.push({ id: uid(), title, videoType: "embed", videoSource: url, pdfs, isFree });
+    saveDB(); closeModal(); toast("ক্লাস সফলভাবে যোগ হয়েছে!", "ok"); renderAdminCourses();
   } else {
     const fileInput = document.getElementById("clLocalFile");
     if (!fileInput.files || !fileInput.files[0]) { toast("ভিডিও ফাইল সিলেক্ট করুন", "err"); return; }
@@ -2275,19 +2317,24 @@ window.editClass = function(cid, chid, clid) {
   const cl = ch?.classes.find(x => x.id === clid);
   if (!cl) return;
   const isLocal = cl.videoType === "local";
-  const ytBoxClass = isLocal ? "hidden" : "";
+  const isEmbed = cl.videoType === "embed";
+  const isYt = !isLocal && !isEmbed;
+  const ytBoxClass = isYt ? "" : "hidden";
+  const embedBoxClass = isEmbed ? "" : "hidden";
   const localBoxClass = isLocal ? "" : "hidden";
   openModal(`
     <div class="stack">
       <h3 style="margin:0">ক্লাস এডিট করুন</h3>
       <div class="field"><label>ক্লাসের নাম *</label><input id="editClTitle" value="${esc(cl.title)}"></div>
       <div class="field"><label>ভিডিও সোর্স</label>
-        <select id="editClType" onchange="document.getElementById('editYtBox').classList.toggle('hidden',this.value!=='yt');document.getElementById('editLocalBox').classList.toggle('hidden',this.value!=='local')">
-          <option value="yt" ${!isLocal ? "selected" : ""}>YouTube লিংক</option>
+        <select id="editClType" onchange="document.getElementById('editYtBox').classList.toggle('hidden',this.value!=='yt');document.getElementById('editEmbedBox').classList.toggle('hidden',this.value!=='embed');document.getElementById('editLocalBox').classList.toggle('hidden',this.value!=='local')">
+          <option value="yt" ${isYt ? "selected" : ""}>YouTube লিংক</option>
+          <option value="embed" ${isEmbed ? "selected" : ""}>প্লেয়ার/এমবেড লিংক</option>
           <option value="local" ${isLocal ? "selected" : ""}>লোকাল ভিডিও ফাইল</option>
         </select>
       </div>
-      <div id="editYtBox" class="field ${ytBoxClass}"><label>YouTube URL</label><input id="editClYtUrl" value="${!isLocal ? esc(cl.videoSource) : ""}" placeholder="https://www.youtube.com/watch?v=..."></div>
+      <div id="editYtBox" class="field ${ytBoxClass}"><label>YouTube URL</label><input id="editClYtUrl" value="${isYt ? esc(cl.videoSource) : ""}" placeholder="https://www.youtube.com/watch?v=..."></div>
+      <div id="editEmbedBox" class="field ${embedBoxClass}"><label>প্লেয়ার/এমবেড লিংক</label><input id="editClEmbedUrl" value="${isEmbed ? esc(cl.videoSource) : ""}" placeholder="https://example.com/embed/xxxx"></div>
       <div id="editLocalBox" class="field ${localBoxClass}"><label>নতুন ভিডিও আপলোড (ঐচ্ছিক)</label><input id="editClLocalFile" type="file" accept="video/*"><small class="muted">নতুন ফাইল না দিলে আগের ভিডিওটি থাকবে।</small></div>
       <div class="field"><label>PDF নোট লিংক (কমা দিয়ে আলাদা করুন)</label><input id="editClPdfs" value="${esc((cl.pdfs || []).join(", "))}"></div>
       <label class="row small"><input type="checkbox" id="editClFreeChk" ${cl.isFree ? "checked" : ""}> ফ্রি প্রিভিউ ক্লাস</label>
@@ -2316,6 +2363,15 @@ window.saveEditedClass = function(cid, chid, clid) {
     const url = document.getElementById("editClYtUrl").value.trim();
     if (!parseYouTubeEmbed(url)) { toast("সঠিক YouTube লিংক দিন", "err"); return; }
     cl.videoType = "yt";
+    cl.videoSource = url;
+    if (saveDB()) { closeModal(); toast("ক্লাস আপডেট হয়েছে", "ok"); renderAdminCourses(); }
+    return;
+  }
+
+  if (type === "embed") {
+    const url = document.getElementById("editClEmbedUrl").value.trim();
+    if (!/^https?:\/\//i.test(url)) { toast("সঠিক প্লেয়ার লিংক দিন (http/https দিয়ে শুরু)", "err"); return; }
+    cl.videoType = "embed";
     cl.videoSource = url;
     if (saveDB()) { closeModal(); toast("ক্লাস আপডেট হয়েছে", "ok"); renderAdminCourses(); }
     return;
