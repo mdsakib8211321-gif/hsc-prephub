@@ -49,6 +49,7 @@ function defaults() {
     rev: 1,
     adminUser: "BILLU",
     adminPassHash: DEFAULT_ADMIN_HASH,
+    admins: [{ id: "owner", username: "BILLU", passHash: DEFAULT_ADMIN_HASH, name: "Admin", owner: true, created: new Date().toISOString() }],
     students: [],
     courses: [{
       id: "c1", title: "HSC ICT পূর্ণাঙ্গ কোর্স",
@@ -70,6 +71,14 @@ function normalizeState(d) {
   if (!isObj(d.numbers)) d.numbers = { bkash: "", nagad: "" };
   if (!d.adminUser) d.adminUser = "BILLU";
   if (!isHex64(d.adminPassHash) && !String(d.adminPassHash || "").startsWith("fb_")) d.adminPassHash = DEFAULT_ADMIN_HASH;
+  if (!Array.isArray(d.admins)) d.admins = [];
+  d.admins = d.admins.filter((a) => isObj(a) && a.username && (isHex64(a.passHash) || String(a.passHash || "").startsWith("fb_")));
+  if (!d.admins.some((a) => a.owner)) {
+    // Purono single-admin field-ke admins list-e niye asho, jate login age-er moto-i cholte thake.
+    const existing = d.admins.find((a) => String(a.username).toLowerCase() === String(d.adminUser).toLowerCase());
+    if (existing) existing.owner = true;
+    else d.admins.unshift({ id: "owner", username: d.adminUser, passHash: d.adminPassHash, name: "Admin", owner: true, created: new Date().toISOString() });
+  }
   if (!Number.isFinite(d.rev)) d.rev = 1;
   d.notices.forEach((n) => { if (!n.id) n.id = uid(); });
   SHARED.forEach((k) => d[k].forEach((x) => { if (!Number.isFinite(x._rev)) x._rev = 0; }));
@@ -85,7 +94,7 @@ function enqueue(fn) {
 }
 
 // Prottek dhoroner data nijer collection-e: ekta item = ekta document (_id = item.id).
-const COLS = ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "coupons", "progress"];
+const COLS = ["students", "courses", "notices", "payments", "messages", "quizzes", "quizResults", "coupons", "progress", "admins"];
 const lastSaved = {};      // collection -> Map(id -> json)  (last DB-te ja likha ache)
 let lastSettings = "";
 
@@ -101,7 +110,7 @@ function snapshot() {
     });
     snap[name] = m;
   }
-  const settings = { _id: "main", rev: state.rev, adminUser: state.adminUser, adminPassHash: state.adminPassHash, numbers: state.numbers };
+  const settings = { _id: "main", rev: state.rev, numbers: state.numbers };
   return { snap, settings, settingsJs: JSON.stringify(settings) };
 }
 async function writeSnapshot({ snap, settings, settingsJs }) {
@@ -129,7 +138,7 @@ function saveState() {
 }
 async function loadFromCollections() {
   const st = await dbh.collection("settings").findOne({ _id: "main" });
-  const d = { rev: st.rev, adminUser: st.adminUser, adminPassHash: st.adminPassHash, numbers: st.numbers };
+  const d = { rev: st.rev, adminUser: st?.adminUser, adminPassHash: st?.adminPassHash, numbers: st?.numbers };
   for (const name of COLS) {
     const docs = await dbh.collection(name).find({}).sort({ _order: 1 }).toArray();
     d[name] = docs.map(({ _id, _order, ...item }) => item);
@@ -148,12 +157,13 @@ function saveSessions() {           // chhoto change (expiry barano, revoke) –
   if (sessTimer) return;
   sessTimer = setTimeout(flushSessions, 300);
 }
-async function newSession(role, studentId) {
+async function newSession(role, studentId, adminId) {
   const token = crypto.randomBytes(32).toString("hex");
-  sessions[sha256(token)] = { role, studentId: studentId || null, exp: Date.now() + SESSION_MS };
+  sessions[sha256(token)] = { role, studentId: studentId || null, adminId: adminId || null, exp: Date.now() + SESSION_MS };
   await flushSessions();            // notun login sathe sathe DB-te
   return token;
 }
+function currentAdmin(sess) { return sess?.adminId ? state.admins.find((a) => a.id === sess.adminId) || null : null; }
 for (const sig of ["SIGTERM", "SIGINT"]) process.on(sig, async () => { if (ready) { if (soonTimer) { clearTimeout(soonTimer); soonTimer = null; await saveState(); } await flushSessions(); } process.exit(0); });
 function getSession(req) {
   const m = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || "");
@@ -164,7 +174,7 @@ function getSession(req) {
   if (s.exp < Date.now()) { delete sessions[key]; saveSessions(); return null; }
   if (s.role === "student" && !state.students.some((x) => x.id === s.studentId)) { delete sessions[key]; saveSessions(); return null; }
   if (s.exp - Date.now() < SESSION_MS / 2) { s.exp = Date.now() + SESSION_MS; saveSessions(); }
-  return { key, role: s.role, studentId: s.studentId };
+  return { key, role: s.role, studentId: s.studentId, adminId: s.adminId };
 }
 const replacedKeys = new Map();     // session key -> { why, t }  (kon karone logout hoyeche)
 function revokeStudent(studentId, why) {
@@ -216,15 +226,19 @@ async function verifyPin(email, stored, pin) {
   const legacy = String(stored || "").startsWith("legacy$") ? String(stored).slice(7) : String(stored || "");
   return safeEq(legacy, sha256(email + "::" + pin));
 }
-function verifyAdminPass(p) {
-  const stored = state.adminPassHash || "";
+function verifyPass(stored, p) {
   for (const cand of new Set([p, p.trim()])) {
     if (!cand) continue;
     if (safeEq(sha256(cand), stored)) return cand;
-    if (stored.startsWith("fb_") && safeEq(stored, "fb_" + cand)) return cand;
+    if (String(stored).startsWith("fb_") && safeEq(stored, "fb_" + cand)) return cand;
   }
   return null;
 }
+function findAdmin(username) {
+  const u = String(username || "").trim().toLowerCase();
+  return state.admins.find((a) => String(a.username).toLowerCase() === u) || null;
+}
+function pubAdmin(a) { return { id: a.id, username: a.username, name: a.name || a.username, owner: !!a.owner }; }
 
 /* ---------- media (base64 video -> file) ---------- */
 const EXT = { "video/mp4": "mp4", "video/webm": "webm", "video/ogg": "ogv", "video/quicktime": "mov", "video/x-matroska": "mkv",
@@ -283,7 +297,10 @@ function checkCoupon(codeRaw, course, studentId) {
 }
 
 function viewFor(role, me) {
-  if (role === "admin") return state;
+  if (role === "admin") {
+    const { adminPassHash, ...rest } = state;   // ekta purono field, r kono hash client-ke pathano hoy na
+    return { ...rest, admins: state.admins.map(pubAdmin) };
+  }
   const approved = new Set(me ? state.payments.filter((p) => p.studentId === me.id && p.status === "Approved").map((p) => p.courseId) : []);
   const courses = state.courses.map((c) => {
     if (Number(c.price) <= 0 || approved.has(c.id)) return c;
@@ -405,37 +422,82 @@ async function route(req, res) {
     if (req.headers.authorization && !sess) return json(res, 401, sessionBody(req));
     let role = "public", me = null;
     if (sess) {
-      if (sess.role === "admin") role = "admin";
+      if (sess.role === "admin") { role = "admin"; me = currentAdmin(sess); }
       else { me = state.students.find((s) => s.id === sess.studentId); role = "student"; }
     }
     const since = url.searchParams.get("since");
     if (since !== null && Number(since) === state.rev) return json(res, 200, { unchanged: true, rev: state.rev, role });
-    return json(res, 200, { role, rev: state.rev, me: me ? pubStudent(me) : null, db: viewFor(role, me) });
+    return json(res, 200, { role, rev: state.rev, me: me ? (role === "admin" ? pubAdmin(me) : pubStudent(me)) : null, db: viewFor(role, me) });
   }
 
   if (M === "POST" && p === "/api/admin/login") {
     const key = "admin|" + clientIp(req);
     if (limited(key)) return json(res, 429, { error: "rate_limited" });
     const b = await readJson(req);
-    const userOk = String(b.username || "").trim().toLowerCase() === String(state.adminUser).toLowerCase();
-    const cand = verifyAdminPass(str(b.password, 300));
-    if (!userOk || cand === null) { addFail(key); return json(res, 401, { error: "invalid" }); }
+    const admin = findAdmin(str(b.username, 100));
+    const cand = admin ? verifyPass(admin.passHash, str(b.password, 300)) : null;
+    if (!admin || cand === null) { addFail(key); return json(res, 401, { error: "invalid" }); }
     fails.delete(key);
-    if (String(state.adminPassHash).startsWith("fb_")) { state.adminPassHash = sha256(cand); await saveState(); }
-    return json(res, 200, { token: await newSession("admin"), role: "admin", rev: state.rev, db: viewFor("admin") });
+    if (String(admin.passHash).startsWith("fb_")) { admin.passHash = sha256(cand); state.rev += 1; await saveState(); }
+    return json(res, 200, { token: await newSession("admin", null, admin.id), role: "admin", rev: state.rev, me: pubAdmin(admin), db: viewFor("admin") });
+  }
+
+  if (M === "GET" && p === "/api/admin/admins") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    return json(res, 200, { admins: state.admins.map(pubAdmin) });
+  }
+
+  if (M === "POST" && p === "/api/admin/admins") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const me = currentAdmin(sess);
+    if (!me?.owner) return json(res, 403, { error: "owner_only" });
+    const key = "newadmin|" + clientIp(req);
+    if (limited(key, 10)) return json(res, 429, { error: "rate_limited" });
+    const b = await readJson(req);
+    const username = str(b.username, 100).trim();
+    const name = str(b.name, 100).trim() || username;
+    const pass = str(b.password, 300);
+    if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(username)) return json(res, 400, { error: "bad_username" });
+    if (pass.length < 6) return json(res, 400, { error: "too_short" });
+    if (findAdmin(username)) { addFail(key); return json(res, 409, { error: "exists" }); }
+    const admin = { id: uid(), username, passHash: sha256(pass), name, owner: false, created: new Date().toISOString() };
+    state.admins.push(admin);
+    state.rev += 1;
+    await saveState();
+    return json(res, 200, { ok: true, admin: pubAdmin(admin) });
+  }
+
+  if (M === "DELETE" && p.startsWith("/api/admin/admins/")) {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const me = currentAdmin(sess);
+    if (!me?.owner) return json(res, 403, { error: "owner_only" });
+    const id = p.slice("/api/admin/admins/".length);
+    const target = state.admins.find((a) => a.id === id);
+    if (!target) return json(res, 404, { error: "not_found" });
+    if (target.owner) return json(res, 400, { error: "cannot_remove_owner" });
+    state.admins = state.admins.filter((a) => a.id !== id);
+    state.rev += 1;
+    revokeWhere((s) => s.role === "admin" && s.adminId === id);     // oi admin-ke ekhoni logout kore dao
+    await saveState();
+    return json(res, 200, { ok: true });
   }
 
   if (M === "POST" && p === "/api/admin/password") {
     const sess = getSession(req);
     if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const me = currentAdmin(sess);
+    if (!me) return json(res, 401, { error: "session" });
     const key = "apw|" + clientIp(req);
     if (limited(key, 5)) return json(res, 429, { error: "rate_limited" });
     const b = await readJson(req);
     const next = str(b.next, 300);
-    if (verifyAdminPass(str(b.current, 300)) === null) { addFail(key); return json(res, 401, { error: "bad_current" }); }
+    if (verifyPass(me.passHash, str(b.current, 300)) === null) { addFail(key); return json(res, 401, { error: "bad_current" }); }
     if (next.length < 6) return json(res, 400, { error: "too_short" });
-    state.adminPassHash = sha256(next);
-    revokeWhere((s, k) => s.role === "admin" && k !== sess.key);   // onno admin session bondho
+    me.passHash = sha256(next);
+    revokeWhere((s, k) => s.role === "admin" && s.adminId === me.id && k !== sess.key);   // amar onno device-er session bondho
     state.rev += 1;
     await saveState();
     return json(res, 200, { ok: true });
