@@ -69,6 +69,8 @@ textarea{min-height:85px;resize:vertical}
 .modal.modal-lg{width:min(1480px,calc(100vw - 16px));max-width:none;max-height:98dvh;padding:14px}
 #modalBox:has(#vp){width:min(1480px,calc(100vw - 16px));max-width:none}
 .vp{position:relative;width:100%;aspect-ratio:16/9;max-height:calc(100dvh - 200px);min-height:200px;background:#000;border-radius:12px;overflow:hidden;isolation:isolate;color:#fff;font-size:.9rem;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.vp.vp-embed .vp-click,.vp.vp-embed .vp-controls,.vp.vp-embed .vp-big,.vp.vp-embed .vp-top,.vp.vp-embed .vp-menu,.vp.vp-embed .watermark{display:none!important}
+.vp.vp-embed .vp-stage{z-index:3}
 .vp-stage{position:absolute;inset:0;z-index:1;background:#000}
 .vp-stage video,.vp-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
 .vp-stage video{object-fit:contain}
@@ -550,6 +552,20 @@ input[type="checkbox"]:active{transform:scale(1.3)}
       </div>
 
       <div id="admin-settingsAdmin" class="hidden">
+        <div class="card stack" id="adminAccountsCard" style="margin-bottom:16px">
+          <h3>👥 অ্যাডমিন অ্যাকাউন্ট</h3>
+          <div id="adminAccountsList"></div>
+          <div id="addAdminBox" class="stack hidden">
+            <hr style="border:0;border-top:1px solid var(--line);width:100%">
+            <h4 style="margin:0">+ নতুন অ্যাডমিন যোগ করুন</h4>
+            <div class="grid">
+              <div class="field"><label>নাম</label><input id="newAdminName" placeholder="প্রদর্শনের নাম"></div>
+              <div class="field"><label>Username</label><input id="newAdminUser" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ইউনিক ইউজারনেম"></div>
+              <div class="field"><label>পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><input id="newAdminPassField" type="password" autocomplete="new-password"></div>
+            </div>
+            <button onclick="createAdmin()">অ্যাডমিন যোগ করুন</button>
+          </div>
+        </div>
         <div class="grid">
           <div class="card stack">
             <h3>অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3>
@@ -610,6 +626,7 @@ const LS_ADMIN = "hsc_admin_token", LS_STUDENT = "hsc_student_token", LS_VIEW = 
 let db = normalizeDB({});
 let currentStudent = null;
 let adminOn = false;
+let meAdmin = null;
 let adminToken = lsGet(LS_ADMIN), studentToken = lsGet(LS_STUDENT);
 let serverRev = 0, loaded = false, dirty = false, pushing = false, pushTimer = null, forceReplace = false;
 let adminRendered = false, curAdminTab = "manage", curStudentTab = "courses";
@@ -860,7 +877,7 @@ async function bootstrap() {
   }
   if (adminToken) {
     const r = await api("/api/state", { token: adminToken });
-    if (r.ok && r.data.role === "admin") { adminOn = true; adoptState(r.data); got = true; }
+    if (r.ok && r.data.role === "admin") { adminOn = true; meAdmin = r.data.me || null; adoptState(r.data); got = true; }
     else if (r.status === 401) { adminToken = ""; lsSet(LS_ADMIN, ""); }
     else if (!r.ok) throw new Error("state");
   }
@@ -1699,6 +1716,7 @@ window.openClassPlayer = function(cid, chid, clid) {
   if (!$('vp')) { openModal(vpShellMarkup(currentStudent?.email || ''), true); bindShell(); }
   const vp = $('vp'), stage = $('studentPlayerShell');
   vp.classList.toggle('no-pip', type !== 'local');
+  vp.classList.toggle('vp-embed', type === 'embed');
   vp.classList.remove('buffering');
   $('vpTitle').textContent = cl.title;
   $('vpSub').textContent = `${c.title} · ${ch.title}`;
@@ -2021,6 +2039,7 @@ window.adminLogin = async function() {
 
   adminToken = r.data.token; lsSet(LS_ADMIN, adminToken);
   adminOn = true;
+  meAdmin = r.data.me || null;
   adoptState(r.data);
   document.getElementById("adminPass").value = "";
   toast("অ্যাডমিন লগইন সফল", "ok");
@@ -2043,11 +2062,55 @@ window.adminLogin = async function() {
 };
 
 window.adminLogout = function() {
+  meAdmin = null;
   const t = adminToken;
   adminOn = false; adminRendered = false; adminToken = ""; lsSet(LS_ADMIN, "");
   if (t) api("/api/admin/logout", { method: "POST", token: t }).catch(() => {});
   showAdminCheck();
   pollState(true);   // memory theke admin-only data soriye public view nao
+};
+
+function renderAdminAccounts() {
+  const host = document.getElementById("adminAccountsList");
+  const addBox = document.getElementById("addAdminBox");
+  const list = (db.admins || []);
+  host.innerHTML = list.length ? list.map(a => `
+    <div class="row between item">
+      <span>${a.owner ? "👑" : "🧑‍💼"} <b>${esc(a.name || a.username)}</b> <span class="muted small">(${esc(a.username)}${a.owner ? " · মালিক" : ""}${meAdmin && meAdmin.id === a.id ? " · আপনি" : ""})</span></span>
+      ${(meAdmin?.owner && !a.owner) ? `<button class="danger sm" onclick="removeAdmin('${a.id}','${esc(a.name || a.username)}')">সরিয়ে দিন</button>` : ""}
+    </div>`).join("") : '<div class="muted small">কোনো অ্যাডমিন পাওয়া যায়নি।</div>';
+  addBox.classList.toggle("hidden", !meAdmin?.owner);
+  if (!meAdmin?.owner) host.insertAdjacentHTML("beforeend", '<div class="muted small" style="margin-top:8px">নতুন অ্যাডমিন যোগ বা মুছে ফেলা শুধু মালিক (owner) অ্যাকাউন্ট করতে পারে।</div>');
+}
+window.createAdmin = async function() {
+  const name = document.getElementById("newAdminName").value.trim();
+  const username = document.getElementById("newAdminUser").value.trim();
+  const pass = document.getElementById("newAdminPassField").value;
+  if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(username)) { toast("ইউজারনেম ৩-৪০ অক্ষরের হতে হবে (শুধু ইংরেজি অক্ষর, সংখ্যা, . _ -)", "err"); return; }
+  if (pass.length < 6) { toast("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন", "err"); return; }
+  let r;
+  try { r = await api("/api/admin/admins", { method: "POST", token: adminToken, body: { name, username, password: pass } }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
+  if (r.status === 409) { toast("এই ইউজারনেম আগে থেকেই আছে", "err"); return; }
+  if (r.status === 403) { toast("শুধু মালিক (owner) নতুন অ্যাডমিন যোগ করতে পারে", "err"); return; }
+  if (r.status === 429) { toast("অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); return; }
+  if (!r.ok) { toast("অ্যাডমিন যোগ করা যায়নি", "err"); return; }
+  ["newAdminName", "newAdminUser", "newAdminPassField"].forEach(id => document.getElementById(id).value = "");
+  toast(`"${username}" নামে নতুন অ্যাডমিন যোগ হয়েছে`, "ok");
+  const st = await api("/api/state", { token: adminToken });
+  if (st.ok) { adoptState(st.data); renderAdminAccounts(); }
+};
+window.removeAdmin = async function(id, label) {
+  if (!confirm(`"${label}"-কে অ্যাডমিন থেকে সরিয়ে দেবেন? সে সাথে সাথে লগআউট হয়ে যাবে।`)) return;
+  let r;
+  try { r = await api("/api/admin/admins/" + id, { method: "DELETE", token: adminToken }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
+  if (r.status === 400) { toast("মালিক (owner) অ্যাকাউন্ট সরানো যায় না", "err"); return; }
+  if (r.status === 403) { toast("শুধু মালিক (owner) অ্যাডমিন সরাতে পারে", "err"); return; }
+  if (!r.ok) { toast("অ্যাডমিন সরানো যায়নি", "err"); return; }
+  toast("অ্যাডমিন সরিয়ে দেওয়া হয়েছে", "ok");
+  const st = await api("/api/state", { token: adminToken });
+  if (st.ok) { adoptState(st.data); renderAdminAccounts(); }
 };
 
 function renderAdmin() {
@@ -2064,6 +2127,7 @@ function renderAdmin() {
   document.getElementById("bkashNumber").value = db.numbers.bkash || "";
   document.getElementById("nagadNumber").value = db.numbers.nagad || "";
 
+  renderAdminAccounts();
   window.adminTab('manage', document.querySelector('#adminTabs button'));
 }
 
