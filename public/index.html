@@ -8,18 +8,33 @@
 <!-- jsPDF for Certificate Generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root {
+:root, :root[data-color="violet"] {
   --bg: #f5f3ff; --card: #ffffff; --ink: #0f172a; --muted: #64748b;
   --primary: #7c3aed; --primary2: #2563eb; --primary-hover: #6d28d9; --line: #e5e7f5;
   --green: #16a34a; --green-bg: #dcfce7; --red: #dc2626; --red-bg: #fee2e2;
   --amber: #d97706; --amber-bg: #fef3c7; --shadow: 0 10px 25px rgba(0,0,0,0.05);
+  --g1:#4f46e5; --g2:#7c3aed; --g3:#db2777; --g4:#f59e0b;
+  --bg1:#eef2ff; --bg2:#fdf2f8; --bg3:#ecfeff; --bg1d:#0f0a24; --bg2d:#1a0b2e; --bg3d:#07202b;
 }
-[data-theme="dark"] {
+[data-theme="dark"], [data-theme="dark"][data-color="violet"] {
   --bg: #0f0a24; --card: #1c1838; --ink: #f8fafc; --muted: #94a3b8;
   --primary: #8b5cf6; --primary2: #3b82f6; --primary-hover: #a78bfa; --line: #3b3560;
   --green: #22c55e; --green-bg: #052e16; --red: #ef4444; --red-bg: #450a0a;
   --amber: #f59e0b; --amber-bg: #451a03; --shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
+
+/* ---- আরও থিম রং: Ocean / Emerald / Rose / Sunset / Slate (light + dark) ---- */
+:root[data-color="ocean"]{ --bg:#eff6ff; --card:#fff; --primary:#0284c7; --primary2:#0891b2; --primary-hover:#0369a1; --line:#dbeafe; --g1:#0ea5e9; --g2:#0284c7; --g3:#0891b2; --g4:#22d3ee; --bg1:#eff6ff; --bg2:#ecfeff; --bg3:#f0f9ff; --bg1d:#020617; --bg2d:#031b2e; --bg3d:#042f3a; }
+[data-theme="dark"][data-color="ocean"]{ --bg:#020617; --card:#0b1b33; --primary:#38bdf8; --primary2:#22d3ee; --primary-hover:#7dd3fc; --line:#0e3a63; }
+:root[data-color="emerald"]{ --bg:#ecfdf5; --card:#fff; --primary:#059669; --primary2:#0d9488; --primary-hover:#047857; --line:#d1fae5; --g1:#10b981; --g2:#059669; --g3:#0d9488; --g4:#65a30d; --bg1:#ecfdf5; --bg2:#f0fdfa; --bg3:#f7fee7; --bg1d:#022c22; --bg2d:#042f2e; --bg3d:#052e16; }
+[data-theme="dark"][data-color="emerald"]{ --bg:#022c22; --card:#06332a; --primary:#34d399; --primary2:#2dd4bf; --primary-hover:#6ee7b7; --line:#0f4a3a; }
+:root[data-color="rose"]{ --bg:#fff1f2; --card:#fff; --primary:#e11d48; --primary2:#db2777; --primary-hover:#be123c; --line:#fce7f3; --g1:#f43f5e; --g2:#e11d48; --g3:#db2777; --g4:#f97316; --bg1:#fff1f2; --bg2:#fdf2f8; --bg3:#fff7ed; --bg1d:#1a0510; --bg2d:#1f0a17; --bg3d:#2a0a05; }
+[data-theme="dark"][data-color="rose"]{ --bg:#1a0510; --card:#2a0b1c; --primary:#fb7185; --primary2:#f472b6; --primary-hover:#fda4af; --line:#4a1030; }
+:root[data-color="sunset"]{ --bg:#fff7ed; --card:#fff; --primary:#ea580c; --primary2:#dc2626; --primary-hover:#c2410c; --line:#ffedd5; --g1:#f59e0b; --g2:#ea580c; --g3:#dc2626; --g4:#db2777; --bg1:#fff7ed; --bg2:#fef2f2; --bg3:#fdf2f8; --bg1d:#1f0a02; --bg2d:#270504; --bg3d:#1a0510; }
+[data-theme="dark"][data-color="sunset"]{ --bg:#1f0a02; --card:#301206; --primary:#fb923c; --primary2:#f87171; --primary-hover:#fdba74; --line:#4a1f0a; }
+:root[data-color="slate"]{ --bg:#f8fafc; --card:#fff; --primary:#475569; --primary2:#334155; --primary-hover:#334155; --line:#e2e8f0; --g1:#64748b; --g2:#475569; --g3:#334155; --g4:#1e293b; --bg1:#f8fafc; --bg2:#f1f5f9; --bg3:#f8fafc; --bg1d:#020617; --bg2d:#0f172a; --bg3d:#1e293b; }
+[data-theme="dark"][data-color="slate"]{ --bg:#020617; --card:#0f172a; --primary:#94a3b8; --primary2:#cbd5e1; --primary-hover:#cbd5e1; --line:#1e293b; }
+/* admin hero + badge green/red backgrounds carry over from the base theme block above automatically via --primary cascading rules already in place */
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;transition:background .3s,color .3s}
 button,input,textarea,select{font:inherit}
@@ -151,14 +166,14 @@ textarea{min-height:85px;resize:vertical}
 @media(max-width:580px){.hero{padding:22px}.wrap{padding:14px 12px 44px}header{padding:12px}}
 
 /* ===================== COLORFUL THEME ===================== */
-body{background:linear-gradient(160deg,#eef2ff 0%,#fdf2f8 45%,#ecfeff 100%);background-repeat:no-repeat;background-attachment:fixed;min-height:100vh}
-[data-theme="dark"] body{background:linear-gradient(160deg,#0f0a24 0%,#1a0b2e 50%,#07202b 100%);background-repeat:no-repeat;background-attachment:fixed}
-header{background:linear-gradient(90deg,#4f46e5,#7c3aed 38%,#db2777 72%,#f59e0b);color:#fff;border-bottom:0;box-shadow:0 6px 20px rgba(124,58,237,.25)}
+body{background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%);background-repeat:no-repeat;background-attachment:fixed;min-height:100vh}
+[data-theme="dark"] body{background:linear-gradient(160deg,var(--bg1d) 0%,var(--bg2d) 50%,var(--bg3d) 100%);background-repeat:no-repeat;background-attachment:fixed}
+header{background:linear-gradient(90deg,var(--g1),var(--g2) 38%,var(--g3) 72%,var(--g4));color:#fff;border-bottom:0;box-shadow:0 6px 20px rgba(124,58,237,.25)}
 header strong{font-size:1.05rem;letter-spacing:.2px}
 header button.ghost{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.14)}
 header button.ghost:hover:not(:disabled){background:rgba(255,255,255,.28)}
 header button.ghost.active{background:#fff;color:#4f46e5;border-color:#fff}
-.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#4f46e5,#7c3aed 42%,#db2777 78%,#f59e0b);box-shadow:0 14px 30px rgba(124,58,237,.3)}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--g1),var(--g2) 42%,var(--g3) 78%,var(--g4));box-shadow:0 14px 30px rgba(124,58,237,.3)}
 .hero::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.14)}
 .hero::before{content:"";position:absolute;right:90px;bottom:-90px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.10)}
 .hero p{color:#fdf4ff}
@@ -176,10 +191,10 @@ header button.ghost.active{background:#fff;color:#4f46e5;border-color:#fff}
 .thumb{border:2px solid rgba(124,58,237,.18)}
 #adminArea>.grid>.card{color:#fff;border:0;box-shadow:0 10px 22px rgba(0,0,0,.14)}
 #adminArea>.grid>.card .muted{color:rgba(255,255,255,.9)}
-#adminArea>.grid>.card:nth-child(1){background:linear-gradient(135deg,#2563eb,#06b6d4)}
-#adminArea>.grid>.card:nth-child(2){background:linear-gradient(135deg,#db2777,#f97316)}
-#adminArea>.grid>.card:nth-child(3){background:linear-gradient(135deg,#f59e0b,#ef4444)}
-#adminArea>.grid>.card:nth-child(4){background:linear-gradient(135deg,#059669,#14b8a6)}
+#adminArea>.grid>.card:nth-child(1){background:linear-gradient(135deg,var(--g1),var(--g2))}
+#adminArea>.grid>.card:nth-child(2){background:linear-gradient(135deg,var(--g3),var(--g4))}
+#adminArea>.grid>.card:nth-child(3){background:linear-gradient(135deg,var(--g2),var(--g3))}
+#adminArea>.grid>.card:nth-child(4){background:linear-gradient(135deg,var(--g1),var(--g4))}
 .tabs button{border:1px solid transparent;background:var(--tb,#ede9fe);color:var(--t,#6d28d9)}
 .tabs button:nth-child(6n+1){--t:#1d4ed8;--tb:#dbeafe;--ta:#2563eb}
 .tabs button:nth-child(6n+2){--t:#be185d;--tb:#fce7f3;--ta:#db2777}
@@ -218,6 +233,14 @@ button.danger{background:#fee2e2;color:#b91c1c}
 .badge{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:1.5;text-align:center}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .footer{color:#7c3aed}
+.theme-swatches{display:flex;flex-wrap:wrap;gap:12px}
+.theme-swatch{width:54px;height:54px;border-radius:14px;cursor:pointer;border:3px solid transparent;position:relative;transition:transform .2s,border-color .2s}
+.theme-swatch:hover{transform:scale(1.08)}
+.theme-swatch.active{border-color:var(--ink)}
+.theme-swatch.active::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.3rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.perm-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);cursor:pointer;font-size:.88rem}
+.perm-chip input{transform:scale(1.1)}
 #appErrorBox{position:fixed;left:0;right:0;top:0;z-index:99999;background:#7f1d1d;color:#fff;padding:12px 16px;font-size:.85rem;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 #appErrorBox b{display:block;margin-bottom:4px}
 #appErrorBox button{background:#fff;color:#7f1d1d;padding:4px 10px;font-size:.8rem;margin-top:6px}
@@ -414,7 +437,7 @@ input[type="checkbox"]:active{transform:scale(1.3)}
 
     <div id="adminLogin" class="card stack" style="max-width:480px;margin:auto">
       <h2>অ্যাডমিন লগইন</h2>
-      <div class="field"><label>Username</label><input id="adminUser" value="BILLU" autocapitalize="off" autocorrect="off" autocomplete="username" spellcheck="false"></div>
+      <div class="field"><label>Username</label><input id="adminUser" autocapitalize="off" autocorrect="off" autocomplete="username" spellcheck="false" placeholder="আপনার ইউজারনেম"></div>
       <div class="field"><label>Password</label><input id="adminPass" type="password" autocapitalize="off" autocorrect="off" autocomplete="current-password" spellcheck="false" placeholder="অ্যাডমিন পাসওয়ার্ড"></div>
       <button onclick="adminLogin()">লগইন</button>
     </div>
@@ -552,6 +575,11 @@ input[type="checkbox"]:active{transform:scale(1.3)}
       </div>
 
       <div id="admin-settingsAdmin" class="hidden">
+        <div class="card stack" id="themeCard" style="margin-bottom:16px">
+          <h3>🎨 সাইটের থিম রং</h3>
+          <p class="muted small">আপনি যে রং বেছে নেবেন, সেটা সাইটের সব ভিজিটর ও শিক্ষার্থী দেখবে।</p>
+          <div class="theme-swatches" id="themeSwatches"></div>
+        </div>
         <div class="card stack" id="adminAccountsCard" style="margin-bottom:16px">
           <h3>👥 অ্যাডমিন অ্যাকাউন্ট</h3>
           <div id="adminAccountsList"></div>
@@ -563,6 +591,8 @@ input[type="checkbox"]:active{transform:scale(1.3)}
               <div class="field"><label>Username</label><input id="newAdminUser" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ইউনিক ইউজারনেম"></div>
               <div class="field"><label>পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><input id="newAdminPassField" type="password" autocomplete="new-password"></div>
             </div>
+            <label>এই অ্যাডমিনকে কোন কোন কাজের অনুমতি দেবেন?</label>
+            <div class="perm-grid" id="newAdminPerms"></div>
             <button onclick="createAdmin()">অ্যাডমিন যোগ করুন</button>
           </div>
         </div>
@@ -627,6 +657,23 @@ let db = normalizeDB({});
 let currentStudent = null;
 let adminOn = false;
 let meAdmin = null;
+const PERM_LABELS = { courses: "📚 কোর্স ম্যানেজমেন্ট", quizzes: "📝 MCQ কুইজ", notices: "📢 নোটিশ", coupons: "🎟 কুপন", settings: "⚙️ সেটিংস ও থিম", students: "🧑‍🎓 স্টুডেন্ট তালিকা", payments: "💳 পেমেন্ট যাচাই", messages: "✉️ ছাত্র মেসেজ" };
+const THEME_LIST = [
+  { id: "violet", label: "ভায়োলেট", c1: "#7c3aed", c2: "#2563eb" },
+  { id: "ocean", label: "সমুদ্র নীল", c1: "#0284c7", c2: "#0891b2" },
+  { id: "emerald", label: "সবুজ", c1: "#059669", c2: "#0d9488" },
+  { id: "rose", label: "গোলাপি", c1: "#e11d48", c2: "#db2777" },
+  { id: "sunset", label: "সূর্যাস্ত", c1: "#ea580c", c2: "#dc2626" },
+  { id: "slate", label: "স্লেট (গাঢ় ধূসর)", c1: "#475569", c2: "#334155" },
+];
+function permChipsHtml(idPrefix, checkedObj) {
+  return Object.keys(PERM_LABELS).map(k => `<label class="perm-chip"><input type="checkbox" id="${idPrefix}_${k}" ${checkedObj && checkedObj[k] ? "checked" : ""}> ${PERM_LABELS[k]}</label>`).join("");
+}
+function readPermChips(idPrefix) {
+  const out = {};
+  Object.keys(PERM_LABELS).forEach(k => { out[k] = !!document.getElementById(`${idPrefix}_${k}`)?.checked; });
+  return out;
+}
 let adminToken = lsGet(LS_ADMIN), studentToken = lsGet(LS_STUDENT);
 let serverRev = 0, loaded = false, dirty = false, pushing = false, pushTimer = null, forceReplace = false;
 let adminRendered = false, curAdminTab = "manage", curStudentTab = "courses";
@@ -765,9 +812,34 @@ async function api(path, opt = {}) {
 
 function modalOpen() { return !document.getElementById("modalBackdrop").classList.contains("hidden"); }
 
+function applySiteTheme(theme) {
+  const t = THEME_LIST.some(x => x.id === theme) ? theme : "violet";
+  if (t === "violet") document.documentElement.removeAttribute("data-color");
+  else document.documentElement.setAttribute("data-color", t);
+}
+function renderThemeSwatches() {
+  const host = document.getElementById("themeSwatches");
+  if (!host) return;
+  host.innerHTML = THEME_LIST.map(t => `<div class="theme-swatch ${(db.theme || "violet") === t.id ? "active" : ""}" style="background:linear-gradient(135deg,${t.c1},${t.c2})" title="${t.label}" onclick="pickTheme('${t.id}')"></div>`).join("");
+}
+window.pickTheme = async function(id) {
+  const prevTheme = db.theme;
+  applySiteTheme(id);
+  renderThemeSwatches();
+  let r;
+  try { r = await api("/api/admin/state", { method: "PUT", token: adminToken, body: { baseRev: serverRev, replace: false, db: { ...db, theme: id } } }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); applySiteTheme(prevTheme); renderThemeSwatches(); return; }
+  if (r.status === 401) { sessionExpired("admin"); return; }
+  if (r.status === 409) { toast("অন্য কেউ একই সময়ে পরিবর্তন করেছে, আবার চেষ্টা করুন।", "err"); applySiteTheme(prevTheme); renderThemeSwatches(); return; }
+  if (!r.ok) { toast("থিম পরিবর্তন করা যায়নি (অনুমতি না থাকতে পারে)", "err"); applySiteTheme(prevTheme); renderThemeSwatches(); return; }
+  adoptState(r.data);
+  if (r.data.db.theme === id) toast("থিম পরিবর্তন হয়েছে, সবাই এখন এই রং দেখবে", "ok");
+  else toast("থিম পরিবর্তন করার অনুমতি নেই", "err");
+};
 function adoptState(data) {
   db = normalizeDB(data.db);
   serverRev = Number(data.rev) || 0;
+  applySiteTheme(db.theme);
   ["payments", "messages", "quizResults"].forEach(k => db[k].forEach(x => syncedIds.add(x.id)));
   loaded = true;
 }
@@ -2070,18 +2142,53 @@ window.adminLogout = function() {
   pollState(true);   // memory theke admin-only data soriye public view nao
 };
 
+function permSummary(perms) {
+  const on = Object.keys(PERM_LABELS).filter(k => perms && perms[k]);
+  return on.length ? on.map(k => PERM_LABELS[k]).join(", ") : "কোনো অনুমতি নেই";
+}
 function renderAdminAccounts() {
   const host = document.getElementById("adminAccountsList");
   const addBox = document.getElementById("addAdminBox");
+  const permsBox = document.getElementById("newAdminPerms");
+  if (permsBox) permsBox.innerHTML = permChipsHtml("newAdminPerms", null);
   const list = (db.admins || []);
   host.innerHTML = list.length ? list.map(a => `
-    <div class="row between item">
-      <span>${a.owner ? "👑" : "🧑‍💼"} <b>${esc(a.name || a.username)}</b> <span class="muted small">(${esc(a.username)}${a.owner ? " · মালিক" : ""}${meAdmin && meAdmin.id === a.id ? " · আপনি" : ""})</span></span>
-      ${(meAdmin?.owner && !a.owner) ? `<button class="danger sm" onclick="removeAdmin('${a.id}','${esc(a.name || a.username)}')">সরিয়ে দিন</button>` : ""}
+    <div class="item" style="margin-bottom:8px">
+      <div class="row between">
+        <span>${a.owner ? "👑" : "🧑‍💼"} <b>${esc(a.name || a.username)}</b> <span class="muted small">(${esc(a.username)}${a.owner ? " · মালিক" : ""}${meAdmin && meAdmin.id === a.id ? " · আপনি" : ""})</span></span>
+        <span class="row">
+          ${(meAdmin?.owner && !a.owner) ? `<button class="secondary sm" onclick="openEditPerms('${a.id}','${esc(a.name || a.username)}')">অনুমতি</button>` : ""}
+          ${(meAdmin?.owner && !a.owner) ? `<button class="danger sm" onclick="removeAdmin('${a.id}','${esc(a.name || a.username)}')">সরিয়ে দিন</button>` : ""}
+        </span>
+      </div>
+      ${!a.owner ? `<div class="muted small" style="margin-top:4px">অনুমতি: ${esc(permSummary(a.permissions))}</div>` : ""}
     </div>`).join("") : '<div class="muted small">কোনো অ্যাডমিন পাওয়া যায়নি।</div>';
   addBox.classList.toggle("hidden", !meAdmin?.owner);
   if (!meAdmin?.owner) host.insertAdjacentHTML("beforeend", '<div class="muted small" style="margin-top:8px">নতুন অ্যাডমিন যোগ বা মুছে ফেলা শুধু মালিক (owner) অ্যাকাউন্ট করতে পারে।</div>');
 }
+window.openEditPerms = function(id, label) {
+  const a = (db.admins || []).find(x => x.id === id);
+  if (!a) return;
+  openModal(`
+    <div class="stack">
+      <h3 style="margin:0">${esc(label)}-এর অনুমতি</h3>
+      <div class="perm-grid" id="editPerms_${id}">${permChipsHtml("editPerms_" + id, a.permissions)}</div>
+      <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="closeModal()">বাতিল</button><button onclick="saveEditPerms('${id}')">সেভ করুন</button></div>
+    </div>
+  `);
+};
+window.saveEditPerms = async function(id) {
+  const perms = readPermChips("editPerms_" + id);
+  let r;
+  try { r = await api("/api/admin/admins/" + id + "/permissions", { method: "POST", token: adminToken, body: { permissions: perms } }); }
+  catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
+  if (r.status === 403) { toast("শুধু মালিক (owner) অনুমতি বদলাতে পারে", "err"); return; }
+  if (!r.ok) { toast("অনুমতি পরিবর্তন করা যায়নি", "err"); return; }
+  closeModal();
+  toast("অনুমতি পরিবর্তন হয়েছে", "ok");
+  const st = await api("/api/state", { token: adminToken });
+  if (st.ok) { adoptState(st.data); renderAdminAccounts(); }
+};
 window.createAdmin = async function() {
   const name = document.getElementById("newAdminName").value.trim();
   const username = document.getElementById("newAdminUser").value.trim();
@@ -2089,7 +2196,7 @@ window.createAdmin = async function() {
   if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(username)) { toast("ইউজারনেম ৩-৪০ অক্ষরের হতে হবে (শুধু ইংরেজি অক্ষর, সংখ্যা, . _ -)", "err"); return; }
   if (pass.length < 6) { toast("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন", "err"); return; }
   let r;
-  try { r = await api("/api/admin/admins", { method: "POST", token: adminToken, body: { name, username, password: pass } }); }
+  try { r = await api("/api/admin/admins", { method: "POST", token: adminToken, body: { name, username, password: pass, permissions: readPermChips("newAdminPerms") } }); }
   catch { toast("সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); return; }
   if (r.status === 409) { toast("এই ইউজারনেম আগে থেকেই আছে", "err"); return; }
   if (r.status === 403) { toast("শুধু মালিক (owner) নতুন অ্যাডমিন যোগ করতে পারে", "err"); return; }
@@ -2147,6 +2254,7 @@ window.adminTab = function(tab, btn) {
   if (tab === "studentList") renderAdminStudents();
   if (tab === "messagesAdmin") renderAdminMessages();
   if (tab === "noticeAdmin") renderAdminNotices();
+  if (tab === "settingsAdmin") { renderThemeSwatches(); renderAdminAccounts(); }
   if (tab !== lastAdminTabShown) { flashFresh(document.getElementById("admin-" + tab)); lastAdminTabShown = tab; }
 };
 
