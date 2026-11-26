@@ -50,6 +50,7 @@ function defaults() {
     adminUser: "BILLU",
     adminPassHash: DEFAULT_ADMIN_HASH,
     admins: [{ id: "owner", username: "BILLU", passHash: DEFAULT_ADMIN_HASH, name: "Admin", owner: true, created: new Date().toISOString() }],
+    theme: "violet",
     students: [],
     courses: [{
       id: "c1", title: "HSC ICT পূর্ণাঙ্গ কোর্স",
@@ -73,6 +74,8 @@ function normalizeState(d) {
   if (!isHex64(d.adminPassHash) && !String(d.adminPassHash || "").startsWith("fb_")) d.adminPassHash = DEFAULT_ADMIN_HASH;
   if (!Array.isArray(d.admins)) d.admins = [];
   d.admins = d.admins.filter((a) => isObj(a) && a.username && (isHex64(a.passHash) || String(a.passHash || "").startsWith("fb_")));
+  if (!THEMES.includes(d.theme)) d.theme = "violet";
+  d.admins.forEach((a) => { if (!a.owner) a.permissions = cleanPerms(a.permissions); });
   if (!d.admins.some((a) => a.owner)) {
     // Purono single-admin field-ke admins list-e niye asho, jate login age-er moto-i cholte thake.
     const existing = d.admins.find((a) => String(a.username).toLowerCase() === String(d.adminUser).toLowerCase());
@@ -110,7 +113,7 @@ function snapshot() {
     });
     snap[name] = m;
   }
-  const settings = { _id: "main", rev: state.rev, numbers: state.numbers };
+  const settings = { _id: "main", rev: state.rev, numbers: state.numbers, theme: state.theme };
   return { snap, settings, settingsJs: JSON.stringify(settings) };
 }
 async function writeSnapshot({ snap, settings, settingsJs }) {
@@ -138,7 +141,7 @@ function saveState() {
 }
 async function loadFromCollections() {
   const st = await dbh.collection("settings").findOne({ _id: "main" });
-  const d = { rev: st.rev, adminUser: st?.adminUser, adminPassHash: st?.adminPassHash, numbers: st?.numbers };
+  const d = { rev: st.rev, adminUser: st?.adminUser, adminPassHash: st?.adminPassHash, numbers: st?.numbers, theme: st?.theme };
   for (const name of COLS) {
     const docs = await dbh.collection(name).find({}).sort({ _order: 1 }).toArray();
     d[name] = docs.map(({ _id, _order, ...item }) => item);
@@ -238,7 +241,18 @@ function findAdmin(username) {
   const u = String(username || "").trim().toLowerCase();
   return state.admins.find((a) => String(a.username).toLowerCase() === u) || null;
 }
-function pubAdmin(a) { return { id: a.id, username: a.username, name: a.name || a.username, owner: !!a.owner }; }
+const PERM_KEYS = ["courses", "quizzes", "notices", "coupons", "settings", "students", "payments", "messages"];
+function cleanPerms(p) {
+  const out = {};
+  for (const k of PERM_KEYS) out[k] = isObj(p) ? !!p[k] : false;
+  return out;
+}
+function pubAdmin(a) { return { id: a.id, username: a.username, name: a.name || a.username, owner: !!a.owner, permissions: a.owner ? null : cleanPerms(a.permissions) }; }
+function adminPerms(sess) {
+  const a = currentAdmin(sess);
+  return a && !a.owner ? cleanPerms(a.permissions) : null;   // null = full access (owner / purono session)
+}
+const THEMES = ["violet", "ocean", "emerald", "rose", "sunset", "slate"];
 
 /* ---------- media (base64 video -> file) ---------- */
 const EXT = { "video/mp4": "mp4", "video/webm": "webm", "video/ogg": "ogv", "video/quicktime": "mov", "video/x-matroska": "mkv",
@@ -299,7 +313,7 @@ function checkCoupon(codeRaw, course, studentId) {
 function viewFor(role, me) {
   if (role === "admin") {
     const { adminPassHash, ...rest } = state;   // ekta purono field, r kono hash client-ke pathano hoy na
-    return { ...rest, admins: state.admins.map(pubAdmin) };
+    return { ...rest, admins: state.admins.map(pubAdmin), theme: state.theme };
   }
   const approved = new Set(me ? state.payments.filter((p) => p.studentId === me.id && p.status === "Approved").map((p) => p.courseId) : []);
   const courses = state.courses.map((c) => {
@@ -310,7 +324,7 @@ function viewFor(role, me) {
   });
   const mine = (k) => (me ? state[k].filter((x) => x.studentId === me.id) : []);
   return {
-    adminUser: "", courses, notices: state.notices, quizzes: state.quizzes, numbers: state.numbers,
+    adminUser: "", courses, notices: state.notices, quizzes: state.quizzes, numbers: state.numbers, theme: state.theme,
     students: me ? [pubStudent(me)] : [], payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults"), progress: mine("progress")
   };
 }
@@ -332,20 +346,30 @@ function mergeShared(serverList, clientList, baseRev, newRev, replace) {
   return out;
 }
 async function applyAdminState(inc, baseRev, replace, sess) {
-  const courses = await walkMedia(arr(inc.courses).filter(isObj)); // async kaj age, tarpor sob sync
+  const perms = adminPerms(sess);                 // null = full access (owner / purono session)
+  const can = (key) => !perms || perms[key];
   const newRev = state.rev + 1;
-  state.courses = courses;
-  state.notices = arr(inc.notices).filter(isObj).map((n) => { if (!n.id) n.id = uid(); return n; });
-  state.quizzes = arr(inc.quizzes).filter(isObj);
-  if (isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
+
+  if (can("courses")) state.courses = await walkMedia(arr(inc.courses).filter(isObj)); // async kaj age, tarpor sob sync
+  if (can("notices")) state.notices = arr(inc.notices).filter(isObj).map((n) => { if (!n.id) n.id = uid(); return n; });
+  if (can("quizzes")) state.quizzes = arr(inc.quizzes).filter(isObj);
+  if (can("settings")) {
+    if (isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
+    if (THEMES.includes(inc.theme)) state.theme = inc.theme;
+  }
   if (typeof inc.adminUser === "string" && inc.adminUser.trim()) state.adminUser = inc.adminUser.trim().slice(0, 100);
 
-  const seenCodes = new Set();
-  state.coupons = arr(inc.coupons).filter(isObj).map(cleanCoupon).filter((c) => c && !seenCodes.has(c.code) && seenCodes.add(c.code));
+  if (can("coupons")) {
+    const seenCodes = new Set();
+    state.coupons = arr(inc.coupons).filter(isObj).map(cleanCoupon).filter((c) => c && !seenCodes.has(c.code) && seenCodes.add(c.code));
+  }
 
   const oldStudents = state.students;
   const oldPin = new Map(oldStudents.map((s) => [s.id, s.pinHash]));
-  for (const k of SHARED) state[k] = mergeShared(state[k], arr(inc[k]), baseRev, newRev, replace);
+  for (const k of SHARED) {
+    const permKey = k === "quizResults" ? "quizzes" : k;   // quiz result shudhu "quizzes" permission diye-i bodlay
+    if (can(permKey)) state[k] = mergeShared(state[k], arr(inc[k]), baseRev, newRev, replace);
+  }
   state.students.forEach((s) => { if (oldPin.has(s.id)) s.pinHash = oldPin.get(s.id); });   // pinHash shudhu server-er endpoint-e bodlay
 
   const nowById = new Map(state.students.map((s) => [s.id, s]));
@@ -462,11 +486,27 @@ async function route(req, res) {
     if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(username)) return json(res, 400, { error: "bad_username" });
     if (pass.length < 6) return json(res, 400, { error: "too_short" });
     if (findAdmin(username)) { addFail(key); return json(res, 409, { error: "exists" }); }
-    const admin = { id: uid(), username, passHash: sha256(pass), name, owner: false, created: new Date().toISOString() };
+    const admin = { id: uid(), username, passHash: sha256(pass), name, owner: false, permissions: cleanPerms(b.permissions), created: new Date().toISOString() };
     state.admins.push(admin);
     state.rev += 1;
     await saveState();
     return json(res, 200, { ok: true, admin: pubAdmin(admin) });
+  }
+
+  if (M === "POST" && p.startsWith("/api/admin/admins/") && p.endsWith("/permissions")) {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    const me = currentAdmin(sess);
+    if (!me?.owner) return json(res, 403, { error: "owner_only" });
+    const id = p.slice("/api/admin/admins/".length, -"/permissions".length);
+    const target = state.admins.find((a) => a.id === id);
+    if (!target) return json(res, 404, { error: "not_found" });
+    if (target.owner) return json(res, 400, { error: "owner_has_full_access" });
+    const b = await readJson(req);
+    target.permissions = cleanPerms(b.permissions);
+    state.rev += 1;
+    await saveState();
+    return json(res, 200, { ok: true, admin: pubAdmin(target) });
   }
 
   if (M === "DELETE" && p.startsWith("/api/admin/admins/")) {
@@ -506,6 +546,7 @@ async function route(req, res) {
   if (M === "POST" && p === "/api/admin/student-pin") {
     const sess = getSession(req);
     if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    if (adminPerms(sess) && !adminPerms(sess).students) return json(res, 403, { error: "no_permission" });
     const b = await readJson(req);
     const pin = str(b.pin, 200);
     if (pin.length < 4) return json(res, 400, { error: "too_short" });
