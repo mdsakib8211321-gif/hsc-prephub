@@ -540,15 +540,118 @@ button:not(.vp-btn):not(.pw-eye){-webkit-tap-highlight-color:transparent;touch-a
 button.is-down:not(:disabled){transform:scale(.92) translateY(1px)!important;filter:brightness(.88)!important;box-shadow:inset 0 4px 10px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2)!important;transition:transform .08s,box-shadow .08s,filter .08s!important}
 button.btn-back:not(:disabled){animation:btnBack .38s cubic-bezier(.2,.9,.3,1.3)}
 .rip{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,currentColor 0%,transparent 70%);transform:scale(0);animation:ripple .65s ease-out forwards;z-index:1}
+
+/* ===================== ROUND 2: MORE MOTION + STUDENT PANEL ===================== */
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes angSpin{to{--ang:360deg}}
+@keyframes ringFill{from{--p:0}}
+@keyframes blobMove{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(70px,-50px) scale(1.18)}66%{transform:translate(-50px,60px) scale(.9)}}
+@keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.95}85%{opacity:.7}100%{transform:translateY(-280px) rotate(40deg);opacity:0}}
+@keyframes titleShine{to{background-position:200% 0}}
+@keyframes logoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes spinFull{to{transform:rotate(360deg)}}
+@keyframes cfFly{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}
+@keyframes tileIn{0%{opacity:0;transform:translateY(20px) scale(.85)}60%{transform:translateY(-4px) scale(1.04)}100%{opacity:1;transform:none}}
+@keyframes iconWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+
+/* ambient background */
+.bg-blobs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-blobs i{position:absolute;border-radius:50%;filter:blur(64px);opacity:.38;animation:blobMove 22s ease-in-out infinite}
+.bg-blobs i:nth-child(1){width:360px;height:360px;background:var(--g1);left:-90px;top:8%}
+.bg-blobs i:nth-child(2){width:320px;height:320px;background:var(--g3);right:-70px;top:38%;animation-delay:-6s}
+.bg-blobs i:nth-child(3){width:380px;height:380px;background:var(--g4);left:28%;bottom:-140px;animation-delay:-12s}
+.bg-blobs i:nth-child(4){width:260px;height:260px;background:var(--g2);right:18%;top:-90px;animation-delay:-3s}
+[data-theme="dark"] .bg-blobs i{opacity:.22}
+main.wrap{position:relative;z-index:1}
+
+/* header + hero */
+header strong{animation:logoBob 3s ease-in-out infinite}
+.hero h1{background:linear-gradient(90deg,#fff 0%,#fde68a 25%,#fff 50%,#fbcfe8 75%,#fff 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleShine 6s linear infinite}
+.hero>.floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.floaters span{position:absolute;bottom:-34px;font-size:1.7rem;opacity:0;animation:floatUp 9s linear infinite}
+.floaters span:nth-child(1){left:6%;animation-delay:0s}
+.floaters span:nth-child(2){left:20%;animation-delay:1.8s;font-size:2rem}
+.floaters span:nth-child(3){left:36%;animation-delay:3.4s}
+.floaters span:nth-child(4){left:52%;animation-delay:.9s;font-size:2rem}
+.floaters span:nth-child(5){left:66%;animation-delay:4.6s}
+.floaters span:nth-child(6){left:80%;animation-delay:2.6s}
+.floaters span:nth-child(7){left:92%;animation-delay:5.6s}
+
+/* student banner */
+.stu-banner{position:relative;overflow:hidden;border-radius:24px;padding:18px;margin-bottom:6px;color:#fff;
+  background:linear-gradient(120deg,var(--g1),var(--g2) 45%,var(--g3) 80%,var(--g4));background-size:200% 200%;animation:gradMove 14s ease infinite;
+  box-shadow:0 18px 36px -16px var(--g2)}
+.stu-banner::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.14);animation:floaty 9s ease-in-out infinite}
+.stu-banner>*{position:relative;z-index:1}
+.stu-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.stu-hello{flex:1;min-width:160px}
+.stu-hello h2{color:#fff;font-size:1.35rem}
+.stu-hello p{color:rgba(255,255,255,.9)}
+.stu-avatar{position:relative;width:60px;height:60px;border-radius:50%;flex:none}
+.stu-avatar::before{content:"";position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(#fde047,#f472b6,#a78bfa,#22d3ee,#fde047);animation:spinFull 4s linear infinite}
+.stu-avatar span{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--primary);font-weight:800;font-size:1.5rem}
+.stu-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:16px}
+.stu-stat{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i n" "i l";column-gap:10px;align-items:center;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  animation:tileIn .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*110ms + 200ms);transition:transform .25s,background .25s}
+.stu-stat:hover{transform:translateY(-4px) scale(1.03);background:rgba(255,255,255,.28)}
+.stu-stat:hover .si{animation:iconWiggle .5s ease}
+.stu-stat .si{grid-area:i;font-size:1.7rem}
+.stu-stat b{grid-area:n;font-size:1.45rem;line-height:1.1}
+.stu-stat b.pc::after{content:"%";font-size:.9rem;margin-left:1px}
+.stu-stat small{grid-area:l;color:rgba(255,255,255,.9);font-size:.76rem}
+.stu-banner button.ghost{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.16)}
+
+/* student tabs */
+#studentTabs{padding:8px;border-radius:20px;background:color-mix(in srgb,var(--card) 60%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#studentTabs button{border-radius:14px;padding:10px 16px;font-weight:700}
+#studentTabs button.active{transform:translateY(-2px) scale(1.03)}
+@media(max-width:760px){#studentTabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#studentTabs::-webkit-scrollbar{display:none}#studentTabs button{flex:none}}
+
+/* course cards: animated glow border, 3D tilt, richer motion */
+.cv-card.card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2.5px;z-index:5;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:conic-gradient(from var(--ang),var(--ca),var(--cb),#f59e0b,#22d3ee,var(--ca));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:angSpin 3.5s linear infinite}
+.cv-card.card:hover::before{opacity:1}
+.ce-card.card::after,.cm-card.card::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:2.5px;z-index:5;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:conic-gradient(from var(--ang),var(--ca),var(--cb),#f59e0b,#22d3ee,var(--ca));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:angSpin 3.5s linear infinite}
+.ce-card.card:hover::after,.cm-card.card:hover::after,.ce-card.acc-open::after,.cm-card.acc-open::after{opacity:1}
+#studentArea .cv-card.card:hover,#studentArea .ce-card.card:hover{transform:perspective(1000px) translateY(-6px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+.cv-card.card,.ce-card.card{transition:transform .18s ease-out,box-shadow .3s}
+.cv-price{animation:badgePulse 2.4s ease-in-out infinite}
+.cv-badge .pill.unlocked{animation:badgePulse 2s ease-in-out infinite}
+.cv-card:hover .cv-body h3{letter-spacing:.2px}
+.cv-body h3,.ce-info h3{transition:letter-spacing .3s,color .3s}
+.ce-ring{animation:ringFill 1.3s cubic-bezier(.2,.8,.2,1) both}
+@property --p{syntax:"<number>";inherits:false;initial-value:0}
+.cchip{transition:transform .2s}
+.cchip:hover{transform:translateY(-2px) scale(1.06)}
+.chev{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.stu-class{animation:slideInLeft .4s cubic-bezier(.2,.8,.2,1) both}
+.stu-class:nth-child(2){animation-delay:.05s}.stu-class:nth-child(3){animation-delay:.1s}.stu-class:nth-child(4){animation-delay:.15s}.stu-class:nth-child(n+5){animation-delay:.2s}
+.cm-cl,.cm-ch{animation:slideInLeft .4s cubic-bezier(.2,.8,.2,1) both}
+.cm-ch:nth-child(2){animation-delay:.05s}.cm-ch:nth-child(3){animation-delay:.1s}.cm-ch:nth-child(n+4){animation-delay:.15s}
+.notice::before{content:"📢";display:inline-block;margin-right:6px;animation:iconWiggle 2.8s ease-in-out infinite}
+#tab-payments .item,#tab-notices .notice{transition:transform .2s,box-shadow .2s}
+#tab-payments .item:hover{transform:translateX(5px);box-shadow:0 10px 20px -12px var(--ca)}
+.tabs button:hover:not(:disabled){animation:iconWiggle .45s ease}
+
+/* confetti */
+.cf{position:fixed;z-index:9999;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:cfFly .95s cubic-bezier(.15,.7,.3,1) forwards}
+#soundBtn.off{opacity:.8}
 </style>
 </head>
 <body>
+<div class="bg-blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
 <header>
   <div class="row">
     <strong>🚀 HSC PrepHub Ultimate</strong>
   </div>
   <div class="row">
+    <button class="ghost sm" id="soundBtn" title="সাউন্ড অন/অফ">🔊 সাউন্ড</button>
     <button class="ghost sm" onclick="toggleTheme()" id="themeBtn">🌙 ডার্ক মোড</button>
     <button id="navStudentBtn" class="ghost sm active" onclick="showView('student')">Student Panel</button>
     <button id="navAdminBtn" class="ghost sm" onclick="showAdminCheck()">Admin Panel</button>
@@ -588,21 +691,30 @@ button.btn-back:not(:disabled){animation:btnBack .38s cubic-bezier(.2,.9,.3,1.3)
     </div>
 
     <div id="studentArea" class="hidden">
-      <div class="row between">
-        <div>
-          <h2 id="welcome" style="margin:0 0 4px"></h2>
-          <p class="muted small" style="margin:0">শিক্ষার্থী ড্যাশবোর্ড</p>
+      <div class="stu-banner">
+        <div class="stu-top">
+          <div class="stu-avatar"><span id="stuAvatarLetter">?</span></div>
+          <div class="stu-hello">
+            <h2 id="welcome" style="margin:0 0 4px"></h2>
+            <p class="small" style="margin:0">🎓 শিক্ষার্থী ড্যাশবোর্ড</p>
+          </div>
+          <button class="ghost sm" onclick="logoutStudent()">লগ আউট</button>
         </div>
-        <button class="ghost sm" onclick="logoutStudent()">লগ আউট</button>
+        <div class="stu-stats">
+          <div class="stu-stat" style="--i:0"><span class="si">📚</span><b id="stEnrolled">0</b><small>এনরোলড কোর্স</small></div>
+          <div class="stu-stat" style="--i:1"><span class="si">✅</span><b id="stDone">0</b><small>সম্পন্ন ক্লাস</small></div>
+          <div class="stu-stat" style="--i:2"><span class="si">📈</span><b id="stPct" class="pc">0</b><small>গড় অগ্রগতি</small></div>
+          <div class="stu-stat" style="--i:3"><span class="si">🛍</span><b id="stAll">0</b><small>মোট কোর্স</small></div>
+        </div>
       </div>
 
       <div class="tabs" id="studentTabs">
-        <button class="active" onclick="studentTab('courses', this)">সব কোর্স ও ভর্তি</button>
-        <button onclick="studentTab('myCourses', this)">আমার এনরোলড কোর্স</button>
-        <button onclick="studentTab('quizzes', this)">MCQ পরীক্ষা ও সার্টিফিকেট</button>
-        <button onclick="studentTab('notices', this)">নোটিশ</button>
-        <button onclick="studentTab('payments', this)">পেমেন্ট হিস্ট্রি</button>
-        <button onclick="studentTab('contact', this)">Contact Author</button>
+        <button class="active" onclick="studentTab('courses', this)">🛍 সব কোর্স ও ভর্তি</button>
+        <button onclick="studentTab('myCourses', this)">🎓 আমার এনরোলড কোর্স</button>
+        <button onclick="studentTab('quizzes', this)">📝 MCQ পরীক্ষা ও সার্টিফিকেট</button>
+        <button onclick="studentTab('notices', this)">📢 নোটিশ</button>
+        <button onclick="studentTab('payments', this)">💳 পেমেন্ট হিস্ট্রি</button>
+        <button onclick="studentTab('contact', this)">✉️ Contact Author</button>
       </div>
 
       <div id="tab-courses"></div>
@@ -1327,6 +1439,7 @@ function flashFresh(el) {
 }
 window.studentTab = function(tab, btn) {
   curStudentTab = tab;
+  try { updateStudentBanner(); } catch (_) {}
   ["courses", "myCourses", "quizzes", "notices", "payments", "contact"].forEach(t => {
     document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
   });
@@ -1350,6 +1463,29 @@ function isCourseUnlocked(student, course) {
   return db.payments.some(p => p.studentId === student.id && p.courseId === course.id && p.status === "Approved");
 }
 
+function countTo(el, to) {
+  if (!el || el.dataset.v === String(to)) return;
+  const from = Number(el.dataset.v || 0); el.dataset.v = to;
+  const t0 = performance.now(), dur = 1000;
+  (function step(t) {
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(from + (to - from) * e);
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+function updateStudentBanner() {
+  if (!currentStudent) return;
+  const av = document.getElementById("stuAvatarLetter");
+  if (av) av.textContent = (currentStudent.name || "?").trim().charAt(0).toUpperCase();
+  const mine = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
+  let total = 0, done = 0;
+  mine.forEach(c => { const p = courseProgress(c); total += p.total; done += p.done; });
+  countTo(document.getElementById("stEnrolled"), mine.length);
+  countTo(document.getElementById("stDone"), done);
+  countTo(document.getElementById("stPct"), total ? Math.round(done / total * 100) : 0);
+  countTo(document.getElementById("stAll"), db.courses.length);
+}
+
 // ---------- course card helpers ----------
 function cthumb(c, cls) {
   return `<div class="cthumb ${cls || ""}"><span class="cthumb-ph">📘</span>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
@@ -1361,6 +1497,7 @@ function courseCounts(c) {
 }
 
 function renderAllCourses() {
+  try { updateStudentBanner(); } catch (_) {}
   const el = document.getElementById("tab-courses");
   if (!db.courses.length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
   el.innerHTML = `<div class="grid cv-grid">` + db.courses.map((c, i) => {
@@ -1407,6 +1544,7 @@ window.openMyCourse = function(cid) {
 };
 
 function renderMyEnrolledCourses() {
+  try { updateStudentBanner(); } catch (_) {}
   const el = document.getElementById("tab-myCourses");
   const myCourses = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
   if (!myCourses.length) {
@@ -3266,6 +3404,91 @@ init();
     });
   };
   ["pointerup", "pointercancel", "dragend"].forEach(t => document.addEventListener(t, up, true));
+})();
+</script>
+
+<script>
+/* সাউন্ড (Web Audio দিয়ে তৈরি, কোনো ফাইল লাগে না) + কার্ড টিল্ট + কনফেটি */
+(function () {
+  let ctx = null, master = null, on = true;
+  try { on = localStorage.getItem("hsc_sound") !== "0"; } catch (_) {}
+  const btn = document.getElementById("soundBtn");
+  const paint = () => { if (btn) { btn.textContent = on ? "🔊 সাউন্ড" : "🔇 মিউট"; btn.classList.toggle("off", !on); } };
+  paint();
+  function boot() {
+    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = .55;
+    const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+  }
+  function tone(f, t, d, type, v, to) {
+    if (!ctx) return; const n = ctx.currentTime + t, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || "sine"; o.frequency.setValueAtTime(f, n);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, n + d);
+    g.gain.setValueAtTime(.0001, n); g.gain.exponentialRampToValueAtTime(v || .15, n + .012); g.gain.exponentialRampToValueAtTime(.0001, n + d);
+    o.connect(g); g.connect(master); o.start(n); o.stop(n + d + .03);
+  }
+  const S = {
+    tap:     () => { tone(620, 0, .08, "sine", .16, 360); tone(1240, 0, .04, "triangle", .05); },
+    danger:  () => { tone(320, 0, .12, "triangle", .15, 160); },
+    tab:     () => { tone(520, 0, .09, "sine", .14); tone(780, .06, .12, "sine", .13); },
+    open:    () => { tone(440, 0, .1, "triangle", .13); tone(660, .07, .15, "triangle", .13); },
+    close:   () => { tone(660, 0, .1, "triangle", .12); tone(440, .07, .15, "triangle", .12); },
+    success: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .08, .22, "sine", .15)); },
+    error:   () => { tone(230, 0, .2, "sawtooth", .09, 150); tone(200, .15, .22, "sawtooth", .09, 120); },
+    pop:     () => { tone(880, 0, .08, "sine", .1, 1200); }
+  };
+  window.sfx = n => { if (!on) return; try { boot(); S[n] && S[n](); } catch (_) {} };
+  if (btn) btn.addEventListener("click", () => {
+    on = !on; try { localStorage.setItem("hsc_sound", on ? "1" : "0"); } catch (_) {}
+    paint(); if (on) { boot(); S.success(); }
+  });
+
+  const skip = b => !b || b.id === "soundBtn" || b.classList.contains("vp-btn") || b.classList.contains("pw-eye") || b.closest(".vp");
+  document.addEventListener("pointerdown", e => {
+    const b = e.target.closest && e.target.closest("button");
+    if (on) boot();
+    if (skip(b) || b.disabled) return;
+    if (b.closest(".tabs")) sfx("tab");
+    else if (b.classList.contains("danger")) sfx("danger");
+    else sfx("tap");
+  }, true);
+  document.addEventListener("click", e => {
+    const t = e.target; if (!t.closest) return;
+    const h = t.closest(".acc-head");
+    if (h && !t.closest("button")) sfx(h.parentElement.classList.contains("acc-open") ? "close" : "open");
+    const b = t.closest("button");
+    if (b && !b.disabled && /^\s*(✓ শেষ|Approve)/.test(b.textContent)) {
+      sfx("success"); const r = b.getBoundingClientRect(); confetti(r.left + r.width / 2, r.top + r.height / 2);
+    }
+  }, true);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+    if (n.nodeType === 1 && n.classList.contains("toast")) sfx(n.classList.contains("ok") ? "success" : n.classList.contains("err") ? "error" : "pop");
+  }))).observe(document.body, { childList: true, subtree: true });
+  const mb = document.getElementById("modalBackdrop");
+  if (mb) new MutationObserver(() => { if (!mb.classList.contains("hidden")) sfx("open"); }).observe(mb, { attributes: true, attributeFilter: ["class"] });
+
+  function confetti(x, y) {
+    const cols = ["#f43f5e", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#06b6d4"];
+    for (let i = 0; i < 26; i++) {
+      const c = document.createElement("i"); c.className = "cf";
+      c.style.cssText = "left:" + x + "px;top:" + y + "px;background:" + cols[i % cols.length] + ";--dx:" + ((Math.random() - .5) * 280) + "px;--dy:" + (-170 + Math.random() * 230) + "px;--rot:" + (Math.random() * 720 - 360) + "deg";
+      document.body.appendChild(c); setTimeout(() => c.remove(), 1000);
+    }
+  }
+  window.confetti = confetti;
+
+  document.addEventListener("pointermove", e => {
+    if (e.pointerType === "touch") return;
+    const c = e.target.closest && e.target.closest(".cv-card,.ce-card"); if (!c) return;
+    const r = c.getBoundingClientRect(), k = c.classList.contains("ce-card") ? 3 : 9;
+    c.style.setProperty("--ry", ((e.clientX - r.left) / r.width - .5) * k + "deg");
+    c.style.setProperty("--rx", (-((e.clientY - r.top) / r.height - .5)) * k + "deg");
+  });
+  document.addEventListener("pointerout", e => {
+    const c = e.target.closest && e.target.closest(".cv-card,.ce-card");
+    if (c && !c.contains(e.relatedTarget)) { c.style.setProperty("--rx", "0deg"); c.style.setProperty("--ry", "0deg"); }
+  });
 })();
 </script>
 </body>
