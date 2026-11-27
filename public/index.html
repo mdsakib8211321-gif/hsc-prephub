@@ -389,6 +389,157 @@ input[type="checkbox"]:active{transform:scale(1.3)}
 .cpn-off{opacity:.55}
 .code-chip{font-family:monospace;font-weight:800;letter-spacing:1px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px}
 [data-theme="dark"] .code-chip{background:#78350f;color:#fde68a}
+
+/* ===================== COURSE CARDS + COLORFUL EVERYTHING ===================== */
+.tone0{--ca:#4f46e5;--cb:#7c3aed;--cs:rgba(99,102,241,.13)}
+.tone1{--ca:#db2777;--cb:#f43f5e;--cs:rgba(244,63,94,.13)}
+.tone2{--ca:#059669;--cb:#0d9488;--cs:rgba(16,185,129,.14)}
+.tone3{--ca:#d97706;--cb:#ea580c;--cs:rgba(245,158,11,.16)}
+.tone4{--ca:#2563eb;--cb:#0891b2;--cs:rgba(37,99,235,.13)}
+.tone5{--ca:#7c3aed;--cb:#db2777;--cs:rgba(168,85,247,.14)}
+@keyframes cardRise{0%{opacity:0;transform:translateY(26px) scale(.96)}100%{opacity:1;transform:none}}
+@keyframes phFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+@keyframes shineSweep{0%{transform:translateX(-120%) skewX(-18deg)}100%{transform:translateX(260%) skewX(-18deg)}}
+@keyframes stripes{from{background-position:0 0}to{background-position:28px 0}}
+@keyframes btnBack{0%{transform:scale(.92)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes ripple{0%{transform:scale(0);opacity:.55}100%{transform:scale(1);opacity:0}}
+@keyframes chipPop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+.cm-list{display:grid;gap:18px}
+.fresh .cm-card,.fresh .ce-card,.fresh .cv-card{animation:cardRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms)}
+.cchip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;background:color-mix(in srgb,var(--ca,#7c3aed) 16%,transparent);color:color-mix(in srgb,var(--ca,#7c3aed) 55%,var(--ink));border:1px solid color-mix(in srgb,var(--ca,#7c3aed) 25%,transparent)}
+.cchip.price{background:linear-gradient(135deg,var(--ca),var(--cb));color:#fff;border-color:transparent;box-shadow:0 4px 10px -3px var(--ca)}
+.cchip.ok{background:rgba(34,197,94,.16);color:#15803d;border-color:rgba(34,197,94,.3)}
+[data-theme="dark"] .cchip.ok{color:#86efac}
+.cm-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.cm-card:hover .cchip.price,.cv-card:hover .cv-price{animation:chipPop .5s ease}
+
+/* thumbnails */
+.cthumb{position:relative;overflow:hidden;border-radius:14px;background:linear-gradient(135deg,var(--ca),var(--cb));flex:none;box-shadow:0 8px 18px -8px var(--ca)}
+.cthumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.cthumb::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transform:translateX(-120%) skewX(-18deg);pointer-events:none}
+.cm-card:hover .cthumb::after,.ce-card:hover .cthumb::after,.cv-card:hover .cthumb::after{animation:shineSweep .9s ease}
+.cm-card:hover .cthumb img,.ce-card:hover .cthumb img,.cv-card:hover .cthumb img{transform:scale(1.1)}
+.cthumb-ph{position:absolute;inset:0;display:grid;place-items:center;font-size:2.2rem;animation:phFloat 3.6s ease-in-out infinite}
+
+/* admin: course management list */
+.cm-card.card{position:relative;overflow:hidden;padding:0;border:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));border-top:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));margin:0;
+  background:linear-gradient(120deg,var(--cs),transparent 60%),var(--card);box-shadow:0 14px 28px -16px var(--ca);transition:transform .25s,box-shadow .25s}
+.cm-card.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:linear-gradient(180deg,var(--ca),var(--cb))}
+.cm-card.card:hover{transform:translateY(-3px);box-shadow:0 20px 34px -14px var(--ca)}
+.cm-card.acc-open{box-shadow:0 0 0 2px color-mix(in srgb,var(--ca) 55%,transparent),0 20px 34px -14px var(--ca)}
+.cm-head{display:flex;align-items:center;gap:14px;padding:14px 16px 14px 24px;flex-wrap:wrap}
+.cm-num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--ca),var(--cb));box-shadow:0 6px 14px -4px var(--ca);flex:none}
+.cm-thumb{width:120px;height:76px}
+.cm-info{flex:1;min-width:190px}
+.cm-info h3{margin:0 0 4px;font-size:1.1rem}
+.cm-body{padding:2px 16px 16px 24px;display:grid;gap:10px}
+.cm-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cm-ch{position:relative;border-radius:14px;overflow:hidden;border:1px solid color-mix(in srgb,var(--ca) 32%,var(--line));background:linear-gradient(90deg,var(--cs),transparent 75%),var(--bg);transition:box-shadow .25s}
+.cm-ch.acc-open{box-shadow:0 0 0 2px color-mix(in srgb,var(--ca) 50%,transparent)}
+.cm-ch-head{display:flex;align-items:center;gap:10px;padding:10px 12px;flex-wrap:wrap}
+.cm-ch-t{flex:1;min-width:150px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cm-ch-n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;font-size:.78rem;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--ca),var(--cb))}
+.cm-ch-body{padding:0 12px 12px;display:grid;gap:8px}
+.cm-cls{display:grid;gap:7px}
+.cm-cl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--vc,#ef4444);transition:transform .2s,box-shadow .2s}
+.cm-cl:hover{transform:translateX(4px);box-shadow:0 8px 16px -10px var(--vc)}
+.cm-cl.vt-yt{--vc:#ef4444}.cm-cl.vt-local{--vc:#2563eb}.cm-cl.vt-embed{--vc:#059669}
+.cm-cl-t{flex:1;min-width:140px;font-weight:650;font-size:.9rem}
+.cm-cl-meta{display:flex;gap:6px}
+.cchip.vt{background:color-mix(in srgb,var(--vc) 16%,transparent);color:color-mix(in srgb,var(--vc) 70%,var(--ink));border-color:color-mix(in srgb,var(--vc) 30%,transparent)}
+.cchip.pdf{background:rgba(245,158,11,.16);color:#b45309;border-color:rgba(245,158,11,.3)}
+[data-theme="dark"] .cchip.pdf{color:#fcd34d}
+
+/* student: all courses */
+.cv-grid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.cv-card.card{display:flex;flex-direction:column;padding:0;overflow:hidden;position:relative;border:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));border-top:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));
+  background:linear-gradient(180deg,var(--cs),transparent 45%),var(--card);box-shadow:0 14px 28px -16px var(--ca)}
+.cv-card.card:hover{box-shadow:0 22px 38px -14px var(--ca)!important}
+.cv-media{position:relative}
+.cv-thumb{width:100%;height:170px;border-radius:0;box-shadow:none}
+.cv-media::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(transparent,rgba(0,0,0,.45));pointer-events:none}
+.cv-price{position:absolute;left:12px;bottom:10px;z-index:2;padding:4px 12px;border-radius:99px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--ca),var(--cb));box-shadow:0 6px 14px -4px rgba(0,0,0,.5)}
+.cv-badge{position:absolute;right:10px;top:10px;z-index:2}
+.cv-body{padding:14px 16px 4px;flex:1}
+.cv-body h3{margin:0 0 6px;color:color-mix(in srgb,var(--ca) 60%,var(--ink))}
+.cv-foot{padding:10px 16px 16px}
+.cv-foot button{width:100%}
+
+/* student: enrolled courses */
+.ce-card.card{position:relative;overflow:hidden;padding:0;margin:0;border:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));border-top:1px solid color-mix(in srgb,var(--ca) 30%,var(--line));
+  background:linear-gradient(120deg,var(--cs),transparent 60%),var(--card);box-shadow:0 14px 28px -16px var(--ca)}
+.ce-card.card::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--ca),var(--cb))}
+.ce-card.acc-open{box-shadow:0 0 0 2px color-mix(in srgb,var(--ca) 55%,transparent),0 20px 34px -14px var(--ca)}
+.ce-head{display:flex;gap:18px;padding:20px 18px 16px;align-items:stretch}
+.ce-media{position:relative;flex:none;width:230px}
+.ce-thumb{width:100%;height:100%;min-height:138px;border-radius:16px}
+.ce-ring{position:absolute;right:10px;bottom:10px;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#22c55e calc(var(--p)*1%),rgba(255,255,255,.35) 0);box-shadow:0 6px 14px rgba(0,0,0,.35);z-index:3}
+.ce-ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:rgba(15,23,42,.82)}
+.ce-ring b{position:relative;color:#fff;font-size:.72rem}
+.ce-info{flex:1;min-width:0}
+.ce-info h3{margin:0 0 4px;font-size:1.15rem;color:color-mix(in srgb,var(--ca) 60%,var(--ink))}
+.ce-desc{margin:0 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ce-body{padding:0 18px 18px;display:grid;gap:10px}
+.ce-ch.stu-chapter{margin:0;background:linear-gradient(90deg,var(--cs),transparent 75%),var(--bg);border-color:color-mix(in srgb,var(--ca) 32%,var(--line))}
+.ce-ch .stu-class{border-left:5px solid var(--ca)}
+.ce-ch .stu-class.done{border-left-color:#22c55e;background:linear-gradient(90deg,rgba(34,197,94,.15),transparent 70%),var(--card)}
+@media(max-width:640px){
+  .ce-head{flex-direction:column}
+  .ce-media{width:100%}
+  .ce-thumb{height:170px}
+  .cm-thumb{width:96px;height:64px}
+  .cm-move{margin-left:auto}
+}
+
+/* buttons inside course cards take the card's own colour */
+:is(.cm-card,.cv-card,.ce-card) button:not(.secondary):not(.ghost):not(.danger):not(.success){background:linear-gradient(135deg,var(--ca),var(--cb));background-size:200% 100%}
+:is(.cm-card,.cv-card,.ce-card) button.secondary{background:var(--cs);color:color-mix(in srgb,var(--ca) 60%,var(--ink));border:1px solid color-mix(in srgb,var(--ca) 30%,transparent)}
+.prog-bar{background:color-mix(in srgb,var(--ca,#7c3aed) 18%,transparent)}
+:is(.cm-card,.cv-card,.ce-card) .prog-bar>span{background:repeating-linear-gradient(-45deg,rgba(255,255,255,.25) 0 8px,transparent 8px 16px),linear-gradient(90deg,var(--ca),var(--cb));background-size:28px 100%,100% 100%;animation:barGrow .9s cubic-bezier(.2,.8,.2,1) both,stripes 1s linear infinite}
+
+/* ---- colour for every other tab ---- */
+#admin-manage,#tab-courses{--ca:#4f46e5;--cb:#7c3aed;--cs:rgba(99,102,241,.12)}
+#admin-quizAdmin,#tab-quizzes{--ca:#db2777;--cb:#f43f5e;--cs:rgba(244,63,94,.12)}
+#admin-paymentAdmin,#tab-payments{--ca:#059669;--cb:#0d9488;--cs:rgba(16,185,129,.13)}
+#admin-couponAdmin,#tab-notices{--ca:#d97706;--cb:#ea580c;--cs:rgba(245,158,11,.15)}
+#admin-studentList,#tab-contact{--ca:#2563eb;--cb:#0891b2;--cs:rgba(37,99,235,.12)}
+#admin-messagesAdmin,#tab-myCourses{--ca:#7c3aed;--cb:#db2777;--cs:rgba(168,85,247,.13)}
+#admin-noticeAdmin{--ca:#ea580c;--cb:#dc2626;--cs:rgba(234,88,12,.13)}
+#admin-settingsAdmin{--ca:#0d9488;--cb:#2563eb;--cs:rgba(13,148,136,.13)}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .card:not(.cm-card):not(.cv-card):not(.ce-card){
+  border-top:4px solid var(--ca);background:linear-gradient(135deg,var(--cs),transparent 65%),color-mix(in srgb,var(--card) 92%,transparent);box-shadow:0 12px 24px -16px var(--ca)}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .card>h3:first-child{color:color-mix(in srgb,var(--ca) 65%,var(--ink))}
+:is(#adminView [id^="admin-"]) .section>h2,:is(#adminView [id^="admin-"]) .section h2:first-child{border-left-color:var(--ca);background:linear-gradient(90deg,var(--cs),transparent 80%);padding:8px 12px;border-radius:0 12px 12px 0}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field input,:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field select,:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field textarea{
+  background:color-mix(in srgb,var(--cs) 55%,var(--card));border-color:color-mix(in srgb,var(--ca) 35%,var(--line))}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field input:focus,:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field select:focus,:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field textarea:focus{
+  outline-color:var(--ca);border-color:var(--ca);box-shadow:0 0 0 4px color-mix(in srgb,var(--ca) 22%,transparent)}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) .field label{color:color-mix(in srgb,var(--ca) 55%,var(--ink))}
+:is(#adminView [id^="admin-"],#studentArea [id^="tab-"]) button:not(.secondary):not(.ghost):not(.danger):not(.success):not(.cm-card button):not(.cv-card button):not(.ce-card button){background:linear-gradient(135deg,var(--ca),var(--cb));background-size:200% 100%}
+
+/* list rows: every row its own colour */
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+1){--ca:#4f46e5;--cb:#7c3aed;--cs:rgba(99,102,241,.13)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+2){--ca:#db2777;--cb:#f43f5e;--cs:rgba(244,63,94,.13)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+3){--ca:#059669;--cb:#0d9488;--cs:rgba(16,185,129,.14)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+4){--ca:#d97706;--cb:#ea580c;--cs:rgba(245,158,11,.16)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+5){--ca:#2563eb;--cb:#0891b2;--cs:rgba(37,99,235,.13)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList,#adminCouponList)>:nth-child(6n+6){--ca:#7c3aed;--cb:#db2777;--cs:rgba(168,85,247,.14)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList)>.card{border-left:6px solid var(--ca)}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList)>.card{transition:transform .2s,box-shadow .2s}
+:is(#adminQuizList,#adminStudentList,#adminNoticeList,#adminPaymentList)>.card:hover{transform:translateX(4px)}
+#tab-payments .item,#tab-notices .item{padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid var(--line);border-left:5px solid var(--ca);background:linear-gradient(90deg,var(--cs),transparent 70%),var(--card)}
+#tab-payments .item:nth-child(even){--ca:#2563eb;--cs:rgba(37,99,235,.12)}
+#tab-quizzes .card:not(.ce-card){transition:transform .2s,box-shadow .2s}
+#tab-quizzes .grid>.card:nth-child(6n+1),#tab-quizzes .grid>.card:nth-child(6n+4){--ca:#db2777;--cb:#f43f5e;--cs:rgba(244,63,94,.13)}
+#tab-quizzes .grid>.card:nth-child(6n+2),#tab-quizzes .grid>.card:nth-child(6n+5){--ca:#7c3aed;--cb:#2563eb;--cs:rgba(124,58,237,.13)}
+#tab-quizzes .grid>.card:nth-child(6n+3),#tab-quizzes .grid>.card:nth-child(6n+6){--ca:#059669;--cb:#0891b2;--cs:rgba(16,185,129,.14)}
+
+/* ---- button press effect ---- */
+button:not(.vp-btn):not(.pw-eye){-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.is-down:not(:disabled){transform:scale(.92) translateY(1px)!important;filter:brightness(.88)!important;box-shadow:inset 0 4px 10px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2)!important;transition:transform .08s,box-shadow .08s,filter .08s!important}
+button.btn-back:not(:disabled){animation:btnBack .38s cubic-bezier(.2,.9,.3,1.3)}
+.rip{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,currentColor 0%,transparent 70%);transform:scale(0);animation:ripple .65s ease-out forwards;z-index:1}
 </style>
 </head>
 <body>
@@ -1199,31 +1350,46 @@ function isCourseUnlocked(student, course) {
   return db.payments.some(p => p.studentId === student.id && p.courseId === course.id && p.status === "Approved");
 }
 
+// ---------- course card helpers ----------
+function cthumb(c, cls) {
+  return `<div class="cthumb ${cls || ""}"><span class="cthumb-ph">📘</span>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+}
+function priceLabel(c) { return Number(c.price) > 0 ? money(c.price) : "ফ্রি"; }
+function courseCounts(c) {
+  const chs = c.chapters || [];
+  return { ch: chs.length, cl: chs.reduce((n, x) => n + (x.classes || []).length, 0) };
+}
+
 function renderAllCourses() {
   const el = document.getElementById("tab-courses");
   if (!db.courses.length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
-  el.innerHTML = `<div class="grid">` + db.courses.map(c => {
+  el.innerHTML = `<div class="grid cv-grid">` + db.courses.map((c, i) => {
     const unlocked = isCourseUnlocked(currentStudent, c);
     const pay = db.payments.slice().reverse().find(p => p.studentId === currentStudent?.id && p.courseId === c.id);
-    let badge = unlocked ? `<span class="pill unlocked">আনলকড</span>` : pay?.status === "Pending" ? `<span class="pill pending">পেন্ডিং (১২ ঘণ্টা অপেক্ষা)</span>` : `<span class="pill locked">লকড</span>`;
-    let btn = !unlocked && pay?.status !== "Pending" ? `<button onclick="openPayModal('${c.id}')">কোর্স কিনুন (${money(c.price)})</button>` : unlocked ? `<button class="secondary" onclick="openMyCourse('${c.id}')">কোর্সটি দেখুন</button>` : `<button class="secondary" disabled>ভেরিফিকেশন চলছে</button>`;
-
+    const cnt = courseCounts(c);
+    let badge = unlocked ? `<span class="pill unlocked">🔓 আনলকড</span>` : pay?.status === "Pending" ? `<span class="pill pending">⏳ পেন্ডিং (১২ ঘণ্টা)</span>` : `<span class="pill locked">🔒 লকড</span>`;
+    let btn = !unlocked && pay?.status !== "Pending" ? `<button onclick="openPayModal('${c.id}')">🛒 কোর্স কিনুন (${money(c.price)})</button>` : unlocked ? `<button class="secondary" onclick="openMyCourse('${c.id}')">▶ কোর্সটি দেখুন</button>` : `<button class="secondary" disabled>ভেরিফিকেশন চলছে</button>`;
+    const pr = unlocked ? courseProgress(c) : null;
     return `
-      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
-        <div>
-          ${c.thumb ? `<img src="${esc(c.thumb)}" class="thumb">` : ""}
-          <div class="row between"><h3>${esc(c.title)}</h3>${badge}</div>
-          <p class="muted small">${esc(c.desc)}</p>
-          <div style="font-weight:700;color:var(--primary);margin:6px 0">${money(c.price)}</div>
-          ${unlocked ? (() => { const pr = courseProgress(c); return pr.total ? `<div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div><div class="muted small">${pr.pct}% সম্পন্ন</div></div>` : ""; })() : ""}
+      <div class="card cv-card tone${i % 6}" style="--i:${i}">
+        <div class="cv-media">
+          ${cthumb(c, "cv-thumb")}
+          <span class="cv-price">${priceLabel(c)}</span>
+          <span class="cv-badge">${badge}</span>
         </div>
-        <div style="margin-top:12px">${btn}</div>
+        <div class="cv-body">
+          <h3>${esc(c.title)}</h3>
+          <p class="muted small">${esc(c.desc)}</p>
+          <div class="cm-chips"><span class="cchip">📁 ${cnt.ch}টি চ্যাপ্টার</span><span class="cchip">🎬 ${cnt.cl}টি ক্লাস</span></div>
+          ${pr && pr.total ? `<div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div><div class="muted small">${pr.pct}% সম্পন্ন</div></div>` : ""}
+        </div>
+        <div class="cv-foot">${btn}</div>
       </div>
     `;
   }).join("") + `</div>`;
 }
 
-// আমার কোর্স: একসময়ে একটি কোর্স ও তার একটি চ্যাপ্টার খোলা, বাকি সব minimize
+// আমার কোর্স: একসময়ে একটি কোর্স ও তার একটি চ্যাপ্টার খোলা, বাকি সব minimize
 const stuOpen = { course: null, chapter: {} };
 window.toggleStuCourse = function(cid) {
   if (stuOpen.course === cid) stuOpen.course = null;
@@ -1244,34 +1410,38 @@ function renderMyEnrolledCourses() {
   const el = document.getElementById("tab-myCourses");
   const myCourses = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
   if (!myCourses.length) {
-    el.innerHTML = '<div class="card" style="text-align:center;color:var(--muted)">আপনার কোনো এনরোলড কোর্স নেই। "সব কোর্স ও ভর্তি" থেকে কোর্স কিনুন।</div>';
+    el.innerHTML = '<div class="empty">আপনার কোনো এনরোলড কোর্স নেই। "সব কোর্স ও ভর্তি" থেকে কোর্স কিনুন।</div>';
     return;
   }
-  el.innerHTML = myCourses.map(c => {
+  el.innerHTML = `<div class="cm-list">` + myCourses.map((c, i) => {
     const open = stuOpen.course === c.id;
     const pr = courseProgress(c), nx = nextClassFor(c);
     const chs = c.chapters || [];
     return `
-    <div class="card section stu-course ${open ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}">
-      <div class="acc-head" onclick="toggleStuCourse('${c.id}')">
-        <div class="row between">
-          <h3 style="margin:0"><span class="chev">▶</span> 📘 ${esc(c.title)}</h3>
-          <span class="pill">${pr.pct}%</span>
+    <div class="card ce-card tone${i % 6} ${open ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}" style="--i:${i}">
+      <div class="ce-head acc-head" onclick="toggleStuCourse('${c.id}')">
+        <div class="ce-media">
+          ${cthumb(c, "ce-thumb")}
+          ${pr.total ? `<div class="ce-ring" style="--p:${pr.pct}"><b>${pr.pct}%</b></div>` : ""}
         </div>
-        <div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div>
-          <div class="muted small" style="margin-top:4px">${pr.done}/${pr.total} ক্লাস সম্পন্ন · ${chs.length}টি চ্যাপ্টার</div></div>
+        <div class="ce-info">
+          <h3><span class="chev">▶</span> ${esc(c.title)}</h3>
+          ${c.desc ? `<p class="muted small ce-desc">${esc(c.desc)}</p>` : ""}
+          <div class="cm-chips"><span class="cchip">📁 ${chs.length}টি চ্যাপ্টার</span><span class="cchip">🎬 ${pr.total}টি ক্লাস</span><span class="cchip ok">✅ ${pr.done} সম্পন্ন</span></div>
+          <div class="prog"><div class="prog-bar"><span style="width:${pr.pct}%"></span></div>
+            <div class="muted small" style="margin-top:4px">${pr.done}/${pr.total} ক্লাস সম্পন্ন</div></div>
+        </div>
       </div>
-      ${open ? `
-        ${c.desc ? `<p class="muted small" style="margin:8px 0">${esc(c.desc)}</p>` : ""}
-        <div class="row" style="margin:6px 0 10px">${nx ? `<button class="sm" onclick="openClassPlayer('${c.id}','${nx.chapter.id}','${nx.cls.id}')">▶ ${pr.done ? "চালিয়ে যান" : "শুরু করুন"}</button>` : (pr.total ? "<b>🎉 কোর্স সম্পন্ন!</b>" : "")}</div>
-        ${chs.map(ch => {
+      ${open ? `<div class="ce-body">
+        <div class="row">${nx ? `<button onclick="openClassPlayer('${c.id}','${nx.chapter.id}','${nx.cls.id}')">▶ ${pr.done ? "চালিয়ে যান" : "শুরু করুন"}</button>` : (pr.total ? "<b>🎉 কোর্স সম্পন্ন!</b>" : "")}</div>
+        ${chs.map((ch, hi) => {
           const chOpen = stuOpen.chapter[c.id] === ch.id;
           const cls = ch.classes || [];
           const doneN = cls.filter(x => isClassDone(x.id)).length;
           return `
-          <div class="stu-chapter ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}">
+          <div class="stu-chapter ce-ch tone${(i + hi + 1) % 6} ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}">
             <div class="acc-head row between" onclick="toggleStuChapter('${c.id}','${ch.id}')">
-              <b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b><span class="muted small">${doneN}/${cls.length} ক্লাস</span>
+              <b><span class="chev">▶</span> <span class="cm-ch-n">${hi + 1}</span> ${esc(ch.title)}</b><span class="cchip">${doneN}/${cls.length} ক্লাস</span>
             </div>
             ${chOpen ? `<div class="stu-classes">${cls.map(cl => `
               <div class="stu-class ${isClassDone(cl.id) ? "done" : ""}">
@@ -1280,9 +1450,9 @@ function renderMyEnrolledCourses() {
               </div>`).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}</div>` : ""}
           </div>`;
         }).join("") || '<div class="muted small">কোনো চ্যাপ্টার নেই।</div>'}
-      ` : ""}
+      </div>` : ""}
     </div>`;
-  }).join("");
+  }).join("") + `</div>`;
   accAnim = null;
 }
 
@@ -2345,24 +2515,28 @@ window.toggleChapterOpen = function(cid, chid) {
 };
 
 function renderAdminCourses() {
-  document.getElementById("adminCourseList").innerHTML = db.courses.length ? db.courses.map((c, ci) => {
+  const host = document.getElementById("adminCourseList");
+  if (!db.courses.length) { host.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; accAnim = null; return; }
+  host.innerHTML = `<div class="cm-list">` + db.courses.map((c, ci) => {
     const isOpen = adminOpen.course === c.id;
     const chs = c.chapters || [];
     const clsCount = chs.reduce((n, ch) => n + (ch.classes || []).length, 0);
     return `
-    <div class="card section ${isOpen ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}">
-      <div class="row between acc-head" onclick="toggleCourseOpen('${c.id}')">
-        <div>
-          <h3 style="margin:0"><span class="chev">▶</span> ${esc(c.title)} (${money(c.price)})</h3>
-          <div class="muted small">${chs.length}টি চ্যাপ্টার · ${clsCount}টি ক্লাস</div>
+    <div class="card cm-card tone${ci % 6} ${isOpen ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}" style="--i:${ci}">
+      <div class="cm-head acc-head" onclick="toggleCourseOpen('${c.id}')">
+        <span class="cm-num">${ci + 1}</span>
+        ${cthumb(c, "cm-thumb")}
+        <div class="cm-info">
+          <h3><span class="chev">▶</span> ${esc(c.title)}</h3>
+          <div class="cm-chips"><span class="cchip price">${priceLabel(c)}</span><span class="cchip">📁 ${chs.length}টি চ্যাপ্টার</span><span class="cchip">🎬 ${clsCount}টি ক্লাস</span></div>
         </div>
-        <div class="row">
+        <div class="row cm-move">
           <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${ci === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',-1)">⬆️</button>
           <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${ci === db.courses.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',1)">⬇️</button>
         </div>
       </div>
-      ${isOpen ? `
-        <div class="row" style="margin-top:10px">
+      ${isOpen ? `<div class="cm-body">
+        <div class="cm-actions">
           <button class="secondary sm" onclick="openCourseEdit('${c.id}')">✏️ কোর্স এডিট</button>
           <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
           <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
@@ -2371,39 +2545,43 @@ function renderAdminCourses() {
           const chOpen = adminOpen.chapter[c.id] === ch.id;
           const cls = ch.classes || [];
           return `
-          <div class="item ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}" style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
-            <div class="row between acc-head" onclick="toggleChapterOpen('${c.id}','${ch.id}')">
-              <div><b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b> <span class="muted small">· ${cls.length}টি ক্লাস</span></div>
+          <div class="cm-ch tone${(ci + hi + 1) % 6} ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}">
+            <div class="cm-ch-head acc-head" onclick="toggleChapterOpen('${c.id}','${ch.id}')">
+              <span class="cm-ch-n">${hi + 1}</span>
+              <div class="cm-ch-t"><b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b><span class="cchip">🎬 ${cls.length}টি ক্লাস</span></div>
               <div class="row">
                 <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${hi === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
                 <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${hi === chs.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
               </div>
             </div>
-            ${chOpen ? `
-              <div class="row" style="margin-top:8px">
+            ${chOpen ? `<div class="cm-ch-body">
+              <div class="cm-actions">
                 <button class="secondary sm" onclick="editChapterTitle('${c.id}','${ch.id}')">✏️ নাম বদলান</button>
                 <button class="secondary sm" onclick="openAddClassModal('${c.id}', '${ch.id}')">+ ক্লাস যোগ</button>
                 <button class="danger sm" onclick="deleteChapter('${c.id}', '${ch.id}')">চ্যাপ্টার মুছুন</button>
               </div>
-              <div style="margin-top:8px;display:grid;gap:6px">
-                ${cls.map((cl, li) => `
-                  <div class="row between small" style="background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
-                    <span>▶ ${esc(cl.title)} <span class="muted">[${cl.videoType === 'local' ? 'Local' : cl.videoType === 'embed' ? 'Player link' : 'YouTube'}, PDFs: ${(cl.pdfs || []).length}]</span></span>
+              <div class="cm-cls">
+                ${cls.map((cl, li) => {
+                  const vt = cl.videoType === "local" ? ["Local", "vt-local", "💾"] : cl.videoType === "embed" ? ["Player link", "vt-embed", "🔗"] : ["YouTube", "vt-yt", "▶️"];
+                  return `
+                  <div class="cm-cl ${vt[1]}">
+                    <span class="cm-cl-t"><span>${vt[2]}</span> ${esc(cl.title)}</span>
+                    <span class="cm-cl-meta"><span class="cchip vt">${vt[0]}</span><span class="cchip pdf">📄 PDF ${(cl.pdfs || []).length}</span></span>
                     <div class="row">
                       <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
                       <button class="ghost sm" style="padding:2px 8px" ${li === cls.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
                       <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
                       <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
                     </div>
-                  </div>
-                `).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
+                  </div>`;
+                }).join("") || '<div class="muted small">কোনো ক্লাস নেই।</div>'}
               </div>
-            ` : ""}
+            </div>` : ""}
           </div>`;
-        }).join("") || '<div class="muted small" style="margin-top:10px">কোনো চ্যাপ্টার নেই।</div>'}
-      ` : ""}
+        }).join("") || '<div class="muted small">কোনো চ্যাপ্টার নেই।</div>'}
+      </div>` : ""}
     </div>`;
-  }).join("") : '<div class="empty">কোনো কোর্স নেই।</div>';
+  }).join("") + `</div>`;
   accAnim = null;
 }
 
@@ -3059,6 +3237,35 @@ async function init() {
   window.addEventListener("online", () => pollState(true));
 }
 init();
+})();
+</script>
+
+<script>
+/* বাটন চাপলে "pressed" ইফেক্ট: নিচে বসে যায়, রিপল ছড়ায়, ছাড়লে বাউন্স করে ফেরে */
+(function () {
+  const skip = b => !b || b.disabled || b.classList.contains("vp-btn") || b.classList.contains("pw-eye") || b.closest(".vp");
+  document.addEventListener("pointerdown", function (e) {
+    const b = e.target.closest && e.target.closest("button");
+    if (skip(b)) return;
+    b.classList.remove("btn-back");
+    b.classList.add("is-down");
+    const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2;
+    const s = document.createElement("span");
+    s.className = "rip";
+    s.style.cssText = "width:" + d + "px;height:" + d + "px;left:" + (e.clientX - r.left - d / 2) + "px;top:" + (e.clientY - r.top - d / 2) + "px";
+    b.appendChild(s);
+    setTimeout(() => s.remove(), 700);
+    try { navigator.vibrate && navigator.vibrate(8); } catch (_) {}
+  }, true);
+  const up = function (e) {
+    document.querySelectorAll("button.is-down").forEach(b => {
+      b.classList.remove("is-down");
+      void b.offsetWidth;
+      b.classList.add("btn-back");
+      setTimeout(() => b.classList.remove("btn-back"), 420);
+    });
+  };
+  ["pointerup", "pointercancel", "dragend"].forEach(t => document.addEventListener(t, up, true));
 })();
 </script>
 </body>
