@@ -353,10 +353,8 @@ async function applyAdminState(inc, baseRev, replace, sess) {
   if (can("courses")) state.courses = await walkMedia(arr(inc.courses).filter(isObj)); // async kaj age, tarpor sob sync
   if (can("notices")) state.notices = arr(inc.notices).filter(isObj).map((n) => { if (!n.id) n.id = uid(); return n; });
   if (can("quizzes")) state.quizzes = arr(inc.quizzes).filter(isObj);
-  if (can("settings")) {
-    if (isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
-    if (THEMES.includes(inc.theme)) state.theme = inc.theme;
-  }
+  if (can("payments") && isObj(inc.numbers)) state.numbers = { bkash: str(inc.numbers.bkash, 40), nagad: str(inc.numbers.nagad, 40) };
+  if (can("settings") && THEMES.includes(inc.theme)) state.theme = inc.theme;
   if (typeof inc.adminUser === "string" && inc.adminUser.trim()) state.adminUser = inc.adminUser.trim().slice(0, 100);
 
   if (can("coupons")) {
