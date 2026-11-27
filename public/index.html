@@ -172,7 +172,7 @@ header{background:linear-gradient(90deg,var(--g1),var(--g2) 38%,var(--g3) 72%,va
 header strong{font-size:1.05rem;letter-spacing:.2px}
 header button.ghost{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.14)}
 header button.ghost:hover:not(:disabled){background:rgba(255,255,255,.28)}
-header button.ghost.active{background:#fff;color:#4f46e5;border-color:#fff}
+header button.ghost.active{background:var(--card);color:var(--primary);border-color:var(--card)}
 .hero{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--g1),var(--g2) 42%,var(--g3) 78%,var(--g4));box-shadow:0 14px 30px rgba(124,58,237,.3)}
 .hero::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.14)}
 .hero::before{content:"";position:absolute;right:90px;bottom:-90px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.10)}
@@ -233,6 +233,41 @@ button.danger{background:#fee2e2;color:#b91c1c}
 .badge{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:1.5;text-align:center}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .footer{color:#7c3aed}
+
+/* ---------- glass buttons ---------- */
+button{position:relative;overflow:hidden;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 14px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.25)}
+button::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,0) 55%);pointer-events:none}
+button.secondary{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent)}
+button.ghost{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.tabs button{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12)}
+.card{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:color-mix(in srgb,var(--card) 92%,transparent);border:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+header{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* ---------- "sector" panel reveal for tab content ---------- */
+@keyframes sectorIn{0%{opacity:0;transform:translateY(22px) scale(.97)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.35)}50%{box-shadow:0 0 22px 4px rgba(124,58,237,.35)}}
+@keyframes floatIcon{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(4deg)}}
+@keyframes underlineGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#studentArea [id^="tab-"]:not(.hidden),#adminView [id^="admin-"]:not(.hidden){
+  animation:sectorIn .55s cubic-bezier(.2,.8,.2,1) both;
+  background:color-mix(in srgb,var(--card) 55%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid color-mix(in srgb,var(--line) 70%,transparent);
+  border-radius:20px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.08);margin-top:10px
+}
+.tabs{position:relative}
+.tabs button.active{animation:glowPulse 2.4s ease infinite}
+.tabs button.active::after{content:"";position:absolute;left:14%;right:14%;bottom:3px;height:2px;background:currentColor;border-radius:2px;animation:underlineGrow .3s ease both;transform-origin:left}
+header strong{display:inline-block}
+.hero::after,.hero::before{filter:blur(2px)}
+button:not(.vp-btn):not(.pw-eye){background-size:200% 100%}
+button.success:not(:disabled),button:not(.secondary):not(.ghost):not(.danger):not(.vp-btn):not(.pw-eye):not(:disabled){background-position:0 0;transition:background-position .6s ease,transform .15s,box-shadow .25s,filter .2s}
+button:not(.vp-btn):not(.pw-eye):not(:disabled):hover{background-position:100% 0}
+.thumb,.item,.notice{animation:none}
+.perm-chip{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .15s,box-shadow .2s}
+.perm-chip:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.12)}
+.theme-swatch{box-shadow:0 6px 16px rgba(0,0,0,.18)}
 .theme-swatches{display:flex;flex-wrap:wrap;gap:12px}
 .theme-swatch{width:54px;height:54px;border-radius:14px;cursor:pointer;border:3px solid transparent;position:relative;transition:transform .2s,border-color .2s}
 .theme-swatch:hover{transform:scale(1.08)}
@@ -456,14 +491,14 @@ input[type="checkbox"]:active{transform:scale(1.3)}
       </div>
 
       <div class="tabs" id="adminTabs">
-        <button class="active" onclick="adminTab('manage', this)">কোর্স ম্যানেজমেন্ট</button>
-        <button onclick="adminTab('quizAdmin', this)">MCQ কুইজ</button>
-        <button onclick="adminTab('paymentAdmin', this)">পেমেন্ট যাচাই</button>
-        <button onclick="adminTab('couponAdmin', this)">🎟 কুপন</button>
-        <button onclick="adminTab('studentList', this)">স্টুডেন্ট তালিকা</button>
-        <button onclick="adminTab('messagesAdmin', this)">ছাত্র মেসেজ (Inbox)</button>
-        <button onclick="adminTab('noticeAdmin', this)">নোটিশ</button>
-        <button onclick="adminTab('settingsAdmin', this)">সেটিংস ও ব্যাকআপ</button>
+        <button class="active" data-perm="courses" onclick="adminTab('manage', this)">কোর্স ম্যানেজমেন্ট</button>
+        <button data-perm="quizzes" onclick="adminTab('quizAdmin', this)">MCQ কুইজ</button>
+        <button data-perm="payments" onclick="adminTab('paymentAdmin', this)">পেমেন্ট যাচাই</button>
+        <button data-perm="coupons" onclick="adminTab('couponAdmin', this)">🎟 কুপন</button>
+        <button data-perm="students" onclick="adminTab('studentList', this)">স্টুডেন্ট তালিকা</button>
+        <button data-perm="messages" onclick="adminTab('messagesAdmin', this)">ছাত্র মেসেজ (Inbox)</button>
+        <button data-perm="notices" onclick="adminTab('noticeAdmin', this)">নোটিশ</button>
+        <button data-perm="" onclick="adminTab('settingsAdmin', this)">সেটিংস ও ব্যাকআপ</button>
       </div>
 
       <div id="admin-manage">
@@ -509,7 +544,7 @@ input[type="checkbox"]:active{transform:scale(1.3)}
       </div>
 
       <div id="admin-paymentAdmin" class="hidden">
-        <div class="card stack">
+        <div class="card stack" id="paymentNumbersCard">
           <h3>পেমেন্ট নাম্বার সেট করুন</h3>
           <div class="grid">
             <div class="field"><label>bKash</label><input id="bkashNumber" placeholder="01XXXXXXXXX"></div>
@@ -840,6 +875,7 @@ function adoptState(data) {
   db = normalizeDB(data.db);
   serverRev = Number(data.rev) || 0;
   applySiteTheme(db.theme);
+  if (data.role === "admin" && data.me) { meAdmin = data.me; if (adminRendered) applyAdminPermUI(); }
   ["payments", "messages", "quizResults"].forEach(k => db[k].forEach(x => syncedIds.add(x.id)));
   loaded = true;
 }
@@ -2220,6 +2256,21 @@ window.removeAdmin = async function(id, label) {
   if (st.ok) { adoptState(st.data); renderAdminAccounts(); }
 };
 
+function applyAdminPermUI() {
+  const perms = meAdmin && !meAdmin.owner ? (meAdmin.permissions || {}) : null;   // null = owner = full access
+  let firstAllowed = null;
+  document.querySelectorAll("#adminTabs button").forEach(b => {
+    const need = b.getAttribute("data-perm");
+    const allowed = !perms || !need || perms[need];
+    b.classList.toggle("hidden", !allowed);
+    if (allowed && !firstAllowed) firstAllowed = b;
+  });
+  const numbersCard = document.getElementById("paymentNumbersCard");
+  if (numbersCard) numbersCard.classList.toggle("hidden", !(!perms || perms.payments));
+  const themeCard = document.getElementById("themeCard");
+  if (themeCard) themeCard.classList.toggle("hidden", !(!perms || perms.settings));
+  return firstAllowed;
+}
 function renderAdmin() {
   adminRendered = true;
   document.getElementById("adminLogin").classList.add("hidden");
@@ -2235,7 +2286,13 @@ function renderAdmin() {
   document.getElementById("nagadNumber").value = db.numbers.nagad || "";
 
   renderAdminAccounts();
-  window.adminTab('manage', document.querySelector('#adminTabs button'));
+  const firstAllowed = applyAdminPermUI();
+  if (firstAllowed) {
+    const tab = firstAllowed.getAttribute("onclick").match(/adminTab\('(\w+)'/)[1];
+    window.adminTab(tab, firstAllowed);
+  } else {
+    window.adminTab('settingsAdmin', document.querySelector('#adminTabs button[data-perm=""]'));
+  }
 }
 
 window.adminTab = function(tab, btn) {
