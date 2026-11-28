@@ -641,6 +641,146 @@ header strong{animation:logoBob 3s ease-in-out infinite}
 /* confetti */
 .cf{position:fixed;z-index:9999;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:cfFly .95s cubic-bezier(.15,.7,.3,1) forwards}
 #soundBtn.off{opacity:.8}
+
+/* ===================== ROUND 3: upload, forgot password, drag & drop ===================== */
+.thumb-row{display:flex;gap:8px;align-items:stretch}
+.thumb-row input{flex:1;min-width:0}
+.thumb-row button{flex:none;white-space:nowrap}
+.thumb-prev{display:block;margin-top:10px;width:100%;max-width:280px;height:158px;object-fit:cover;border-radius:16px;box-shadow:0 12px 26px -12px rgba(0,0,0,.45);animation:cardRise .45s cubic-bezier(.2,.8,.2,1) both}
+.thumb-prev[hidden]{display:none}
+button.linklike{background:none!important;box-shadow:none!important;color:var(--primary)!important;text-decoration:underline;padding:6px 4px;width:auto;justify-self:start;border:0!important;font-weight:700}
+button.linklike:disabled{opacity:.55;text-decoration:none}
+.drag-h{display:inline-grid;place-items:center;flex:none;width:30px;height:36px;border-radius:10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-size:1.25rem;line-height:1;
+  color:color-mix(in srgb,var(--ca,#7c3aed) 75%,var(--ink));background:color-mix(in srgb,var(--ca,#7c3aed) 14%,transparent);transition:background .2s,transform .2s}
+.drag-h:hover{background:color-mix(in srgb,var(--ca,#7c3aed) 28%,transparent);transform:scale(1.12)}
+.drag-h:active{cursor:grabbing}
+.drag-h:focus-visible{outline:2px solid var(--ca,#7c3aed);outline-offset:2px}
+.cm-ch-head .drag-h,.cm-cl .drag-h{width:26px;height:30px;font-size:1.05rem}
+.dragging{position:relative;z-index:60;animation:none!important;transition:none!important;opacity:.97;will-change:transform;
+  box-shadow:0 26px 50px -10px rgba(0,0,0,.5),0 0 0 2px var(--ca,#7c3aed)!important}
+body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}
+.no-anim,.no-anim *{animation:none!important}
+
+/* ===================== GLASS THEME (iOS "liquid glass") ===================== */
+:root[data-color="glass"]{
+  --bg:#dfe9ff; --card:rgba(255,255,255,.46); --ink:#0b1020; --muted:#4b5563;
+  --primary:#0a84ff; --primary2:#5e5ce6; --primary-hover:#0071e3; --line:rgba(255,255,255,.65);
+  --green:#1f8a43; --green-bg:rgba(52,199,89,.26); --red:#c4001a; --red-bg:rgba(255,69,58,.2); --amber:#a85a00; --amber-bg:rgba(255,159,10,.28);
+  --shadow:0 10px 40px rgba(60,60,140,.18);
+  --g1:#0a84ff; --g2:#5e5ce6; --g3:#bf5af2; --g4:#ff375f;
+  --bg1:#c7d2fe; --bg2:#fbcfe8; --bg3:#bae6fd;
+  --gf1:rgba(255,255,255,.6); --gf2:rgba(255,255,255,.18); --gb:rgba(255,255,255,.72); --gh:rgba(255,255,255,.95);
+  --gsoft:rgba(255,255,255,.42); --gsh:rgba(60,60,140,.2); --gact:rgba(255,255,255,.94); --gactc:#0a84ff;
+}
+[data-theme="dark"][data-color="glass"]{
+  --bg:#0b0b16; --card:rgba(44,44,66,.5); --ink:#f5f5f7; --muted:#a8a8b8;
+  --primary:#4da3ff; --primary2:#8e8cff; --primary-hover:#7bb9ff; --line:rgba(255,255,255,.18);
+  --green:#4ade80; --green-bg:rgba(52,199,89,.22); --red:#ff7b72; --red-bg:rgba(255,69,58,.24); --amber:#fbbf24; --amber-bg:rgba(255,159,10,.24);
+  --shadow:0 10px 40px rgba(0,0,0,.45);
+  --gf1:rgba(255,255,255,.17); --gf2:rgba(255,255,255,.05); --gb:rgba(255,255,255,.22); --gh:rgba(255,255,255,.42);
+  --gsoft:rgba(255,255,255,.1); --gsh:rgba(0,0,0,.5); --gact:rgba(255,255,255,.26); --gactc:#fff;
+}
+html[data-color="glass"] body{
+  background:
+    radial-gradient(48% 42% at 10% 6%,rgba(255,138,205,.95),transparent 65%),
+    radial-gradient(46% 42% at 92% 10%,rgba(94,196,255,.95),transparent 65%),
+    radial-gradient(52% 48% at 86% 92%,rgba(176,140,255,.95),transparent 65%),
+    radial-gradient(46% 44% at 8% 88%,rgba(255,214,120,.95),transparent 65%),
+    linear-gradient(160deg,#c7d2fe,#fbcfe8 50%,#bae6fd);
+  background-attachment:fixed;background-repeat:no-repeat;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,"Noto Sans Bengali",sans-serif}
+html[data-theme="dark"][data-color="glass"] body{
+  background:
+    radial-gradient(48% 42% at 10% 6%,rgba(190,40,120,.75),transparent 65%),
+    radial-gradient(46% 42% at 92% 10%,rgba(20,110,210,.8),transparent 65%),
+    radial-gradient(52% 48% at 86% 92%,rgba(110,60,220,.8),transparent 65%),
+    radial-gradient(46% 44% at 8% 88%,rgba(210,110,20,.55),transparent 65%),
+    linear-gradient(160deg,#0a0a18,#16102c 55%,#0a1424);
+  background-attachment:fixed;background-repeat:no-repeat}
+html[data-color="glass"] .bg-blobs i{opacity:.65;filter:blur(48px)}
+html[data-theme="dark"][data-color="glass"] .bg-blobs i{opacity:.35}
+
+/* main glass surfaces (frosted blur) */
+html[data-color="glass"] :is(.card,.modal,.toast){
+  background:linear-gradient(135deg,color-mix(in srgb,var(--cs,transparent) 55%,var(--gf1)),var(--gf2))!important;
+  border:1px solid var(--gb)!important;border-radius:26px;
+  box-shadow:0 12px 40px var(--gsh),inset 0 1.5px 0 var(--gh),inset 0 -1px 0 rgba(255,255,255,.2),inset 0 0 26px rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);color:var(--ink)}
+html[data-color="glass"] .modal{border-radius:30px;backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%)}
+html[data-color="glass"] .modal-backdrop{background:rgba(30,30,70,.28)!important;backdrop-filter:blur(16px) saturate(150%)!important;-webkit-backdrop-filter:blur(16px) saturate(150%)!important}
+html[data-color="glass"] .toast{border-radius:20px}
+/* panels: only translucent (cards inside do the blur) */
+html[data-color="glass"] :is(#adminView [id^="admin-"],#studentArea [id^="tab-"]){
+  background:var(--gsoft)!important;border:1px solid var(--gb)!important;border-radius:30px;
+  box-shadow:0 14px 44px var(--gsh),inset 0 1.5px 0 var(--gh)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* nested soft glass */
+html[data-color="glass"] :is(.cm-ch,.cm-cl,.stu-chapter,.stu-class,.item,.notice,.empty,.stu-stat,.perm-chip){
+  background:var(--gsoft)!important;border:1px solid var(--gb)!important;border-radius:18px;
+  box-shadow:inset 0 1.5px 0 var(--gh),0 4px 16px var(--gsh)!important}
+html[data-color="glass"] .cm-cl{border-left:5px solid var(--vc,#0a84ff)!important}
+html[data-color="glass"] :is(.cm-ch,.cm-ch-head){background-image:none!important}
+html[data-color="glass"] .stu-stat{background:rgba(255,255,255,.2)!important;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6)!important}
+html[data-color="glass"] .stu-class.done{border-left:5px solid #34c759!important}
+
+/* header */
+html[data-color="glass"] header{background:var(--gsoft)!important;color:var(--ink)!important;border-bottom:1px solid var(--gb)!important;
+  box-shadow:0 8px 30px var(--gsh),inset 0 -1px 0 rgba(255,255,255,.3)!important;backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%)}
+html[data-color="glass"] header strong{color:var(--ink)}
+html[data-color="glass"] header button.ghost.active{background:linear-gradient(180deg,rgba(104,180,255,.96),rgba(10,132,255,.94))!important;color:#fff!important}
+/* hero + student banner stay colourful, but as tinted glass */
+html[data-color="glass"] :is(.hero,.stu-banner){
+  background:linear-gradient(120deg,rgba(10,132,255,.8),rgba(94,92,230,.76) 40%,rgba(191,90,242,.74) 72%,rgba(255,55,95,.72))!important;
+  border:1px solid rgba(255,255,255,.55);border-radius:30px;
+  box-shadow:0 18px 50px rgba(94,92,230,.35),inset 0 2px 0 rgba(255,255,255,.7),inset 0 0 40px rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%)}
+
+/* buttons */
+html[data-color="glass"] button:not(.secondary):not(.ghost):not(.danger):not(.success):not(.linklike):not(.vp-btn):not(.pw-eye){
+  background:linear-gradient(180deg,rgba(116,186,255,.97),rgba(10,132,255,.95))!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.6)!important;border-radius:999px!important;text-shadow:0 1px 2px rgba(0,40,120,.35);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.8),inset 0 -2px 6px rgba(0,60,160,.25),0 8px 20px rgba(10,132,255,.4)!important}
+html[data-color="glass"] :is(button.secondary,button.ghost){
+  background:var(--gsoft)!important;color:var(--ink)!important;border:1px solid var(--gb)!important;border-radius:999px!important;
+  box-shadow:inset 0 1.5px 0 var(--gh),0 4px 14px var(--gsh)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+html[data-color="glass"] button.danger{background:rgba(255,69,58,.22)!important;color:var(--red)!important;border:1px solid rgba(255,69,58,.4)!important;border-radius:999px!important;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6)!important}
+html[data-color="glass"] button.success{background:rgba(52,199,89,.26)!important;color:var(--green)!important;border:1px solid rgba(52,199,89,.45)!important;border-radius:999px!important;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6)!important}
+html[data-color="glass"] button:disabled{opacity:.5}
+html[data-color="glass"] :is(.cv-card,.ce-card,.cm-card) button.secondary{color:var(--ink)!important}
+
+/* tabs: iOS segmented control */
+html[data-color="glass"] :is(.tabs,#studentTabs){background:var(--gsoft)!important;border:1px solid var(--gb)!important;border-radius:28px!important;padding:6px!important;gap:4px;
+  box-shadow:inset 0 1.5px 0 var(--gh),0 8px 24px var(--gsh)!important;backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%)}
+html[data-color="glass"] :is(.tabs,#studentTabs) button{background:transparent!important;color:var(--ink)!important;box-shadow:none!important;border:0!important;border-radius:999px!important;text-shadow:none!important;backdrop-filter:none}
+html[data-color="glass"] :is(.tabs,#studentTabs) button.active{background:var(--gact)!important;color:var(--gactc)!important;box-shadow:0 3px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9)!important}
+
+/* inputs */
+html[data-color="glass"] :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),select,textarea){
+  background:var(--gsoft)!important;color:var(--ink)!important;border:1px solid var(--gb)!important;border-radius:14px!important;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.07)!important}
+html[data-color="glass"] :is(input,select,textarea):focus{border-color:#0a84ff!important;box-shadow:0 0 0 4px rgba(10,132,255,.25),inset 0 2px 6px rgba(0,0,0,.05)!important;outline:none}
+html[data-color="glass"] ::placeholder{color:color-mix(in srgb,var(--ink) 45%,transparent)}
+html[data-color="glass"] .field label{color:var(--ink)!important}
+
+/* small things */
+html[data-color="glass"] :is(.pill,.cchip){backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+html[data-color="glass"] .prog-bar{background:rgba(255,255,255,.4)!important;box-shadow:inset 0 1px 3px rgba(0,0,0,.14)}
+html[data-color="glass"] .drag-h{background:var(--gsoft);box-shadow:inset 0 1px 0 var(--gh)}
+html[data-color="glass"] .dragging{box-shadow:0 30px 60px -10px rgba(0,0,0,.5),0 0 0 2px #0a84ff!important}
+html[data-color="glass"] :is(h1,h2,h3,h4,p,span,label,b,small,td,th):not(.cchip):not(.pill){text-shadow:none}
+.theme-swatch[title*="গ্লাস"]{box-shadow:inset 0 3px 0 rgba(255,255,255,.85),inset 0 0 14px rgba(255,255,255,.45)}
+html[data-theme="dark"][data-color="glass"] .cchip:not(.price):not(.ok){color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28)}
+html[data-theme="dark"][data-color="glass"] :is(.ce-info h3,.cv-body h3){color:#fff}
+
+/* ===================== ROUND 4: notification dots + draft courses ===================== */
+#studentTabs button{position:relative}
+.tab-dot{position:absolute;top:7px;right:9px;width:12px;height:12px;border-radius:50%;background:#ef4444;border:2px solid #fff;pointer-events:none;animation:dotPulse 1.5s ease-out infinite}
+@keyframes dotPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}70%{box-shadow:0 0 0 6px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+.cchip.draft{background:rgba(100,116,139,.2);color:color-mix(in srgb,#64748b 70%,var(--ink));border-color:rgba(100,116,139,.4)}
+.cm-card.is-draft{border-style:dashed!important}
+.cm-card.is-draft .cthumb{filter:grayscale(.8) brightness(.95)}
+.cm-card.is-draft .cm-info h3{opacity:.8}
+html[data-color="glass"] .cm-card.is-draft{border-style:dashed!important}
+.draft-chip{margin-top:4px;width:fit-content}
 </style>
 </head>
 <body>
@@ -687,6 +827,7 @@ header strong{animation:logoBob 3s ease-in-out infinite}
         <div class="field"><label>পাসওয়ার্ড</label><div class="pw-wrap"><input id="loginPass" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password"><button type="button" class="pw-eye" onclick="togglePw('loginPass', this)" aria-label="পাসওয়ার্ড দেখান">👁</button></div></div>
         <div id="loginMsg" class="auth-msg"></div>
         <button id="loginBtn" onclick="loginStudent(this)">লগইন</button>
+        <button type="button" class="linklike" onclick="openForgot()">🔑 পাসওয়ার্ড ভুলে গেছেন?</button>
       </div>
     </div>
 
@@ -771,8 +912,11 @@ header strong{animation:logoBob 3s ease-in-out infinite}
             <div class="field"><label>কোর্সের নাম *</label><input id="newCourseTitle" placeholder="যেমন: HSC ICT Full Course"></div>
             <div class="field"><label>ফি (টাকা)</label><input id="newCoursePrice" type="number" min="0" placeholder="1000"></div>
           </div>
-          <div class="field"><label>থাম্বনেইল ইমেজ URL</label><input id="newCourseThumb" placeholder="https://image-url.com"></div>
+          <div class="field"><label>থাম্বনেইল ইমেজ</label>
+            <div class="thumb-row"><input id="newCourseThumb" placeholder="URL বসান অথবা ছবি আপলোড করুন" oninput="updateThumbPrev('newCourseThumb')"><button type="button" class="secondary" id="newCourseThumbBtn" onclick="pickThumb('newCourseThumb')">📷 আপলোড</button></div>
+            <img class="thumb-prev" id="newCourseThumbPrev" alt="" hidden></div>
           <div class="field"><label>কোর্সের বিবরণ</label><textarea id="newCourseDesc" placeholder="কোর্স সম্পর্কে লিখুন..."></textarea></div>
+          <label class="perm-chip draft-chip"><input type="checkbox" id="newCourseDraft"> 📝 ড্রাফট হিসেবে সেভ করুন (ছাত্ররা দেখবে না)</label>
           <button onclick="addCourse()">কোর্স যোগ করুন</button>
         </div>
         <div class="section">
@@ -963,6 +1107,7 @@ const THEME_LIST = [
   { id: "rose", label: "গোলাপি", c1: "#e11d48", c2: "#db2777" },
   { id: "sunset", label: "সূর্যাস্ত", c1: "#ea580c", c2: "#dc2626" },
   { id: "slate", label: "স্লেট (গাঢ় ধূসর)", c1: "#475569", c2: "#334155" },
+  { id: "glass", label: "গ্লাস (iOS স্টাইল)", c1: "#0a84ff", c2: "#bf5af2" },
 ];
 function permChipsHtml(idPrefix, checkedObj) {
   return Object.keys(PERM_LABELS).map(k => `<label class="perm-chip"><input type="checkbox" id="${idPrefix}_${k}" ${checkedObj && checkedObj[k] ? "checked" : ""}> ${PERM_LABELS[k]}</label>`).join("");
@@ -1463,6 +1608,7 @@ function isCourseUnlocked(student, course) {
   return db.payments.some(p => p.studentId === student.id && p.courseId === course.id && p.status === "Approved");
 }
 
+const pubCourses = () => db.courses.filter(c => c.draft !== true);
 function countTo(el, to) {
   if (!el || el.dataset.v === String(to)) return;
   const from = Number(el.dataset.v || 0); el.dataset.v = to;
@@ -1477,13 +1623,13 @@ function updateStudentBanner() {
   if (!currentStudent) return;
   const av = document.getElementById("stuAvatarLetter");
   if (av) av.textContent = (currentStudent.name || "?").trim().charAt(0).toUpperCase();
-  const mine = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
+  const mine = pubCourses().filter(c => isCourseUnlocked(currentStudent, c));
   let total = 0, done = 0;
   mine.forEach(c => { const p = courseProgress(c); total += p.total; done += p.done; });
   countTo(document.getElementById("stEnrolled"), mine.length);
   countTo(document.getElementById("stDone"), done);
   countTo(document.getElementById("stPct"), total ? Math.round(done / total * 100) : 0);
-  countTo(document.getElementById("stAll"), db.courses.length);
+  countTo(document.getElementById("stAll"), pubCourses().length);
 }
 
 // ---------- course card helpers ----------
@@ -1499,8 +1645,8 @@ function courseCounts(c) {
 function renderAllCourses() {
   try { updateStudentBanner(); } catch (_) {}
   const el = document.getElementById("tab-courses");
-  if (!db.courses.length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
-  el.innerHTML = `<div class="grid cv-grid">` + db.courses.map((c, i) => {
+  if (!pubCourses().length) { el.innerHTML = '<div class="empty">কোনো কোর্স নেই।</div>'; return; }
+  el.innerHTML = `<div class="grid cv-grid">` + pubCourses().map((c, i) => {
     const unlocked = isCourseUnlocked(currentStudent, c);
     const pay = db.payments.slice().reverse().find(p => p.studentId === currentStudent?.id && p.courseId === c.id);
     const cnt = courseCounts(c);
@@ -1546,7 +1692,7 @@ window.openMyCourse = function(cid) {
 function renderMyEnrolledCourses() {
   try { updateStudentBanner(); } catch (_) {}
   const el = document.getElementById("tab-myCourses");
-  const myCourses = db.courses.filter(c => isCourseUnlocked(currentStudent, c));
+  const myCourses = pubCourses().filter(c => isCourseUnlocked(currentStudent, c));
   if (!myCourses.length) {
     el.innerHTML = '<div class="empty">আপনার কোনো এনরোলড কোর্স নেই। "সব কোর্স ও ভর্তি" থেকে কোর্স কিনুন।</div>';
     return;
@@ -2308,6 +2454,7 @@ function renderStudentContact() {
   const fromAdmin = all.filter(m => m.from === "admin").reverse();
   const myMsgs = all.filter(m => m.from !== "admin");
   if (fromAdmin.length) lsSet(seenKey(), fromAdmin[0].date || "");   // dekha hoye gelo
+  markRepliesSeen();
   document.getElementById("tab-contact").innerHTML = `
     <div class="card stack" style="max-width:650px;margin:auto">
       ${fromAdmin.length ? `<h3 style="margin:0">📩 Admin-এর বার্তা (${fromAdmin.length})</h3>${fromAdmin.map(m => `<div class="msg-admin"><div style="white-space:pre-wrap">${esc(m.message)}</div><div class="muted small" style="margin-top:4px">${fmtDT(m.date)}</div></div>`).join("")}<hr style="border:0;border-top:1px solid var(--line);width:100%">` : ""}
@@ -2338,17 +2485,51 @@ function unseenAdminMsgs() {
   const seen = lsGet(seenKey());
   return db.messages.filter(m => m.studentId === currentStudent.id && m.from === "admin" && (!seen || m.date > seen)).length;
 }
-function updateMsgBadge() {
-  const btn = document.querySelectorAll("#studentTabs button")[5];
+const seenNoticeKey = () => "hsc_seen_notices_" + (currentStudent ? currentStudent.id : "");
+const seenReplyKey = () => "hsc_seen_replies_" + (currentStudent ? currentStudent.id : "");
+function lsJson(k) { try { return JSON.parse(lsGet(k) || "null"); } catch { return null; } }
+function myReplyIds() { return db.messages.filter(m => m.studentId === currentStudent.id && m.from !== "admin" && m.reply).map(m => m.id); }
+function markNoticesSeen() { if (currentStudent) lsSet(seenNoticeKey(), JSON.stringify(db.notices.map(n => n.id).slice(-300))); }
+function markRepliesSeen() { if (currentStudent) lsSet(seenReplyKey(), JSON.stringify(myReplyIds().slice(-300))); }
+function unseenNotices() {
+  if (!currentStudent) return 0;
+  const seen = lsJson(seenNoticeKey());
+  if (!Array.isArray(seen)) { markNoticesSeen(); return 0; }       // প্রথমবার: আগের নোটিশগুলো দেখা ধরা হয়
+  const set = new Set(seen); return db.notices.filter(n => !set.has(n.id)).length;
+}
+function unseenReplies() {
+  if (!currentStudent) return 0;
+  const seen = lsJson(seenReplyKey());
+  if (!Array.isArray(seen)) { markRepliesSeen(); return 0; }
+  const set = new Set(seen); return myReplyIds().filter(id => !set.has(id)).length;
+}
+function setTabDot(btn, n, label) {
   if (!btn) return;
-  const n = unseenAdminMsgs();
-  btn.innerHTML = "Contact Author" + (n ? `<span class="badge">${n}</span>` : "");
+  let d = btn.querySelector(".tab-dot");
+  if (n > 0 && !d) { d = document.createElement("span"); d.className = "tab-dot"; btn.appendChild(d); }
+  else if (!n && d) d.remove();
+  if (d) { d.title = label; btn.setAttribute("aria-label", btn.textContent.trim() + " — " + label); }
+}
+let dotPrev = null;
+function updateMsgBadge() {
+  if (!currentStudent) return;
+  const nBtn = document.querySelector("#studentTabs button[onclick*=\"'notices'\"]");
+  const cBtn = document.querySelector("#studentTabs button[onclick*=\"'contact'\"]");
+  const n = unseenNotices(), c = unseenAdminMsgs() + unseenReplies();
+  setTabDot(nBtn, n, n + "টি নতুন নোটিশ");
+  setTabDot(cBtn, c, c + "টি নতুন বার্তা/রিপ্লাই");
+  const prev = dotPrev; dotPrev = { sid: currentStudent.id, n, c };
+  if (prev && prev.sid === currentStudent.id) {
+    if (n > prev.n) toast("📢 নতুন নোটিশ এসেছে", "info");
+    if (c > prev.c) toast("💬 অ্যাডমিনের কাছ থেকে নতুন বার্তা/রিপ্লাই এসেছে", "info");
+  }
 }
 function fmtDate(iso) {
   try { return new Date(iso).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" }); } catch { return ""; }
 }
 
 function renderStudentNotices() {
+  markNoticesSeen();
   const list = db.notices.slice().reverse();
   document.getElementById("tab-notices").innerHTML = list.length ? list.map(n => `<div class="notice"><b>${esc(n.title)}</b><div style="white-space:pre-wrap">${esc(n.body)}</div><div class="muted small" style="margin-top:4px">${fmtDate(n.edited || n.date)}${n.edited ? " (সম্পাদিত)" : ""}</div></div>`).join("") : '<div class="empty">কোনো নোটিশ নেই।</div>';
 }
@@ -2629,13 +2810,13 @@ window.addCourse = function() {
   const thumb = document.getElementById("newCourseThumb").value.trim();
   const desc = document.getElementById("newCourseDesc").value.trim();
   if (!title) { toast("কোর্সের নাম দিন", "err"); return; }
-  const nc = { id: uid(), title, desc, price, thumb, chapters: [] };
+  const nc = { id: uid(), title, desc, price, thumb, chapters: [], draft: !!(document.getElementById("newCourseDraft") && document.getElementById("newCourseDraft").checked) };
   db.courses.push(nc); adminOpen.course = nc.id; adminOpen.chapter[nc.id] = null;
   saveDB(); toast("কোর্স যোগ হয়েছে", "ok"); renderAdminCourses();
   document.getElementById("newCourseTitle").value = "";
   document.getElementById("newCoursePrice").value = "";
-  document.getElementById("newCourseThumb").value = "";
-  document.getElementById("newCourseDesc").value = "";
+  document.getElementById("newCourseThumb").value = ""; updateThumbPrev("newCourseThumb");
+  document.getElementById("newCourseDesc").value = ""; if (document.getElementById("newCourseDraft")) document.getElementById("newCourseDraft").checked = false;
 };
 
 // একসময়ে একটি কোর্স এবং ওই কোর্সের একটি চ্যাপ্টার খোলা থাকে, বাকি সব ছোট (minimize) থাকে।
@@ -2660,22 +2841,21 @@ function renderAdminCourses() {
     const chs = c.chapters || [];
     const clsCount = chs.reduce((n, ch) => n + (ch.classes || []).length, 0);
     return `
-    <div class="card cm-card tone${ci % 6} ${isOpen ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}" style="--i:${ci}">
+    <div class="card cm-card tone${ci % 6} ${c.draft ? "is-draft" : ""} ${isOpen ? "acc-open" : ""} ${accAnim === c.id ? "acc-new" : ""}" data-id="${c.id}" style="--i:${ci}">
       <div class="cm-head acc-head" onclick="toggleCourseOpen('${c.id}')">
+        <span class="drag-h" data-kind="course" data-cid="${c.id}" tabindex="0" role="button" aria-label="টেনে সাজান" title="টেনে সাজান (কিবোর্ডে ↑ ↓)" onclick="event.stopPropagation()">⠿</span>
         <span class="cm-num">${ci + 1}</span>
         ${cthumb(c, "cm-thumb")}
         <div class="cm-info">
           <h3><span class="chev">▶</span> ${esc(c.title)}</h3>
-          <div class="cm-chips"><span class="cchip price">${priceLabel(c)}</span><span class="cchip">📁 ${chs.length}টি চ্যাপ্টার</span><span class="cchip">🎬 ${clsCount}টি ক্লাস</span></div>
-        </div>
-        <div class="row cm-move">
-          <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${ci === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',-1)">⬆️</button>
-          <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${ci === db.courses.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveCourse('${c.id}',1)">⬇️</button>
+          <div class="cm-chips"><span class="cchip price">${priceLabel(c)}</span><span class="cchip">📁 ${chs.length}টি চ্যাপ্টার</span><span class="cchip">🎬 ${clsCount}টি ক্লাস</span>${c.draft ? '<span class="cchip draft">📝 ড্রাফট · ছাত্ররা দেখবে না</span>' : '<span class="cchip ok">🌐 পাবলিশড</span>'}</div>
         </div>
       </div>
       ${isOpen ? `<div class="cm-body">
         <div class="cm-actions">
           <button class="secondary sm" onclick="openCourseEdit('${c.id}')">✏️ কোর্স এডিট</button>
+          <button class="secondary sm" onclick="duplicateCourse('${c.id}')">📑 কপি করুন</button>
+          <button class="secondary sm" onclick="toggleDraft('${c.id}')">${c.draft ? "🚀 পাবলিশ করুন" : "📝 ড্রাফটে রাখুন"}</button>
           <button class="secondary sm" onclick="addChapterPrompt('${c.id}')">+ চ্যাপ্টার যোগ করুন</button>
           <button class="danger sm" onclick="deleteCourse('${c.id}')">কোর্স মুছুন</button>
         </div>
@@ -2683,14 +2863,11 @@ function renderAdminCourses() {
           const chOpen = adminOpen.chapter[c.id] === ch.id;
           const cls = ch.classes || [];
           return `
-          <div class="cm-ch tone${(ci + hi + 1) % 6} ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}">
+          <div class="cm-ch tone${(ci + hi + 1) % 6} ${chOpen ? "acc-open" : ""} ${accAnim === ch.id ? "acc-new" : ""}" data-id="${ch.id}">
             <div class="cm-ch-head acc-head" onclick="toggleChapterOpen('${c.id}','${ch.id}')">
+              <span class="drag-h" data-kind="chapter" data-cid="${c.id}" data-chid="${ch.id}" tabindex="0" role="button" aria-label="টেনে সাজান" title="টেনে সাজান (কিবোর্ডে ↑ ↓)" onclick="event.stopPropagation()">⠿</span>
               <span class="cm-ch-n">${hi + 1}</span>
               <div class="cm-ch-t"><b><span class="chev">▶</span> 📁 ${esc(ch.title)}</b><span class="cchip">🎬 ${cls.length}টি ক্লাস</span></div>
-              <div class="row">
-                <button class="ghost sm" style="padding:2px 8px" title="উপরে সরান" ${hi === 0 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',-1)">⬆️</button>
-                <button class="ghost sm" style="padding:2px 8px" title="নিচে সরান" ${hi === chs.length - 1 ? "disabled" : ""} onclick="event.stopPropagation();moveChapter('${c.id}','${ch.id}',1)">⬇️</button>
-              </div>
             </div>
             ${chOpen ? `<div class="cm-ch-body">
               <div class="cm-actions">
@@ -2702,12 +2879,11 @@ function renderAdminCourses() {
                 ${cls.map((cl, li) => {
                   const vt = cl.videoType === "local" ? ["Local", "vt-local", "💾"] : cl.videoType === "embed" ? ["Player link", "vt-embed", "🔗"] : ["YouTube", "vt-yt", "▶️"];
                   return `
-                  <div class="cm-cl ${vt[1]}">
+                  <div class="cm-cl ${vt[1]}" data-id="${cl.id}">
+                    <span class="drag-h" data-kind="class" data-cid="${c.id}" data-chid="${ch.id}" data-clid="${cl.id}" tabindex="0" role="button" aria-label="টেনে সাজান" title="টেনে সাজান (কিবোর্ডে ↑ ↓)" onclick="event.stopPropagation()">⠿</span>
                     <span class="cm-cl-t"><span>${vt[2]}</span> ${esc(cl.title)}</span>
                     <span class="cm-cl-meta"><span class="cchip vt">${vt[0]}</span><span class="cchip pdf">📄 PDF ${(cl.pdfs || []).length}</span></span>
                     <div class="row">
-                      <button class="ghost sm" style="padding:2px 8px" ${li === 0 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',-1)">⬆️</button>
-                      <button class="ghost sm" style="padding:2px 8px" ${li === cls.length - 1 ? "disabled" : ""} onclick="moveClass('${c.id}','${ch.id}','${cl.id}',1)">⬇️</button>
                       <button class="secondary sm" style="padding:2px 8px" onclick="editClass('${c.id}', '${ch.id}', '${cl.id}')">এডিট</button>
                       <button class="danger sm" style="padding:2px 8px" onclick="deleteClass('${c.id}', '${ch.id}', '${cl.id}')">মুছুন</button>
                     </div>
@@ -2722,6 +2898,212 @@ function renderAdminCourses() {
   }).join("") + `</div>`;
   accAnim = null;
 }
+
+// ---------- থাম্বনেইল আপলোড ----------
+function resizeImage(file, maxW, q) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const k = Math.min(1, maxW / img.width), w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+      const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+      resolve(cv.toDataURL("image/jpeg", q));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad_image")); };
+    img.src = url;
+  });
+}
+window.updateThumbPrev = function(inputId) {
+  const inp = document.getElementById(inputId), im = document.getElementById(inputId + "Prev");
+  if (!inp || !im) return;
+  const v = inp.value.trim();
+  if (v) { im.hidden = false; im.onerror = () => { im.hidden = true; }; im.src = v; } else im.hidden = true;
+};
+window.pickThumb = function(inputId) {
+  const fi = document.createElement("input"); fi.type = "file"; fi.accept = "image/*";
+  fi.onchange = async () => {
+    const f = fi.files && fi.files[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { toast("শুধু ছবি (JPG/PNG/WEBP) দিন", "err"); return; }
+    const btn = document.getElementById(inputId + "Btn"), old = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ আপলোড হচ্ছে…"; }
+    try {
+      const dataUrl = await resizeImage(f, 1000, 0.82);
+      const r = await api("/api/admin/upload-image", { method: "POST", token: adminToken, body: { data: dataUrl } });
+      if (r.status === 401) throw new Error("session");
+      if (r.status === 403) throw new Error("perm");
+      if (r.status === 413) throw new Error("big");
+      if (!r.ok || !r.data || !r.data.url) throw new Error("fail");
+      document.getElementById(inputId).value = r.data.url;
+      updateThumbPrev(inputId);
+      toast("✅ ছবি আপলোড হয়েছে", "ok");
+    } catch (e) {
+      toast(e.message === "session" ? "সেশন শেষ, আবার অ্যাডমিন লগইন করুন" : e.message === "perm" ? "ছবি আপলোডের অনুমতি নেই" : e.message === "big" ? "ছবি অনেক বড়" : "ছবি আপলোড করা যায়নি", "err");
+    } finally { if (btn) { btn.disabled = false; btn.textContent = old; } }
+  };
+  fi.click();
+};
+
+// ---------- পাসওয়ার্ড ভুলে গেলে (ইমেইলে কোড) ----------
+window.openForgot = function() {
+  const em = ($("loginEmail") && $("loginEmail").value.trim()) || "";
+  openModal(`<div class="stack">
+    <h3 style="margin:0">🔑 পাসওয়ার্ড রিসেট</h3>
+    <div id="fpStep1" class="stack">
+      <p class="muted small" style="margin:0">অ্যাকাউন্টের ইমেইল দিন। আমরা ৬ সংখ্যার একটি কোড পাঠাব।</p>
+      <div class="field"><label>ইমেইল</label><input id="fpEmail" type="email" value="${esc(em)}" placeholder="name@example.com" autocomplete="email"></div>
+      <div id="fpMsg1" class="auth-msg"></div>
+      <button id="fpSend" onclick="fpSend(this)">📨 কোড পাঠান</button>
+    </div>
+    <div id="fpStep2" class="stack hidden">
+      <p class="muted small" style="margin:0">ইমেইলে (স্প্যাম ফোল্ডারসহ) পাঠানো ৬ সংখ্যার কোড এবং নতুন পাসওয়ার্ড দিন। কোড ১৫ মিনিট কাজ করবে।</p>
+      <div class="field"><label>৬ সংখ্যার কোড</label><input id="fpCode" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code" style="letter-spacing:6px;font-size:1.2rem;text-align:center"></div>
+      <div class="field"><label>নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label><input id="fpPass" type="password" autocomplete="new-password"></div>
+      <div class="field"><label>পাসওয়ার্ড আবার লিখুন</label><input id="fpPass2" type="password" autocomplete="new-password"></div>
+      <div id="fpMsg2" class="auth-msg"></div>
+      <button id="fpReset" onclick="fpReset(this)">✅ পাসওয়ার্ড বদলান</button>
+      <button type="button" class="linklike" id="fpResend" onclick="fpSend(this)">কোড আবার পাঠান</button>
+    </div>
+  </div>`);
+};
+let fpTimer = null;
+window.fpSend = async function(btn) {
+  const email = ($("fpEmail").value || "").trim().toLowerCase();
+  authMsg("fpMsg1", "");
+  if (!EMAIL_RE.test(email)) return authMsg("fpMsg1", "সঠিক ইমেইল লিখুন।", "err");
+  btn.disabled = true;
+  let r; try { r = await api("/api/student/forgot", { method: "POST", body: { email } }); } catch { r = null; }
+  if (!r) { btn.disabled = false; return authMsg("fpMsg1", "সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err"); }
+  if (r.status === 429) { btn.disabled = false; return authMsg("fpMsg1", "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err"); }
+  if (!r.ok) { btn.disabled = false; return authMsg("fpMsg1", "কিছু একটা ভুল হয়েছে, আবার চেষ্টা করুন।", "err"); }
+  if (r.data && r.data.mail === false) { btn.disabled = false; return authMsg("fpMsg1", "ইমেইল সার্ভিস চালু নেই। অ্যাডমিনের সাথে যোগাযোগ করুন, তিনি পাসওয়ার্ড রিসেট করে দিতে পারবেন।", "err"); }
+  $("fpStep1").classList.add("hidden"); $("fpStep2").classList.remove("hidden");
+  toast("📨 যদি ইমেইলটি রেজিস্টার্ড থাকে, কোড পাঠানো হয়েছে", "ok");
+  const rs = $("fpResend"); let left = 60; rs.disabled = true; clearInterval(fpTimer);
+  fpTimer = setInterval(() => { left--; if (!document.body.contains(rs)) return clearInterval(fpTimer); if (left <= 0) { clearInterval(fpTimer); rs.disabled = false; rs.textContent = "কোড আবার পাঠান"; } else rs.textContent = "আবার পাঠান (" + left + "s)"; }, 1000);
+  rs.textContent = "আবার পাঠান (60s)";
+  setTimeout(() => { const c = $("fpCode"); if (c) c.focus(); }, 50);
+};
+window.fpReset = async function(btn) {
+  const email = ($("fpEmail").value || "").trim().toLowerCase(), code = ($("fpCode").value || "").trim();
+  const p1 = $("fpPass").value, p2 = $("fpPass2").value;
+  authMsg("fpMsg2", "");
+  if (!/^\d{6}$/.test(code)) return authMsg("fpMsg2", "৬ সংখ্যার কোডটি লিখুন।", "err");
+  if (p1.length < 6) return authMsg("fpMsg2", "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন।", "err");
+  if (p1 !== p2) return authMsg("fpMsg2", "দুটি পাসওয়ার্ড মিলছে না।", "err");
+  btn.disabled = true;
+  let r; try { r = await api("/api/student/reset", { method: "POST", body: { email, code, password: p1 } }); } catch { r = null; }
+  btn.disabled = false;
+  if (!r) return authMsg("fpMsg2", "সার্ভারের সাথে সংযোগ করা যাচ্ছে না।", "err");
+  if (r.status === 429) return authMsg("fpMsg2", "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।", "err");
+  if (!r.ok) return authMsg("fpMsg2", "কোডটি ভুল অথবা মেয়াদ শেষ। আবার কোড পাঠিয়ে চেষ্টা করুন।", "err");
+  clearInterval(fpTimer); closeModal();
+  if ($("loginEmail")) { $("loginEmail").value = email; if ($("loginPass")) { $("loginPass").value = ""; $("loginPass").focus(); } }
+  toast("✅ পাসওয়ার্ড বদলানো হয়েছে! নতুন পাসওয়ার্ড দিয়ে লগইন করুন", "ok");
+};
+
+// ---------- টেনে সাজানো (মাউস + টাচ) ----------
+function initCourseDrag() {
+  const KIND = { course: ".cm-card", chapter: ".cm-ch", class: ".cm-cl" };
+  let d = null, timer = null, lastY = 0;
+  const sibs = () => [...d.parent.children].filter(x => x.matches(d.sel));
+  const place = () => { d.item.style.transform = `translateY(${lastY + window.scrollY - d.startPageY}px) scale(1.02)`; };
+  function tick() {
+    if (!d) return;
+    place();
+    const r = d.item.getBoundingClientRect(), mid = r.top + r.height / 2, list = sibs(), idx = list.indexOf(d.item);
+    const next = list[idx + 1], prev = list[idx - 1];
+    if (next) { const nr = next.getBoundingClientRect(); if (mid > nr.top + nr.height / 2) return swap(next, true); }
+    if (prev) { const pr = prev.getBoundingClientRect(); if (mid < pr.top + pr.height / 2) return swap(prev, false); }
+  }
+  function swap(other, after) {
+    const it = d.item, oTop = other.getBoundingClientRect().top, iTop = it.getBoundingClientRect().top;
+    if (after) other.after(it); else other.before(it);
+    d.startPageY += it.getBoundingClientRect().top - iTop;      // নিজের জায়গা যতটা সরেছে, ততটা পুষিয়ে দাও
+    place();
+    const dy = oTop - other.getBoundingClientRect().top;
+    if (other.animate) other.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 190, easing: "cubic-bezier(.2,.8,.2,1)" });
+    d.moved = true; if (window.sfx) sfx("pop");
+  }
+  function autoScroll() {
+    if (!d) return;
+    const m = 80, v = lastY < m ? -(m - lastY) / 3.5 : lastY > innerHeight - m ? (lastY - (innerHeight - m)) / 3.5 : 0;
+    if (v) window.scrollBy(0, Math.max(-24, Math.min(24, v)));
+    tick();
+  }
+  document.addEventListener("pointerdown", e => {
+    const h = e.target.closest && e.target.closest(".drag-h");
+    if (!h || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const sel = KIND[h.dataset.kind], item = h.closest(sel); if (!item) return;
+    e.preventDefault();
+    const parent = item.parentElement;
+    d = { h, item, sel, kind: h.dataset.kind, parent, pid: e.pointerId, moved: false, startPageY: e.clientY + window.scrollY };
+    d.orig = sibs().map(x => x.dataset.id).join(",");
+    lastY = e.clientY;
+    try { h.setPointerCapture(e.pointerId); } catch (_) {}
+    item.classList.add("dragging"); document.body.classList.add("is-dragging");
+    clearInterval(timer); timer = setInterval(autoScroll, 16);
+    if (window.sfx) sfx("open");
+  });
+  document.addEventListener("pointermove", e => {
+    if (!d || e.pointerId !== d.pid) return;
+    e.preventDefault(); lastY = e.clientY; tick();
+  }, { passive: false });
+  function end(e) {
+    if (!d || (e && e.pointerId !== d.pid)) return;
+    clearInterval(timer);
+    const { item, kind, parent, sel, orig, moved } = d; d = null;
+    document.body.classList.remove("is-dragging");
+    item.classList.remove("dragging"); item.style.transform = "";
+    if (!moved) return;
+    const order = [...parent.children].filter(x => x.matches(sel)).map(x => x.dataset.id);
+    if (order.join(",") === orig) return;
+    const sortBy = a => a.sort((x, y) => order.indexOf(x.id) - order.indexOf(y.id));
+    if (kind === "course") sortBy(db.courses);
+    else {
+      const c = db.courses.find(x => x.id === item.closest(".cm-card").dataset.id); if (!c) return;
+      if (kind === "chapter") sortBy(c.chapters);
+      else { const ch = c.chapters.find(x => x.id === item.closest(".cm-ch").dataset.id); if (ch) sortBy(ch.classes); }
+    }
+    saveDB();
+    const host = document.getElementById("adminCourseList");
+    host.classList.add("no-anim"); renderAdminCourses(); setTimeout(() => host.classList.remove("no-anim"), 120);
+    toast("✅ নতুন ক্রম সেভ হয়েছে", "ok");
+    if (window.sfx) sfx("success");
+  }
+  ["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, end));
+  document.addEventListener("keydown", e => {      // কিবোর্ড: হ্যান্ডেলে ফোকাস করে ↑ ↓
+    const h = e.target.closest && e.target.closest(".drag-h");
+    if (!h || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    const dir = e.key === "ArrowUp" ? -1 : 1, k = h.dataset.kind;
+    if (k === "course") moveCourse(h.dataset.cid, dir);
+    else if (k === "chapter") moveChapter(h.dataset.cid, h.dataset.chid, dir);
+    else moveClass(h.dataset.cid, h.dataset.chid, h.dataset.clid, dir);
+    const q = '.drag-h[data-kind="' + k + '"]' + (k === "course" ? '[data-cid="' + h.dataset.cid + '"]' : k === "chapter" ? '[data-chid="' + h.dataset.chid + '"]' : '[data-clid="' + h.dataset.clid + '"]');
+    const nh = document.querySelector(q); if (nh) nh.focus();
+  });
+}
+initCourseDrag();
+
+window.duplicateCourse = function(cid) {
+  const i = db.courses.findIndex(x => x.id === cid); if (i < 0) return;
+  const copy = JSON.parse(JSON.stringify(db.courses[i]));
+  copy.id = uid();
+  copy.title = (String(copy.title || "") + " (কপি)").slice(0, 200);
+  copy.draft = true;                       // কপি আগে ড্রাফটে থাকে, ঠিকঠাক করে পাবলিশ করুন
+  (copy.chapters || []).forEach(ch => { ch.id = uid(); (ch.classes || []).forEach(cl => { cl.id = uid(); }); });
+  db.courses.splice(i + 1, 0, copy);
+  adminOpen.course = copy.id; adminOpen.chapter[copy.id] = null; accAnim = copy.id;
+  saveDB(); renderAdminCourses();
+  toast("📑 কোর্সের কপি তৈরি হয়েছে (ড্রাফটে আছে)। ঠিক করে পাবলিশ করুন", "ok");
+};
+window.toggleDraft = function(cid) {
+  const c = db.courses.find(x => x.id === cid); if (!c) return;
+  c.draft = !c.draft;
+  saveDB(); renderAdminCourses();
+  toast(c.draft ? "📝 ড্রাফটে রাখা হয়েছে, ছাত্ররা এখন আর দেখবে না" : "🚀 পাবলিশ হয়েছে, ছাত্ররা এখন দেখতে পাবে", "ok");
+};
 
 function moveItem(list, i, dir) {
   const j = i + dir;
@@ -2757,8 +3139,11 @@ window.openCourseEdit = function(cid) {
       <h3 style="margin:0">কোর্স এডিট করুন</h3>
       <div class="field"><label>কোর্সের নাম *</label><input id="ecTitle" value="${esc(c.title)}"></div>
       <div class="field"><label>ফি (টাকা)</label><input id="ecPrice" type="number" min="0" value="${Number(c.price) || 0}"></div>
-      <div class="field"><label>থাম্বনেইল ইমেজ URL</label><input id="ecThumb" value="${esc(c.thumb || "")}" placeholder="https://image-url.com"></div>
+      <div class="field"><label>থাম্বনেইল ইমেজ</label>
+        <div class="thumb-row"><input id="ecThumb" value="${esc(c.thumb || "")}" placeholder="URL বসান অথবা ছবি আপলোড করুন" oninput="updateThumbPrev('ecThumb')"><button type="button" class="secondary" id="ecThumbBtn" onclick="pickThumb('ecThumb')">📷 আপলোড</button></div>
+        <img class="thumb-prev" id="ecThumbPrev" alt="" src="${esc(c.thumb || "")}" ${c.thumb ? "" : "hidden"} onerror="this.hidden=true"></div>
       <div class="field"><label>কোর্সের বিবরণ</label><textarea id="ecDesc">${esc(c.desc || "")}</textarea></div>
+      <label class="perm-chip draft-chip"><input type="checkbox" id="ecDraft" ${c.draft ? "checked" : ""}> 📝 ড্রাফট (ছাত্ররা দেখবে না)</label>
       <p class="muted small">ফি বদলালে যারা আগে কিনে ফেলেছে তাদের কোনো সমস্যা হবে না, নতুন ফি শুধু নতুন কেনার ক্ষেত্রে। ফি ০ করলে কোর্সটি সবার জন্য ফ্রি হয়ে যাবে।</p>
       <div class="row" style="justify-content:flex-end">
         <button class="ghost" onclick="closeModal()">বাতিল</button>
@@ -2780,6 +3165,7 @@ window.saveCourseEdit = function(cid) {
   c.price = price;
   c.thumb = document.getElementById("ecThumb").value.trim();
   c.desc = document.getElementById("ecDesc").value.trim();
+  c.draft = !!document.getElementById("ecDraft").checked;
   db.payments.forEach(p => { if (p.courseId === c.id) p.courseTitle = c.title; });   // পেমেন্ট তালিকায়ও নতুন নাম দেখাবে
   saveDB(); closeModal(); renderAdminCourses(); toast("কোর্স আপডেট হয়েছে", "ok");
 };
