@@ -14,6 +14,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const https = require("https");
 const mongoose = require("mongoose");
 const { promisify } = require("util");
 const pbkdf2 = promisify(crypto.pbkdf2);
@@ -252,7 +253,7 @@ function adminPerms(sess) {
   const a = currentAdmin(sess);
   return a && !a.owner ? cleanPerms(a.permissions) : null;   // null = full access (owner / purono session)
 }
-const THEMES = ["violet", "ocean", "emerald", "rose", "sunset", "slate"];
+const THEMES = ["violet", "ocean", "emerald", "rose", "sunset", "slate", "glass"];
 
 /* ---------- media (base64 video -> file) ---------- */
 const EXT = { "video/mp4": "mp4", "video/webm": "webm", "video/ogg": "ogv", "video/quicktime": "mov", "video/x-matroska": "mkv",
@@ -316,7 +317,8 @@ function viewFor(role, me) {
     return { ...rest, admins: state.admins.map(pubAdmin), theme: state.theme };
   }
   const approved = new Set(me ? state.payments.filter((p) => p.studentId === me.id && p.status === "Approved").map((p) => p.courseId) : []);
-  const courses = state.courses.map((c) => {
+  const draftIds = new Set(state.courses.filter((c) => c.draft === true).map((c) => c.id));   // draft course student-ke pathano hoy na
+  const courses = state.courses.filter((c) => c.draft !== true).map((c) => {
     if (Number(c.price) <= 0 || approved.has(c.id)) return c;
     const copy = JSON.parse(JSON.stringify(c)); // lock kora course-er paid class-er source pathano hoy na
     arr(copy.chapters).forEach((ch) => arr(ch.classes).forEach((cl) => { if (!cl.isFree) { cl.videoSource = ""; cl.pdfs = []; } }));
@@ -324,7 +326,7 @@ function viewFor(role, me) {
   });
   const mine = (k) => (me ? state[k].filter((x) => x.studentId === me.id) : []);
   return {
-    adminUser: "", courses, notices: state.notices, quizzes: state.quizzes, numbers: state.numbers, theme: state.theme,
+    adminUser: "", courses, notices: state.notices, quizzes: state.quizzes.filter((q) => !draftIds.has(q.courseId)), numbers: state.numbers, theme: state.theme,
     students: me ? [pubStudent(me)] : [], payments: mine("payments"), messages: mine("messages"), quizResults: mine("quizResults"), progress: mine("progress")
   };
 }
@@ -429,6 +431,50 @@ async function serveMedia(req, res, p) {
   res.on("close", () => stream.destroy());
   stream.pipe(res);
 }
+
+/* ---------- thumbnail / image upload ---------- */
+const IMG_DATA = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+const MAX_IMG_B64 = 12 * 1024 * 1024;    // ~9MB chhobi (frontend age-i chhoto kore pathay)
+
+/* ---------- email (password reset) ----------
+ * Render-er free plan-e SMTP bondho, tai HTTP API use kora hoy. Environment variable:
+ *   BREVO_API_KEY  (ba)  RESEND_API_KEY
+ *   MAIL_FROM      = je email theke mail jabe (Brevo-te verified sender hote hobe)
+ *   MAIL_FROM_NAME = (optional) pathanor naam, default "HSC PrepHub"
+ */
+const MAIL = { brevo: process.env.BREVO_API_KEY || "", resend: process.env.RESEND_API_KEY || "",
+  from: process.env.MAIL_FROM || "", name: process.env.MAIL_FROM_NAME || "HSC PrepHub" };
+const mailReady = () => !!(MAIL.from && (MAIL.brevo || MAIL.resend));
+function postJson(url, headers, body) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url), data = JSON.stringify(body);
+    const rq = https.request({ hostname: u.hostname, path: u.pathname + u.search, method: "POST", timeout: 15000,
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(data), ...headers } }, (r) => {
+      const ch = []; r.on("data", (c) => ch.push(c));
+      r.on("end", () => resolve({ status: r.statusCode, body: Buffer.concat(ch).toString("utf8") }));
+    });
+    rq.on("timeout", () => rq.destroy(new Error("mail_timeout")));
+    rq.on("error", reject);
+    rq.end(data);
+  });
+}
+async function sendMail(to, subject, html) {
+  let r;
+  if (MAIL.brevo) r = await postJson("https://api.brevo.com/v3/smtp/email", { "api-key": MAIL.brevo },
+    { sender: { name: MAIL.name, email: MAIL.from }, to: [{ email: to }], subject, htmlContent: html });
+  else r = await postJson("https://api.resend.com/emails", { Authorization: "Bearer " + MAIL.resend },
+    { from: `${MAIL.name} <${MAIL.from}>`, to: [to], subject, html });
+  if (r.status >= 300) throw new Error("mail api " + r.status + " " + r.body.slice(0, 200));
+}
+const RESET_TTL = 15 * 60 * 1000;
+const resets = new Map();    // email -> { hash, exp, tries, sent }   (memory-te; 15 minute-er code)
+setInterval(() => { for (const [k, v] of resets) if (v.exp < Date.now()) resets.delete(k); }, 10 * 60 * 1000).unref();
+const resetMailHtml = (name, code) => `<div style="font-family:Arial,sans-serif;max-width:420px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:16px">
+  <h2 style="margin:0 0 8px;color:#4f46e5">${MAIL.name.replace(/[<>&]/g, "")}</h2>
+  <p>হ্যালো ${String(name || "").replace(/[<>&]/g, "")},</p>
+  <p>আপনার পাসওয়ার্ড রিসেট কোড:</p>
+  <p style="font-size:34px;font-weight:800;letter-spacing:8px;background:#eef2ff;color:#4338ca;padding:14px;border-radius:12px;text-align:center">${code}</p>
+  <p style="color:#64748b;font-size:13px">এই কোড ১৫ মিনিট পর্যন্ত কাজ করবে। আপনি রিসেট চাননি? তাহলে এই ইমেইল উপেক্ষা করুন।</p></div>`;
 
 async function route(req, res) {
   const url = new URL(req.url, "http://localhost");
@@ -614,6 +660,65 @@ async function route(req, res) {
     return json(res, 200, { token: await newSession("student", student.id), role: "student", rev: state.rev, me: pubStudent(student), db: viewFor("student", student) });
   }
 
+  /* ---------- notun: thumbnail / chhobi upload (admin) ---------- */
+  if (M === "POST" && p === "/api/admin/upload-image") {
+    const sess = getSession(req);
+    if (!sess || sess.role !== "admin") return json(res, 401, sessionBody(req));
+    if (adminPerms(sess) && !adminPerms(sess).courses) return json(res, 403, { error: "no_permission" });
+    const b = await readJson(req);
+    const data = typeof b.data === "string" ? b.data : "";
+    if (data.length > MAX_IMG_B64) return json(res, 413, { error: "too_large" });
+    if (!IMG_DATA.test(data)) return json(res, 400, { error: "bad_image" });
+    const url = await externalize(data);
+    if (typeof url !== "string" || !url.startsWith("/media/")) return json(res, 400, { error: "bad_image" });
+    return json(res, 200, { ok: true, url });
+  }
+
+  /* ---------- notun: password bhule gele (email-e 6 digit code) ---------- */
+  if (M === "POST" && p === "/api/student/forgot") {
+    const ip = clientIp(req);
+    const b = await readJson(req);
+    const email = str(b.email, 200).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(res, 400, { error: "invalid_input" });
+    if (!mailReady()) return json(res, 200, { ok: true, mail: false });
+    const key = "fgi|" + ip;
+    if (limited(key, 5)) return json(res, 429, { error: "rate_limited" });
+    addFail(key);
+    const st = state.students.find((x) => x.email === email);
+    const old = resets.get(email);
+    if (st && !(old && Date.now() - old.sent < 60 * 1000)) {
+      const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+      resets.set(email, { hash: sha256(code + ":" + email), exp: Date.now() + RESET_TTL, tries: 0, sent: Date.now() });
+      sendMail(email, "পাসওয়ার্ড রিসেট কোড", resetMailHtml(st.name, code))
+        .catch((e) => { console.error("reset mail failed:", e.message); resets.delete(email); });   // await kori na, jate email ache kina somoy dekhe bojha na jay
+    }
+    return json(res, 200, { ok: true, mail: true });
+  }
+  if (M === "POST" && p === "/api/student/reset") {
+    const ip = clientIp(req);
+    const b = await readJson(req);
+    const email = str(b.email, 200).trim().toLowerCase();
+    const code = str(b.code, 10).trim();
+    const pass = str(b.password, 200);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code) || pass.length < 6) return json(res, 400, { error: "invalid_input" });
+    const key = "rst|" + ip;
+    if (limited(key, 10)) return json(res, 429, { error: "rate_limited" });
+    const r = resets.get(email);
+    if (!r || r.exp < Date.now()) { addFail(key); return json(res, 400, { error: "bad_code" }); }
+    r.tries += 1;
+    if (r.tries > 5) { resets.delete(email); addFail(key); return json(res, 400, { error: "bad_code" }); }
+    if (!safeEq(r.hash, sha256(code + ":" + email))) { addFail(key); return json(res, 400, { error: "bad_code" }); }
+    const st = state.students.find((x) => x.email === email);
+    if (!st) { resets.delete(email); return json(res, 400, { error: "bad_code" }); }
+    resets.delete(email);
+    st.pinHash = await hashPin(pass);
+    state.rev += 1; st._rev = state.rev;
+    revokeStudent(st.id, "pin_reset");
+    fails.delete("stu|" + ip + "|" + email);
+    await saveState();
+    return json(res, 200, { ok: true });
+  }
+
   if (M === "POST" && p === "/api/student/join") {
     const ip = clientIp(req);
     const b = await readJson(req);
@@ -659,7 +764,7 @@ async function route(req, res) {
     if (limited(key, 15)) return json(res, 429, { error: "rate_limited" });
     const b = await readJson(req);
     const course = state.courses.find((c) => c.id === b.courseId);
-    if (!course) return json(res, 404, { error: "no_course" });
+    if (!course || course.draft === true) return json(res, 404, { error: "no_course" });
     const r = checkCoupon(b.code, course, sess.studentId);
     if (!r.ok) { addFail(key); return json(res, 200, { valid: false, error: r.error }); }
     return json(res, 200, { valid: true, code: r.code, discount: r.discount, final: r.final, price: r.price });
@@ -701,7 +806,7 @@ async function route(req, res) {
       if (!okId(x)) continue;
       if (state.payments.some((q) => q.id === x.id)) { accepted.push(x.id); continue; }
       const course = state.courses.find((c) => c.id === x.courseId);
-      if (x.studentId !== me.id || !course) { rejected.push(x.id); continue; }
+      if (x.studentId !== me.id || !course || course.draft === true) { rejected.push(x.id); continue; }
       let tx = str(x.transaction, 100).trim().toUpperCase();
       let amount = course.price, couponCode = "", discount = 0, status = "Pending";
       if (x.coupon) {                                   // dam server-i hishab kore, client-er kotha biswas kori na
